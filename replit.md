@@ -4,6 +4,29 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## PWD Tools Suite (`artifacts/pwd-tools`)
+
+React + Vite frontend served at `/`. All tool logic comes directly from the source repos — no reimplementation.
+
+### Architecture
+
+- **HTML Tools** (10 tools): Standalone HTML files from `CRAJKUMARSINGH/PWD-TOOLS-PRIYANKA` stored in `public/tools/`. Served via `<iframe>` inside ToolViewer.tsx.
+- **Tool 11 — Hindi Bill Note Sheet**: Full React component (`src/pages/BillForm.tsx`) ported directly from `CRAJKUMARSINGH/Hindi_Bill_Note_Sheet`. Rendered as a React component (not an iframe).
+- **Navigation shell**: `src/pages/Home.tsx` (tool grid) + `src/pages/ToolViewer.tsx` (iframe or React component per tool).
+
+### Tools
+1. Bill Generator → `public/tools/BillGenerator.html`
+2. EMD Refund → `public/tools/EmdRefund.html`
+3. Security Refund → `public/tools/SecurityRefund.html`
+4. Bill Note Sheet → `public/tools/BillNoteSheet.html`
+5. Deductions Table → `public/tools/DeductionsTable.html`
+6. Financial Progress → `public/tools/FinancialProgressTracker.html`
+7. APG Calculator → `public/tools/ApgCalculator.html`
+8. Delay Calculator → `public/tools/DelayCalculator.html`
+9. Stamp Duty → `public/tools/StampDuty.html`
+10. Bill Deviation Generator → `public/tools/BillDeviationGenerator.html`
+11. Hindi Bill Note Sheet → `src/pages/BillForm.tsx` (React component)
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces

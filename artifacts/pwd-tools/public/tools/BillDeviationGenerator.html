@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>बिल एवं विचलन जेनरेटर</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --border-color: #ddd;
+            --text-color: #333;
+            --light-bg: #f9f9f9;
+        }
+        
+        body {
+            font-family: 'Mangal', 'Noto Sans Devanagari', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .form-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .required {
+            color: var(--error-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 25px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        /* Link styling for external tools */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .output-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .output-header {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        #outputText {
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 16px;
+            min-height: 200px;
+            padding: 15px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .form-container, .no-print {
+                display: none;
+            }
+            
+            .output-container {
+                display: block !important;
+                box-shadow: none;
+                margin: 0;
+                padding: 20px;
+            }
+            
+            #outputText {
+                border: none;
+                background-color: white;
+            }
+            
+            .action-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>बिल एवं विचलन जेनरेटर</h2>
+        
+        <div class="section-title">कार्य विवरण</div>
+        
+        <div class="form-group">
+            <label for="workName" class="required">कार्य का नाम</label>
+            <input type="text" id="workName" required>
+            <div id="workNameError" class="error-message">कृपया कार्य का नाम दर्ज करें</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="workOrderAmount" class="required">वर्क ऑर्डर राशि (₹)</label>
+            <input type="number" id="workOrderAmount" min="0" step="0.01" required>
+            <div id="workOrderAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="uptoDateBillAmount" class="required">अब तक का बिल राशि (₹)</label>
+            <input type="number" id="uptoDateBillAmount" min="0" step="0.01" required>
+            <div id="uptoDateBillAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="deviationType" class="required">विचलन का प्रकार</label>
+            <select id="deviationType" required>
+                <option value="" disabled selected>चुनें...</option>
+                <option value="extra_item">अतिरिक्त आइटम (Extra Items)</option>
+                <option value="excess_quantity">अतिरिक्त मात्रा (Excess Quantity)</option>
+                <option value="design_change">डिज़ाइन परिवर्तन (Design Change)</option>
+                <option value="material_substitution">सामग्री प्रतिस्थापन (Material Substitution)</option>
+                <option value="other">अन्य (Other)</option>
+            </select>
+            <div id="deviationTypeError" class="error-message">कृपया विचलन का प्रकार चुनें</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="deviationDescription">विचलन का विवरण</label>
+            <textarea id="deviationDescription" rows="3" placeholder="विचलन का विस्तृत विवरण दर्ज करें..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="deviationAmount">विचलन राशि (₹)</label>
+            <input type="number" id="deviationAmount" min="0" step="0.01">
+            <div id="deviationAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="approvalRequired">स्वीकृति की आवश्यकता</label>
+            <select id="approvalRequired">
+                <option value="this_office">इस कार्यालय के क्षेत्राधिकार में</option>
+                <option value="higher_office">उच्च अधिकारी कार्यालय</option>
+                <option value="se_office">Superintending Engineer कार्यालय</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="justification">औचित्य (Justification)</label>
+            <textarea id="justification" rows="3" placeholder="विचलन के लिए औचित्य दर्ज करें..."></textarea>
+        </div>
+        
+        <div class="action-buttons no-print">
+            <button id="generateBtn" class="btn">विचलन विवरण जनरेट करें</button>
+            <button id="resetBtn" class="btn btn-secondary">फॉर्म रीसेट करें</button>
+        </div>
+        
+        <!-- Additional Bill Generator Tools -->
+        <div class="section-title">अतिरिक्त बिल जेनरेटर टूल्स</div>
+        <div class="form-group">
+            <p>अतिरिक्त बिल जेनरेटर टूल्स के लिए नीचे दिए गए लिंक्स का उपयोग करें:</p>
+            <ul>
+                <li><a href="https://bill-priyanka-add-percentage.streamlit.app/" target="_blank">Bill Generator (Add %)</a></li>
+                <li><a href="https://bill-priyanka-online.streamlit.app/" target="_blank">Bill Generator (Online)</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="outputContainer" class="output-container">
+        <h3 class="output-header">विचलन विवरण</h3>
+        <div id="outputText">फॉर्म भरें और "विचलन विवरण जनरेट करें" पर क्लिक करें।</div>
+        <div class="action-buttons no-print">
+            <button id="printBtn" class="btn">प्रिंट करें</button>
+            <button id="copyBtn" class="btn btn-success">क्लिपबोर्ड पर कॉपी करें</button>
+        </div>
+    </div>
+    
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+    
+    <script>
+        // DOM elements
+        const workNameInput = document.getElementById('workName');
+        const workOrderAmountInput = document.getElementById('workOrderAmount');
+        const uptoDateBillAmountInput = document.getElementById('uptoDateBillAmount');
+        const deviationTypeSelect = document.getElementById('deviationType');
+        const deviationDescriptionInput = document.getElementById('deviationDescription');
+        const deviationAmountInput = document.getElementById('deviationAmount');
+        const approvalRequiredSelect = document.getElementById('approvalRequired');
+        const justificationInput = document.getElementById('justification');
+        const outputText = document.getElementById('outputText');
+        const outputContainer = document.getElementById('outputContainer');
+        const modal = document.getElementById('alertModal');
+        const modalMessage = document.getElementById('modalMessage');
+        
+        // Error elements
+        const workNameError = document.getElementById('workNameError');
+        const workOrderAmountError = document.getElementById('workOrderAmountError');
+        const uptoDateBillAmountError = document.getElementById('uptoDateBillAmountError');
+        const deviationTypeError = document.getElementById('deviationTypeError');
+        const deviationAmountError = document.getElementById('deviationAmountError');
+        
+        // Button elements
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const printBtn = document.getElementById('printBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        
+        // Validate form inputs
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            
+            // Validate work name
+            if (!workNameInput.value.trim()) {
+                workNameError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate work order amount
+            const workOrderAmount = parseFloat(workOrderAmountInput.value);
+            if (isNaN(workOrderAmount) || workOrderAmount <= 0) {
+                workOrderAmountError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate up to date bill amount
+            const uptoDateBillAmount = parseFloat(uptoDateBillAmountInput.value);
+            if (isNaN(uptoDateBillAmount) || uptoDateBillAmount <= 0) {
+                uptoDateBillAmountError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate deviation type
+            if (!deviationTypeSelect.value) {
+                deviationTypeError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate deviation amount if provided
+            const deviationAmount = parseFloat(deviationAmountInput.value);
+            if (deviationAmountInput.value && (isNaN(deviationAmount) || deviationAmount <= 0)) {
+                deviationAmountError.style.display = 'block';
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Show modal with message
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.style.display = 'block';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Get deviation type text
+        function getDeviationTypeText(type) {
+            const types = {
+                'extra_item': 'अतिरिक्त आइटम (Extra Items)',
+                'excess_quantity': 'अतिरिक्त मात्रा (Excess Quantity)',
+                'design_change': 'डिज़ाइन परिवर्तन (Design Change)',
+                'material_substitution': 'सामग्री प्रतिस्थापन (Material Substitution)',
+                'other': 'अन्य (Other)'
+            };
+            return types[type] || type;
+        }
+        
+        // Get approval authority text
+        function getApprovalAuthorityText(authority) {
+            const authorities = {
+                'this_office': 'इस कार्यालय के क्षेत्राधिकार में',
+                'higher_office': 'उच्च अधिकारी कार्यालय',
+                'se_office': 'Superintending Engineer, Electric Circle, Udaipur कार्यालय'
+            };
+            return authorities[authority] || authority;
+        }
+        
+        // Generate the deviation note
+        function generateDeviationNote() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Get form values
+            const workName = workNameInput.value.trim();
+            const workOrderAmount = parseFloat(workOrderAmountInput.value);
+            const uptoDateBillAmount = parseFloat(uptoDateBillAmountInput.value);
+            const deviationType = deviationTypeSelect.value;
+            const deviationDescription = deviationDescriptionInput.value.trim();
+            const deviationAmount = parseFloat(deviationAmountInput.value) || 0;
+            const approvalRequired = approvalRequiredSelect.value;
+            const justification = justificationInput.value.trim();
+            
+            // Calculate percentages
+            const percentageWorkDone = (uptoDateBillAmount / workOrderAmount) * 100;
+            const deviationPercentage = deviationAmount > 0 ? (deviationAmount / workOrderAmount) * 100 : 0;
+            
+            // Generate note
+            let note = `विषय: ${workName} कार्य में विचलन स्वीकृति हेतु\n\n`;
+            note += `सेवा में,\n`;
+            note += `उप-अभियंता (सिविल), PWD\n\n`;
+            note += `प्रेषक:\n`;
+            note += `निरीक्षक अभियंता, PWD\n\n`;
+            note += `विवरण:\n`;
+            note += `1. ${workName} कार्य में अब तक का बिल ₹${uptoDateBillAmount.toLocaleString('en-IN')} है, जो वर्क ऑर्डर राशि ₹${workOrderAmount.toLocaleString('en-IN')} का ${percentageWorkDone.toFixed(2)}% है।\n`;
+            note += `2. कार्य में निम्नलिखित प्रकार का विचलन पाया गया है:\n`;
+            note += `   - विचलन का प्रकार: ${getDeviationTypeText(deviationType)}\n`;
+            
+            if (deviationDescription) {
+                note += `   - विवरण: ${deviationDescription}\n`;
+            }
+            
+            if (deviationAmount > 0) {
+                note += `   - विचलन राशि: ₹${deviationAmount.toLocaleString('en-IN')}\n`;
+                note += `   - वर्क ऑर्डर राशि का प्रतिशत: ${deviationPercentage.toFixed(2)}%\n`;
+            }
+            
+            if (justification) {
+                note += `3. विचलन का औचित्य: ${justification}\n`;
+            }
+            
+            note += `4. उपरोक्त विचलन की स्वीकृति ${getApprovalAuthorityText(approvalRequired)} है।\n\n`;
+            note += `उपरोक्त विवरण के सन्दर्भ में समुचित निर्णय हेतु प्रस्तुत है।`;
+            
+            // Display output
+            outputText.textContent = note;
+            outputContainer.style.display = 'block';
+            outputContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                if (element.type !== 'button') {
+                    element.value = element.tagName === 'SELECT' ? element.options[0].value : '';
+                }
+            });
+            outputText.textContent = 'फॉर्म भरें और "विचलन विवरण जनरेट करें" पर क्लिक करें।';
+            outputContainer.style.display = 'none';
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        }
+        
+        // Print note
+        function printNote() {
+            window.print();
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard() {
+            const noteText = outputText.textContent;
+            navigator.clipboard.writeText(noteText).then(() => {
+                showModal('विचलन विवरण क्लिपबोर्ड पर कॉपी किया गया!');
+            }).catch(err => {
+                showModal('विचलन विवरण कॉपी करने में विफल: ' + err);
+            });
+        }
+        
+        // Bind buttons to functions
+        generateBtn.addEventListener('click', generateDeviationNote);
+        resetBtn.addEventListener('click', resetForm);
+        printBtn.addEventListener('click', printNote);
+        copyBtn.addEventListener('click', copyToClipboard);
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "PWD Tools Suite"
+version = "1.0.0"
+id = "artifacts/pwd-tools"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21526
+
+[services.development]
+run = "pnpm --filter @workspace/pwd-tools run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pwd-tools", "run", "build" ]
+publicDir = "artifacts/pwd-tools/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21526"
+BASE_PATH = "/"

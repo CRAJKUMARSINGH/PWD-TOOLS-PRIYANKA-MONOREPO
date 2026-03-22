@@ -1,0 +1,1026 @@
+import { useState } from "react";
+
+type YesNo = "Yes" | "No";
+type OrigDep = "Original" | "Deposit";
+type BillType = "Running" | "Final";
+
+const ORDINALS = ["1ST","2ND","3RD","4TH","5TH","6TH","7TH","8TH","9TH","10TH"];
+
+function getBillTitle(billNumber: number, billType: BillType): string {
+  const ord = ORDINALS[billNumber - 1] ?? `${billNumber}TH`;
+  if (billType === "Final") return `${ord} AND FINAL BILL SCRUTINY SHEET`;
+  return `${ord} RUNNING BILL SCRUTINY SHEET`;
+}
+
+function parseDDMMYYYY(s: string): Date | null {
+  const clean = s.replace(/\D/g, "");
+  if (clean.length !== 8) return null;
+  const d = parseInt(clean.slice(0, 2), 10);
+  const m = parseInt(clean.slice(2, 4), 10);
+  const y = parseInt(clean.slice(4, 8), 10);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const dt = new Date(y, m - 1, d);
+  if (isNaN(dt.getTime())) return null;
+  return dt;
+}
+
+function formatDDMMYYYY(dateStr: string): string {
+  if (!dateStr) return "---";
+  const d = parseDDMMYYYY(dateStr);
+  if (!d) return dateStr;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function maskDateInput(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 8);
+  let out = digits;
+  if (digits.length > 4) out = digits.slice(0, 2) + "/" + digits.slice(2, 4) + "/" + digits.slice(4);
+  else if (digits.length > 2) out = digits.slice(0, 2) + "/" + digits.slice(2);
+  return out;
+}
+
+function daysBetween(d1: string, d2: string): number {
+  const a = parseDDMMYYYY(d1);
+  const b = parseDDMMYYYY(d2);
+  if (!a || !b) return 0;
+  return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function todayDDMMYYYY(): string {
+  const t = new Date();
+  const dd = String(t.getDate()).padStart(2, "0");
+  const mm = String(t.getMonth() + 1).padStart(2, "0");
+  const yyyy = t.getFullYear();
+  return `${dd}${mm}${yyyy}`;
+}
+
+function getFY(dateStr: string): string {
+  const d = parseDDMMYYYY(dateStr);
+  const now = new Date();
+  if (!d) { return String(now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear()); }
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  return String(m >= 4 ? y + 1 : y);
+}
+
+const CONTRACTORS = [
+  "M/s. A K Constructions",
+  "M/s. Abhinav Engineering and Suppliers, Udaipur",
+  "M/s. Adinath Traders, Bhinder",
+  "M/s. Anju Electricals, Jodhpur",
+  "M/s. Apoorv Air Control, Jaipur",
+  "M/s. Arjun Metals Pvt Ltd, Jaipur",
+  "M/s. Arti Power Tech, Sawai Madhopur",
+  "M/s. Arun Electricals, Pali",
+  "M/s. Ashapura Electric, Udaipur",
+  "M/s. Ashish Enterprises, Jaipur",
+  "M/s. Ashoka Electricals, Jaipur",
+  "M/s. Avi Enterprises, Udaipur",
+  "M/s. Avon Elevators, Jaipur",
+  "M/s. B.K. Trade Group",
+  "M/s. Bajaj Electricals Ltd, Jaipur",
+  "M/s. Balaji Refrigeration and Electricals, Jaipur",
+  "M/s. Bhagwati Power, Udaipur",
+  "M/s. Bhardwaj Refrigeration, Jaipur",
+  "M/s. Bhawani Air Systems, Jaipur",
+  "M/s. Bitu Prabhat Electrical, Jaipur",
+  "M/s. Bright Home, Udaipur",
+  "M/s. Capital Diesel Sales and Service, Jaipur",
+  "M/s. Capital Engineers, Jaipur",
+  "M/s. Choudhary Enterprises, Jaipur",
+  "M/s. Dalmia Construction Co., Churu",
+  "M/s. Dwarkesh Electricals, Udaipur",
+  "M/s. Empyreal Power and Engineering Solutions, Udaipur",
+  "M/s. Energy Solutions, Jaipur",
+  "M/s. Express Lifts Ltd, Ahmedabad",
+  "M/s. Friends Enterprises, Udaipur",
+  "M/s. Fujitec Express Limited, Jaipur",
+  "M/s. G L Electric Works, Udaipur",
+  "M/s. G S Electricals, Jaipur",
+  "M/s. Ganpati Communication Services, Jaipur",
+  "M/s. Ganpati Engineering and Electricals, Jaipur",
+  "M/s. Garg Enterprises, Jaipur",
+  "M/s. Genesis Integrated Systems Pvt Ltd, Jaipur",
+  "M/s. Genuine Engineering and Constructions, Udaipur",
+  "M/s. Gitaa Equipment Industries, Pali",
+  "M/s. Global Projects, Jaipur",
+  "M/s. GM Automation and Solution, Jaipur",
+  "M/s. Goyal Electricals, Jaipur",
+  "M/s. Gupta Electricals, Kota",
+  "M/s. Gupta Radio and Electricals, Jaipur",
+  "M/s. H M Engineers, Jaipur",
+  "M/s. Hind Construction, Udaipur",
+  "M/s. Innovicon Infra, Jaipur",
+  "M/s. J K Electric Contractor, Jaipur",
+  "M/s. Jai Gurudev Electricals, Ajmer",
+  "M/s. Japsin Jacob Wire Drawing Private Limited, Delhi",
+  "M/s. Jyoti Light Decorator, Bundi",
+  "M/s. K M Electricals, Dausa",
+  "M/s. K3 Construction Company, Jaipur",
+  "M/s. K3 Electro Construction, Jaipur",
+  "M/s. Kapoor Electricals and Electronics, Jaipur",
+  "M/s. Kartik Traders, Udaipur",
+  "M/s. Kataria Electricals, Udaipur",
+  "M/s. Khatri Electric Service, Barmer",
+  "M/s. Kiran Enterprises, Jaipur",
+  "M/s. Kone Elevator India Pvt Ltd, Jaipur",
+  "M/s. Krim Engineering, Udaipur",
+  "M/s. Krishna Electric Store, Pali",
+  "M/s. Krishna Electricals and Decorators, Udaipur",
+  "M/s. M.S. Electrical Works, Kota",
+  "M/s. Mahaveer Enterprises, Alwar",
+  "M/s. Mahidhar Enterprises, Kota",
+  "M/s. Mandore Fire Safety Centre, Jodhpur",
+  "M/s. Mangalam Electrical and Engineering Work, Udaipur",
+  "M/s. Manish Enterprises, Jodhpur",
+  "M/s. Maruji Traders, Jaipur",
+  "M/s. Mechanical Services, Jaipur",
+  "M/s. Metro International, Jaipur",
+  "M/s. Mitul Enterprises, Udaipur",
+  "M/s. ML Engineering, Udaipur",
+  "M/s. MLR Traders, Jodhpur",
+  "M/s. MMDK Control Pvt Ltd, Delhi",
+  "M/s. Mohit Cooling Services, Udaipur",
+  "M/s. Mudraksh Electricals, Jaipur",
+  "M/s. Naavi Enterprises, Jaipur",
+  "M/s. Nakoda Construction and Electricals, Udaipur",
+  "M/s. Naresh Electricals, Udaipur",
+  "M/s. National Electric Stores, Udaipur",
+  "M/s. Navneet Engineers, Udaipur",
+  "M/s. Navyug Engineering, Jaipur",
+  "M/s. Neha Electric, Pali",
+  "M/s. New Choudhary Enterprises, Jaipur",
+  "M/s. Nice Engineering, Jaipur",
+  "M/s. Nirman Electric Stores, Jodhpur",
+  "M/s. Nutan Design Mart Pvt Ltd, Jaipur",
+  "M/s. Nutan Electricals, Pratapgarh",
+  "M/s. Om Electricals, Gangapur City",
+  "M/s. Om Shri Ganpati Electricals, Kishangarh",
+  "M/s. Omega Elevators, Ahmedabad",
+  "M/s. Orbis Elevator Co Ltd, Ahmedabad",
+  "M/s. Parag Electricals, Jaipur",
+  "M/s. Paras Engineering Works, Sagwara",
+  "M/s. Pawan Trading Co., Jaipur",
+  "M/s. Power Solution, Udaipur",
+  "M/s. Powertech Engineers, Rajsamand",
+  "M/s. Prakash Enterprises, Udaipur",
+  "M/s. Pranav Enterprises, Jaipur",
+  "M/s. Pratap Technocrats, Jaipur",
+  "M/s. Praveen Enterprises, Jaipur",
+  "M/s. Prem Electricals, Barmer",
+  "M/s. Prince Electricals, Udaipur",
+  "M/s. R C Enterprises, Jaipur",
+  "M/s. R R Refrigeration and Electricals, Jaipur",
+  "M/s. R S Enterprises, Chittorgarh",
+  "M/s. Raghu Enterprises, Jaipur",
+  "M/s. Rajputana Electric Trading Corporation, Jaipur",
+  "M/s. Ramesh Electricals, Kota",
+  "M/s. RC Power Project Limited, Jaipur",
+  "M/s. Redio Center, Jaipur",
+  "M/s. Riddhi Siddhi Enterprises, Chittorgarh",
+  "M/s. Ritika Air Cooling and Electrical, Jaipur",
+  "M/s. Riya Enterprises, Jaipur",
+  "M/s. S K Electric Company, Jaipur",
+  "M/s. S K Electricals, Jaipur",
+  "M/s. Sagar Enterprises, Chittorgarh",
+  "M/s. Sahani Electricals, Udaipur",
+  "M/s. Sai Shiv Construction, Bhicchiwara",
+  "M/s. Sanwariya Electricals, Udaipur",
+  "M/s. Sarvoday Electromart, Kherwara",
+  "M/s. Sarvoday Energy Enterprises, Banswara",
+  "M/s. Satguru Electricals, Rajsamand",
+  "M/s. Satyam Enterprises, Jaipur",
+  "M/s. Seema Electricals, Karauli",
+  "M/s. Shagun Enterprises, Jaipur",
+  "M/s. Shanker Electricals, Udaipur",
+  "M/s. Shanti Enterprises, Jaipur",
+  "M/s. Sharda Electric, Jodhpur",
+  "M/s. Sheetal Refrigeration and Electricals, Jaipur",
+  "M/s. Shiba Electronics, Jaipur",
+  "M/s. Shiv Electricals, Jaipur",
+  "M/s. Shivam Electrical, Udaipur",
+  "M/s. Shivam Electricals, Udaipur",
+  "M/s. Shivam Enterprises, Chittorgarh",
+  "M/s. Shree Ambika Electricals, Pratapgarh",
+  "M/s. Shree Balaji Electrical Works, Hanumangarh",
+  "M/s. Shree Balaji Electricals, Sri Ganganagar",
+  "M/s. Shree Karni Light House, Bikaner",
+  "M/s. Shree Shyam Contractor, Jaipur",
+  "M/s. Shree Vinayak Electricals, Jaipur",
+  "M/s. Shreeji Enterprises, Udaipur",
+  "M/s. Shri Balaji Electrical, Udaipur",
+  "M/s. Shri Govindam Enterprises, Jodhpur",
+  "M/s. Shri Sai Kripa Electrical Engineering Company, Nagaur",
+  "M/s. Shubham Electricals and Maintenance, Jaipur",
+  "M/s. Skylight Innovations, Jaipur",
+  "M/s. Smart Traffic Systems Pvt Ltd, Jaipur",
+  "M/s. SNG Sons Associate, Kota",
+  "M/s. Sohani Electricals, Udaipur",
+  "M/s. Solution and Solution, Jaipur",
+  "M/s. Som Electricals, Ajmer",
+  "M/s. Sona Trading Corporation, Kota",
+  "M/s. Sunfire Engineers, Jaipur",
+  "M/s. Taly Hiralal Bhagwandas, Banswara",
+  "M/s. Taniya Electricals, Dausa",
+  "M/s. Tarun Electricals, Jaipur",
+  "M/s. Tech Martz Plus, Udaipur",
+  "M/s. Technet Solutions, Jaipur",
+  "M/s. Techno Industries Pvt Ltd, Ahmedabad",
+  "M/s. Techno Solutions, Jaipur",
+  "M/s. Technoid Systems Solution, Jaipur",
+  "M/s. Tiwari and Sons, Kota",
+  "M/s. Traurja Solutions LLP, Ajmer",
+  "M/s. Trivector Power Solutions Pvt Ltd, Jaipur",
+  "M/s. Uma Ram and Sons, Jodhpur",
+  "M/s. Unique Enterprises, Jaipur",
+  "M/s. Universal Electrical Engineering, Udaipur",
+  "M/s. Varsha Enterprises, Jaipur",
+  "M/s. Vasdev Electricals, Jaipur",
+  "M/s. Vedant Synergy Pvt Ltd, Jaipur",
+  "M/s. Vikas Enterprises, Udaipur",
+  "M/s. Vikram Enterprises, Jaipur",
+  "M/s. Vimal Electricals, Udaipur",
+  "M/s. Vipranshu Enterprises, Jaipur",
+  "M/s. Vision Technologies, Jaipur",
+  "M/s. VK Enterprises, Udaipur",
+  "M/s. Yash Electricals, Udaipur",
+  "M/s. Yashaswini Enterprises, Jodhpur",
+  "M/s. YRAL Distributors, Ajmer",
+];
+
+const SUB_DIVISIONS = ["Udaipur", "Udaipur-I", "Udaipur-II", "Rajsamand"];
+
+interface FormData {
+  billNumber: number;
+  billType: BillType;
+  budgetHead: string;
+  agreementNo: string;
+  mbNo: string;
+  subDivision: string;
+  subDivisionCustom: string;
+  nameOfWork: string;
+  nameOfContractor: string;
+  nameOfContractorCustom: string;
+  originalOrDeposit: OrigDep;
+  dateOfCommencement: string;
+  dateOfCompletion: string;
+  actualDateOfCompletion: string;
+  totalWorkOrderAmount: string;
+  sumPaymentLastBill: string;
+  amountThisBill: string;
+  uptoDateBillOverride: string;
+  dateOfMeasurement: string;
+  selectionItemsCheckedEE: string;
+  otherInputs: string;
+  isRepairMaintenance: YesNo;
+  hasExtraItem: YesNo;
+  extraItemAmount: string;
+  hasExcessItem: YesNo;
+  sd10: string;
+  it2: string;
+  gst2: string;
+  lc1: string;
+  depV: string;
+  signatoryName: string;
+  officeName: string;
+  contractorSearch: string;
+}
+
+const defaultForm: FormData = {
+  billNumber: 1,
+  billType: "Running",
+  budgetHead: "8443-00-108-00-00",
+  agreementNo: "",
+  mbNo: "",
+  subDivision: "Udaipur",
+  subDivisionCustom: "",
+  nameOfWork: "",
+  nameOfContractor: "",
+  nameOfContractorCustom: "",
+  originalOrDeposit: "Deposit",
+  dateOfCommencement: "",
+  dateOfCompletion: "",
+  actualDateOfCompletion: "",
+  totalWorkOrderAmount: "",
+  sumPaymentLastBill: "0",
+  amountThisBill: "",
+  uptoDateBillOverride: "",
+  dateOfMeasurement: "",
+  selectionItemsCheckedEE: "",
+  otherInputs: "",
+  isRepairMaintenance: "No",
+  hasExtraItem: "No",
+  extraItemAmount: "0",
+  hasExcessItem: "Yes",  // Always Yes - removed from form, auto-detected by work %
+  sd10: "",
+  it2: "",
+  gst2: "",
+  lc1: "",
+  depV: "0",
+  signatoryName: "प्रेमलता जैन, AAO",
+  officeName: "PWD Electric Circle, Udaipur",
+  contractorSearch: "",
+};
+
+const DIYAS = [
+  { left: "3%",  delay: "0s",    dur: "2.8s" },
+  { left: "11%", delay: "0.4s",  dur: "3.2s" },
+  { left: "21%", delay: "0.9s",  dur: "2.5s" },
+  { left: "33%", delay: "0.2s",  dur: "3.6s" },
+  { left: "46%", delay: "1.1s",  dur: "2.9s" },
+  { left: "59%", delay: "0.6s",  dur: "3.1s" },
+  { left: "70%", delay: "1.4s",  dur: "2.7s" },
+  { left: "81%", delay: "0.3s",  dur: "3.4s" },
+  { left: "91%", delay: "0.8s",  dur: "2.6s" },
+];
+
+function Diyas() {
+  return (
+    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", overflow: "hidden", pointerEvents: "none" }}>
+      {DIYAS.map((d, i) => (
+        <div key={i} style={{ position: "absolute", bottom: "4px", left: d.left, animation: `floatBalloon ${d.dur} ${d.delay} ease-in-out infinite` }}>
+          <div style={{ fontSize: "22px", lineHeight: 1, filter: "drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 12px #FF8C00)" }}>🪔</div>
+        </div>
+      ))}
+      {["8%","25%","43%","62%","78%","95%"].map((left, i) => (
+        <div key={`f${i}`} style={{ position: "absolute", top: "4px", left, fontSize: "16px", opacity: 0.7, animation: `floatBalloon ${2.4 + i * 0.3}s ${i * 0.5}s ease-in-out infinite` }}>🌸</div>
+      ))}
+    </div>
+  );
+}
+
+export default function BillForm() {
+  const [form, setForm] = useState<FormData>(defaultForm);
+
+  const setField = (field: keyof FormData, value: string | number) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const setDate = (field: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setField(field, maskDateInput(e.target.value));
+    };
+
+  const set = (field: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      setField(field, e.target.value);
+    };
+
+  const effectiveSubDivision = form.subDivision === "__custom__" ? form.subDivisionCustom : form.subDivision;
+  const effectiveContractor  = form.nameOfContractor === "__custom__" ? form.nameOfContractorCustom : form.nameOfContractor;
+
+  const billTitle = getBillTitle(form.billNumber, form.billType);
+  const isFinal = form.billType === "Final";
+
+  const workOrderAmt = parseFloat(form.totalWorkOrderAmount) || 0;
+  const lastBillAmt  = parseFloat(form.sumPaymentLastBill) || 0;
+  const thisBillAmt  = parseFloat(form.amountThisBill) || 0;
+  const extraAmt     = parseFloat(form.extraItemAmount) || 0;
+
+  const overrideUpto = parseFloat(form.uptoDateBillOverride) || 0;
+  const actualExpenditure = overrideUpto > 0 ? overrideUpto : (lastBillAmt + thisBillAmt);
+
+  const rawBalance = workOrderAmt - actualExpenditure;
+  const balanceDisplay = rawBalance < 0 ? "Nil" : `Rs. ${rawBalance.toLocaleString("en-IN")}`;
+
+  const sd10 = form.sd10 !== "" ? parseFloat(form.sd10) : Math.round(thisBillAmt * 0.1);
+  const it2  = form.it2  !== "" ? parseFloat(form.it2)  : Math.round(thisBillAmt * 0.02);
+  const rawGst = thisBillAmt * 0.02;
+  const gstCalc = Math.round(rawGst) % 2 === 0 ? Math.round(rawGst) : Math.round(rawGst) + 1;
+  const gst2 = form.gst2 !== "" ? parseFloat(form.gst2) : gstCalc;
+  const lc1  = form.lc1  !== "" ? parseFloat(form.lc1)  : Math.round(thisBillAmt * 0.01);
+  const depV  = parseFloat(form.depV) || 0;
+
+  const totalDeductions = sd10 + it2 + gst2 + lc1 + depV;
+  const chequeAmount    = thisBillAmt - totalDeductions;
+  const totalCheck      = totalDeductions + chequeAmount;
+
+  const progressPct  = workOrderAmt > 0 ? ((actualExpenditure / workOrderAmt) * 100).toFixed(2) : "0.00";
+  const pctNum       = parseFloat(progressPct);
+  const extraPct     = workOrderAmt > 0 ? ((extraAmt / workOrderAmt) * 100).toFixed(2) : "0.00";
+  const extraExceeds5 = parseFloat(extraPct) > 5;
+
+  const delayDays        = daysBetween(form.dateOfCompletion, form.actualDateOfCompletion);
+  const scheduleDuration = daysBetween(form.dateOfCommencement, form.dateOfCompletion);
+
+  const checkingDateAEN = form.dateOfMeasurement;
+
+  const todayStr = todayDDMMYYYY();
+  const daysSinceCompletion = daysBetween(form.actualDateOfCompletion, todayStr);
+  const lateSubmission = isFinal && form.actualDateOfCompletion !== "" && daysSinceCompletion >= 181;
+
+  const showExtraItem = form.hasExtraItem === "Yes" && extraAmt > 0;
+
+  const showExcessNote = (() => {
+    if (!isFinal) return pctNum > 100;
+    return pctNum < 90 || pctNum > 100;
+  })();
+
+  function generateNotePoints(): string[] {
+    const pts: string[] = [];
+    let n = 1;
+
+    pts.push(`${n++}. कार्य ${progressPct} प्रतिशत संपादित हुआ है।`);
+
+    // Deviation note logic:
+    // Running bill: only if > 100%
+    // Final bill: if < 90% or > 100%
+    if (!isFinal) {
+      // Running bill - only show deviation if > 100%
+      if (pctNum > 100 && pctNum <= 105) {
+        pts.push(`${n++}. जिसका डेविएशन स्टेटमेंट भी स्वीकृति हेतु प्राप्त हुआ है, OVERALL EXCESS वर्क आर्डर राशि के 5% से कम या बराबर है जिसकी स्वीकृति इसी कार्यालय के क्षेत्राधिकार में निहित है।`);
+      } else if (pctNum > 105) {
+        pts.push(`${n++}. जिसका डेविएशन स्टेटमेंट भी स्वीकृति हेतु प्राप्त हुआ है, OVERALL EXCESS वर्क आर्डर राशि के 5% से अधिक है जिसकी स्वीकृति Superintending Engineer, ${form.officeName} कार्यालय के क्षेत्राधिकार में निहित है।`);
+      }
+    } else {
+      // Final bill - show deviation if < 90% or > 100%
+      if (pctNum < 90) {
+        pts.push(`${n++}. जिसका डेविएशन स्टेटमेंट भी स्वीकृति हेतु प्राप्त हुआ है, जिसकी स्वीकृति इसी कार्यालय के क्षेत्राधिकार में निहित है।`);
+      } else if (pctNum > 100 && pctNum <= 105) {
+        pts.push(`${n++}. जिसका डेविएशन स्टेटमेंट भी स्वीकृति हेतु प्राप्त हुआ है, OVERALL EXCESS वर्क आर्डर राशि के 5% से कम या बराबर है जिसकी स्वीकृति इसी कार्यालय के क्षेत्राधिकार में निहित है।`);
+      } else if (pctNum > 105) {
+        pts.push(`${n++}. जिसका डेविएशन स्टेटमेंट भी स्वीकृति हेतु प्राप्त हुआ है, OVERALL EXCESS वर्क आर्डर राशि के 5% से अधिक है जिसकी स्वीकृति Superintending Engineer, ${form.officeName} कार्यालय के क्षेत्राधिकार में निहित है।`);
+      }
+    }
+
+    if (delayDays > 0) {
+      pts.push(`${n++}. कार्य में ${delayDays} दिन की देरी हुई है।`);
+      if (scheduleDuration > 0 && delayDays > scheduleDuration / 2) {
+        pts.push(`${n++}. टाइम एक्सटेंशन केस Superintending Engineer, ${form.officeName} कार्यालय द्वारा अनुमोदित किया जाना है।`);
+      } else {
+        pts.push(`${n++}. टाइम एक्सटेंशन केस इस कार्यालय द्वारा अनुमोदित किया जाना है।`);
+      }
+    } else {
+      pts.push(`${n++}. कार्य समय पर संपादित हुआ है।`);
+    }
+
+    if (showExtraItem) {
+      if (extraExceeds5) {
+        pts.push(`${n++}. कार्य सम्पादन में केवल Rs. ${extraAmt.toLocaleString("en-IN")} के अतिरिक्त आइटम सम्पादित किये गये हैं जिसकी राशि वर्क आर्डर राशि की ${extraPct}% होकर 5% से अधिक है जिसकी स्वीकृति Superintending Engineer, ${form.officeName} कार्यालय के क्षेत्राधिकार में है।`);
+      } else {
+        pts.push(`${n++}. कार्य सम्पादन में केवल Rs. ${extraAmt.toLocaleString("en-IN")} के अतिरिक्त आइटम सम्पादित किये गये हैं जिसकी राशि वर्क आर्डर राशि की ${extraPct}% होकर 5% से कम या बराबर है जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।`);
+      }
+    }
+
+    if (form.hasExcessItem === "Yes" && showExcessNote) {
+      if (!isFinal) {
+        if (pctNum > 100 && pctNum <= 105) {
+          const ep = (pctNum - 100).toFixed(2);
+          pts.push(`${n++}. कार्य संपादन में वर्क आर्डर के जिन आइटम्स में EXCESS QUANTITY संपादित की गई है, उनका विवरण संलग्न है। कार्य में OVERALL EXCESS केवल ${ep}% होकर 5% से कम या बराबर है, जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।`);
+        } else if (pctNum > 105) {
+          const ep = (pctNum - 100).toFixed(2);
+          pts.push(`${n++}. कार्य संपादन में वर्क आर्डर के जिन आइटम्स में EXCESS QUANTITY संपादित की गई है, उनका विवरण संलग्न है। कार्य में OVERALL EXCESS ${ep}% होकर 5% से अधिक है, जिसकी स्वीकृति Superintending Engineer, ${form.officeName} कार्यालय के क्षेत्राधिकार में है।`);
+        }
+      } else {
+        if (pctNum < 90) {
+          pts.push(`${n++}. कार्य संपादन में वर्क आर्डर के जिन आइटम्स में EXCESS QUANTITY संपादित की गई है, उनका विवरण संलग्न है। कार्य में saving है (अर्थात Overall Excess = NIL), जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।`);
+        } else if (pctNum > 100 && pctNum <= 105) {
+          const ep = (pctNum - 100).toFixed(2);
+          pts.push(`${n++}. कार्य संपादन में वर्क आर्डर के जिन आइटम्स में EXCESS QUANTITY संपादित की गई है, उनका विवरण संलग्न है। कार्य में OVERALL EXCESS केवल ${ep}% होकर 5% से कम या बराबर है, जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।`);
+        } else if (pctNum > 105) {
+          const ep = (pctNum - 100).toFixed(2);
+          pts.push(`${n++}. कार्य संपादन में वर्क आर्डर के जिन आइटम्स में EXCESS QUANTITY संपादित की गई है, उनका विवरण संलग्न है। कार्य में OVERALL EXCESS ${ep}% होकर 5% से अधिक है, जिसकी स्वीकृति Superintending Engineer, ${form.officeName} कार्यालय के क्षेत्राधिकार में है।`);
+        }
+      }
+    }
+
+    pts.push(`${n++}. गुणवत्ता नियंत्रण (Q.C.) परीक्षण रिपोर्ट संलग्न हैं।`);
+
+    if (form.isRepairMaintenance === "No") {
+      pts.push(`${n++}. हस्तांतरण विवरण Hand Over Statement संलग्न है।`);
+    }
+
+    if (lateSubmission) {
+      pts.push(`${n++}. कार्य समाप्ति के करीब 6 महीने बाद फाइनल बिल इस कार्यालय में प्रस्तुत किया गया है। इस अप्रत्याशित देरी के लिए सहायक अभियंता से स्पष्टीकरण मांगा जाए ऐसी प्रस्तावना है।`);
+    }
+
+    pts.push(`${n++}. बिल समुचित निर्णय हेतु प्रस्तुत है।`);
+
+    return pts;
+  }
+
+  const notePoints = generateNotePoints();
+
+  const outputRows: [string, string][] = [
+    ["1. Budget Head", form.budgetHead || "---"],
+    ["2. Agreement No.", form.agreementNo || "---"],
+    ["3. MB No. & Page", form.mbNo || "---"],
+    ["4. Name of Sub Division", effectiveSubDivision || "---"],
+    ["5. Name of Work", form.nameOfWork || "---"],
+    ["6. Name of Contractor", effectiveContractor || "---"],
+    ["7. Original / Deposit", form.originalOrDeposit],
+    ["8. Date of Commencement", formatDDMMYYYY(form.dateOfCommencement)],
+    ["9. Date of Completion (Scheduled)", formatDDMMYYYY(form.dateOfCompletion)],
+    ["10. Actual Date of Completion", isFinal ? formatDDMMYYYY(form.actualDateOfCompletion) : "Work In Progress"],
+    ["11. Total Amount of Work Order", `Rs. ${workOrderAmt.toLocaleString("en-IN")}`],
+    ["12A. Sum of payment up to last bill", `Rs. ${lastBillAmt.toLocaleString("en-IN")}`],
+    ["12B. Amount of this bill", `Rs. ${thisBillAmt.toLocaleString("en-IN")}`],
+    ["12C. Actual expenditure up to this bill (A+B)", `Rs. ${actualExpenditure.toLocaleString("en-IN")}`],
+    ["13. Balance to be done = (11 − 12C)", balanceDisplay],
+    ["14. Prorata Progress on the Work", "Evident from para 10 and 12 above."],
+    ["15. Date of record Measurement (JEN/AEN)", formatDDMMYYYY(form.dateOfMeasurement)],
+    ["16. Date of Checking & % checked by AEN", checkingDateAEN ? formatDDMMYYYY(checkingDateAEN) : "---"],
+    ...(form.selectionItemsCheckedEE ? [["17. No. of selection items checked by EE", form.selectionItemsCheckedEE] as [string, string]] : []),
+    ...(form.otherInputs ? [["18. Other Inputs", form.otherInputs] as [string, string]] : []),
+    ["(A) Is it a Repair / Maintenance Work", form.isRepairMaintenance],
+    ...(form.hasExtraItem === "Yes" && extraAmt > 0 ? [
+      ["(B) Extra Item", "Yes"],
+      ["    Amount of Extra Items", `Rs. ${extraAmt.toLocaleString("en-IN")}`],
+    ] as [string, string][] : [
+      ["(B) Extra Item", "No"],
+    ] as [string, string][]),
+    // (C) Excess Item removed from display - auto-detected by work %
+  ];
+
+  const deductionRows: [string, string][] = [
+    ["SD @ 10%", `Rs. ${sd10.toLocaleString("en-IN")}`],
+    ["IT @ 2%", `Rs. ${it2.toLocaleString("en-IN")}`],
+    ["GST @ 2%", `Rs. ${gst2.toLocaleString("en-IN")}`],
+    ["LC @ 1%", `Rs. ${lc1.toLocaleString("en-IN")}`],
+    ...(depV > 0 ? [["Dep-V", `Rs. ${depV.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Cheque / Amount", `Rs. ${chequeAmount.toLocaleString("en-IN")}`],
+    ["Total", `Rs. ${totalCheck.toLocaleString("en-IN")}`],
+  ];
+
+  function getPdfFilename(): string {
+    const contractorFirstWord = (effectiveContractor || "Contractor")
+      .replace(/^M\/s\.\s*/i, "")
+      .split(/\s+/)[0] || "Contractor";
+    const agNo = form.agreementNo || "Agr";
+    const fy = getFY(form.dateOfCommencement || todayStr);
+    return `${contractorFirstWord} ${agNo} ${fy}.pdf`;
+  }
+
+  function handlePrint() {
+    const html = buildPrintHtml(billTitle, outputRows, deductionRows, notePoints, form.signatoryName, getPdfFilename());
+    const win = window.open("", "_blank", "width=794,height=1123");
+    if (!win) { alert("Please allow popups to print."); return; }
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 600);
+  }
+
+  const inputCls   = "navratri-input";
+  const labelCls   = "navratri-label";
+  const sectionCls = "navratri-section";
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+        @keyframes floatBalloon {
+          0%,100% { transform: translateY(0) rotate(-2deg); }
+          50%      { transform: translateY(-14px) rotate(2deg); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes flameDance {
+          0%,100% { transform: scaleX(1) scaleY(1) rotate(-2deg); opacity: 1; }
+          50%      { transform: scaleX(0.85) scaleY(1.15) rotate(2deg); opacity: 0.85; }
+        }
+        @keyframes pulse-gold {
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,180,0,0.35); }
+          50%      { box-shadow: 0 0 0 8px rgba(255,180,0,0); }
+        }
+        .navratri-section {
+          background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
+          border: 1.5px solid #e6a817;
+          border-radius: 14px;
+          padding: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 12px rgba(200,130,0,0.10);
+        }
+        .navratri-section h3 {
+          color: #7B2D00;
+          border-color: #e6a817;
+          font-weight: 700;
+        }
+        .navratri-input {
+          width: 100%;
+          border: 1.5px solid #e6a817;
+          border-radius: 8px;
+          padding: 5px 10px;
+          font-size: 0.85rem;
+          background: #fffef7;
+          color: #3a1a00;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          font-family: 'Noto Sans Devanagari','Segoe UI',sans-serif;
+        }
+        .navratri-input:focus {
+          border-color: #c8720a;
+          box-shadow: 0 0 0 3px rgba(230,168,23,0.25);
+        }
+        .navratri-label {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #7B2D00;
+          margin-bottom: 3px;
+          display: block;
+          letter-spacing: 0.01em;
+        }
+        .rangoli-divider {
+          text-align: center;
+          color: #e6a817;
+          font-size: 1.1rem;
+          letter-spacing: 0.3em;
+          margin: 4px 0;
+          opacity: 0.8;
+        }
+      `}</style>
+
+      <div style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif", minHeight: "100vh", background: "linear-gradient(160deg, #fff8e1 0%, #fff3e0 40%, #fce4ec 100%)" }}>
+
+        {/* NAVRATRI HEADER */}
+        <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #7B0D00 0%, #c0392b 25%, #e67e22 50%, #c0392b 75%, #7B0D00 100%)", backgroundSize: "300% auto", animation: "shimmer 8s linear infinite", borderBottom: "4px solid #FFD700" }}>
+          <Diyas />
+          <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 20px 6px" }}>
+            <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "0.08em", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
+              🪔 हिंदी बिल नोट शीट जनरेटर 🪔
+            </div>
+            <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", letterSpacing: "0.12em", marginTop: "2px" }}>
+              Hindi Bill Note Sheet Generator &nbsp;✦&nbsp; नवरात्रि की शुभकामनाएं
+            </div>
+          </div>
+          {/* Rangoli border strip */}
+          <div style={{ background: "linear-gradient(90deg, #FFD700, #FF8C00, #FFD700)", height: "3px" }} />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-[1400px] mx-auto">
+
+          {/* INPUT FORM */}
+          <div className="lg:w-1/2 flex flex-col">
+            <div style={{ background: "linear-gradient(135deg, #7B0D00, #c0392b, #e67e22)", border: "2px solid #FFD700", borderRadius: "14px", padding: "12px 16px", marginBottom: "16px", boxShadow: "0 4px 20px rgba(200,80,0,0.25)" }}>
+              <h2 className="font-bold text-sm" style={{ color: "#FFD700", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>✦ इनपुट फॉर्म / Input Form — Bill Details ✦</h2>
+              <p className="text-xs mt-1" style={{ color: "#FFEAA7" }}>विवरण भरें, नोट शीट स्वतः अपडेट होगी / Fill details, note sheet updates automatically</p>
+            </div>
+
+            {/* Bill Number & Type */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>बिल पहचान / Bill Identity</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>बिल क्रमांक / Bill Number</label>
+                  <select className={inputCls} value={form.billNumber} onChange={e => setField("billNumber", parseInt(e.target.value))}>
+                    {ORDINALS.map((o, i) => <option key={i} value={i + 1}>{o}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>बिल प्रकार / Bill Type</label>
+                  <select className={inputCls} value={form.billType} onChange={e => setField("billType", e.target.value as BillType)}>
+                    <option value="Running">Running</option>
+                    <option value="Final">Final</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-2 p-2 rounded text-center font-bold text-xs" style={{ background: "linear-gradient(90deg,#7B0D00,#c0392b,#e67e22,#c0392b,#7B0D00)", color: "#FFD700", border: "2px solid #FFD700", letterSpacing: "0.05em", textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
+                {billTitle}
+              </div>
+            </div>
+
+            {/* Basic Info */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मूल जानकारी / Basic Information</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelCls}>1. बजट शीर्ष / Budget Head</label>
+                    <input className={inputCls} value={form.budgetHead} onChange={set("budgetHead")} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>2. अनुबंध संख्या / Agreement No.</label>
+                    <input className={inputCls} value={form.agreementNo} onChange={set("agreementNo")} placeholder="e.g. 62/2024-25" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelCls}>3. एम.बी. संख्या व पृष्ठ / MB No. & Page</label>
+                    <input className={inputCls} value={form.mbNo} onChange={set("mbNo")} placeholder="e.g. 813/Page 84-85" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>4. उप-खंड / Sub Division</label>
+                    <select className={inputCls} value={form.subDivision} onChange={set("subDivision")}>
+                      {SUB_DIVISIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      <option value="__custom__">Other (type below)</option>
+                    </select>
+                    {form.subDivision === "__custom__" && (
+                      <input className={inputCls + " mt-1"} value={form.subDivisionCustom} onChange={set("subDivisionCustom")} placeholder="Enter sub division name" />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>5. कार्य का नाम / Name of Work</label>
+                  <textarea className={inputCls} rows={2} value={form.nameOfWork} onChange={set("nameOfWork")} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelCls}>6. ठेकेदार / Contractor</label>
+                    <input 
+                      className={inputCls} 
+                      value={form.contractorSearch || form.nameOfContractor} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setField("contractorSearch", val);
+                        // If exact match found, set it
+                        const exactMatch = CONTRACTORS.find(c => c.toLowerCase() === val.toLowerCase());
+                        if (exactMatch) {
+                          setField("nameOfContractor", exactMatch);
+                        } else if (val === "") {
+                          setField("nameOfContractor", CONTRACTORS[0]);
+                        }
+                      }}
+                      onFocus={() => setField("contractorSearch", "")}
+                      placeholder="Type to search contractors..."
+                      list="contractor-list"
+                    />
+                    <datalist id="contractor-list">
+                      {CONTRACTORS
+                        .filter(c => {
+                          const search = (form.contractorSearch || "").toLowerCase();
+                          return search === "" || c.toLowerCase().includes(search);
+                        })
+                        .map(c => <option key={c} value={c}>{c}</option>)
+                      }
+                      <option value="__custom__">Other (type custom name)</option>
+                    </datalist>
+                    {form.contractorSearch && form.contractorSearch !== form.nameOfContractor && !CONTRACTORS.includes(form.contractorSearch) && (
+                      <div className="mt-1 max-h-32 overflow-y-auto border border-orange-300 rounded bg-white shadow-lg">
+                        {CONTRACTORS
+                          .filter(c => c.toLowerCase().includes(form.contractorSearch.toLowerCase()))
+                          .slice(0, 10)
+                          .map(c => (
+                            <div 
+                              key={c}
+                              className="px-2 py-1 text-xs cursor-pointer hover:bg-orange-100"
+                              onClick={() => {
+                                setField("nameOfContractor", c);
+                                setField("contractorSearch", "");
+                              }}
+                            >
+                              {c}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    )}
+                    {form.nameOfContractor === "__custom__" && (
+                      <input className={inputCls + " mt-1"} value={form.nameOfContractorCustom} onChange={set("nameOfContractorCustom")} placeholder="M/s. Name, Town" />
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelCls}>7. मूल / जमा / Original / Deposit</label>
+                    <select className={inputCls} value={form.originalOrDeposit} onChange={set("originalOrDeposit")}>
+                      <option>Original</option>
+                      <option>Deposit</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dates & Amounts */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>तिथियाँ व राशि / Dates & Amounts <span className="font-normal text-xs">(DD/MM/YYYY)</span></h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>8. प्रारंभ तिथि / Date of Commencement</label>
+                  <input className={inputCls} value={form.dateOfCommencement} onChange={setDate("dateOfCommencement")} placeholder="DDMMYYYY" maxLength={10} />
+                </div>
+                <div>
+                  <label className={labelCls}>9. पूर्णता तिथि (निर्धारित) / Date of Completion (Scheduled)</label>
+                  <input className={inputCls} value={form.dateOfCompletion} onChange={setDate("dateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                </div>
+                {isFinal && (
+                <div>
+                  <label className={labelCls}>10. वास्तविक पूर्णता तिथि / Actual Completion Date</label>
+                  <input className={inputCls} value={form.actualDateOfCompletion} onChange={setDate("actualDateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                </div>
+                )}
+                <div>
+                  <label className={labelCls}>11. कुल कार्यादेश राशि / Total Work Order Amount (₹)</label>
+                  <input type="number" className={inputCls} value={form.totalWorkOrderAmount} onChange={set("totalWorkOrderAmount")} placeholder="0" />
+                </div>
+                <div>
+                  <label className={labelCls}>12A. पिछले बिल तक भुगतान / Payment Upto Last Bill (₹)</label>
+                  <input type="number" className={inputCls} value={form.sumPaymentLastBill} onChange={set("sumPaymentLastBill")} placeholder="0" />
+                </div>
+                <div>
+                  <label className={labelCls}>12B. इस बिल की राशि / Amount of This Bill (₹)</label>
+                  <input type="number" className={inputCls} value={form.amountThisBill} onChange={set("amountThisBill")} placeholder="0" />
+                </div>
+                <div>
+                  <label className={labelCls}>15. माप तिथि / Date of Measurement</label>
+                  <input className={inputCls} value={form.dateOfMeasurement} onChange={setDate("dateOfMeasurement")} placeholder="DDMMYYYY" maxLength={10} />
+                </div>
+              </div>
+              {isFinal && lateSubmission && (
+                <div className="mt-2 p-2 rounded text-xs font-bold text-red-700 bg-red-50 border border-red-200">
+                  ⚠️ आज की तिथि में कार्य पूर्णता के {daysSinceCompletion} दिन हो चुके हैं — फाइनल बिल देरी नोट जुड़ेगा।
+                </div>
+              )}
+            </div>
+
+            {/* Conditions */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>शर्तें / Conditions & Flags</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>(A) मरम्मत/रखरखाव कार्य? / Repair/Maintenance?</label>
+                  <select className={inputCls} value={form.isRepairMaintenance} onChange={set("isRepairMaintenance")}>
+                    <option>Yes</option><option>No</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>(B) अतिरिक्त मद? / Extra Item Executed?</label>
+                  <select className={inputCls} value={form.hasExtraItem} onChange={set("hasExtraItem")}>
+                    <option>Yes</option><option>No</option>
+                  </select>
+                </div>
+                {form.hasExtraItem === "Yes" && (
+                  <div className="col-span-2">
+                    <label className={labelCls}>अतिरिक्त मद राशि / Extra Items Amount (₹) <span className="font-normal text-gray-500">(0 = नोट नहीं / no note)</span></label>
+                    <input type="number" className={inputCls} value={form.extraItemAmount} onChange={set("extraItemAmount")} placeholder="0" />
+                    {extraAmt > 0 && (
+                      <p className={`text-xs mt-1 font-semibold ${extraExceeds5 ? "text-red-600" : "text-green-700"}`}>
+                        {extraPct}% — {extraExceeds5 ? "⚠️ >5%: SE approval needed" : "✓ ≤5%: Approved"}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Deductions */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>कटौतियाँ / Deductions</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <p className="text-xs text-gray-500">SD(10%), IT(2%), GST(2%), LC(1%) स्वचालित / auto-calculated. केवल Dep-V मैन्युअल।</p>
+                <div>
+                  <label className={labelCls}>Dep-V (₹)</label>
+                  <input type="number" className={inputCls} value={form.depV} onChange={set("depV")} />
+                </div>
+              </div>
+            </div>
+
+            {/* Other Details */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>अन्य विवरण / Other Details</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className={labelCls}>हस्ताक्षरकर्ता / Signatory Name</label>
+                  <input className={inputCls} value={form.signatoryName} onChange={set("signatoryName")} />
+                </div>
+                <div>
+                  <label className={labelCls}>कार्यालय नाम / Office Name</label>
+                  <input className={inputCls} value={form.officeName} onChange={set("officeName")} />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePrint}
+              className="w-full font-bold py-3 rounded-xl text-sm transition-all mb-6 shadow-lg"
+              style={{ background: "linear-gradient(90deg, #880e4f, #e91e63, #880e4f)", backgroundSize: "200% auto", color: "#fff", animation: "shimmer 3s linear infinite", border: "none", cursor: "pointer" }}
+            >
+              🖨️ Print Note Sheet / Save PDF — {getPdfFilename()}
+            </button>
+          </div>
+
+          {/* LIVE PREVIEW */}
+          <div className="lg:w-1/2">
+            <div className="rounded-xl p-3 mb-4" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)", border: "1px solid #f48fb1" }}>
+              <h2 className="font-bold text-sm" style={{ color: "#880e4f" }}>👁 Live Preview — Note Sheet Output</h2>
+              <p className="text-xs mt-1" style={{ color: "#c2185b" }}>Exactly what will print on A4 with 10 mm margins.</p>
+            </div>
+            <NoteSheetTable
+              billTitle={billTitle}
+              outputRows={outputRows}
+              deductionRows={deductionRows}
+              notePoints={notePoints}
+              signatoryName={form.signatoryName}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface TableProps {
+  billTitle: string;
+  outputRows: [string, string][];
+  deductionRows: [string, string][];
+  notePoints: string[];
+  signatoryName: string;
+}
+
+function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, signatoryName }: TableProps) {
+  const tdL = "border border-gray-500 px-2 py-1 font-semibold bg-gray-50 w-1/2 align-top text-xs";
+  const tdR = "border border-gray-500 px-2 py-1 w-1/2 align-top text-xs";
+
+  return (
+    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif" }}>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <td colSpan={2} className="border border-gray-500 text-center font-bold py-2 text-sm" style={{ background: "#fce4ec", color: "#880e4f" }}>
+              {billTitle}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          {outputRows.map(([label, value], i) => (
+            <tr key={i}>
+              <td className={tdL}>{label}</td>
+              <td className={tdR}>{value}</td>
+            </tr>
+          ))}
+          <tr>
+            <td colSpan={2} className="border border-gray-500 px-2 py-1 font-bold bg-gray-100 text-xs">
+              Deductions:- &nbsp; Rs.
+            </td>
+          </tr>
+          {deductionRows.map(([label, value], i) => (
+            <tr key={i}>
+              <td className={tdL + " pl-6"}>{label}</td>
+              <td className={tdR}>{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="border-t border-gray-500 p-3">
+        <ol className="list-none space-y-1 text-xs leading-relaxed">
+          {notePoints.map((pt, i) => <li key={i}>{pt}</li>)}
+        </ol>
+        <div className="mt-4 text-center text-xs font-semibold">
+          {signatoryName}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function buildPrintHtml(
+  billTitle: string,
+  outputRows: [string, string][],
+  deductionRows: [string, string][],
+  notePoints: string[],
+  signatoryName: string,
+  filename: string,
+): string {
+  const totalItems = outputRows.length + deductionRows.length + notePoints.length;
+  const baseFontPt = totalItems <= 30 ? 9 : totalItems <= 40 ? 8 : totalItems <= 55 ? 7.5 : 7;
+  const cellPad = totalItems <= 35 ? "3px 6px" : totalItems <= 50 ? "2px 5px" : "1px 4px";
+
+  const rowsHtml = outputRows
+    .map(([l, v]) => `<tr><td class="l">${l}</td><td class="r">${v}</td></tr>`)
+    .join("");
+  const dedHtml = deductionRows
+    .map(([l, v]) => `<tr><td class="l" style="padding-left:1.5em">${l}</td><td class="r">${v}</td></tr>`)
+    .join("");
+  const notesHtml = notePoints.map(pt => `<li>${pt}</li>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<title>${filename}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 10mm; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
+  table { width:100%; border-collapse:collapse; }
+  td { border:1px solid #555; padding:${cellPad}; vertical-align:top; }
+  .h  { text-align:center; font-weight:700; font-size:${baseFontPt + 1}pt; background:#fce4ec; color:#880e4f; padding:4px; }
+  .l  { font-weight:600; background:#f5f5f5; width:50%; }
+  .r  { width:50%; }
+  .dh { font-weight:700; background:#ebebeb; }
+  .note-section { border:1px solid #555; border-top:none; padding:6px 8px; }
+  ol { list-style:none; padding:0; }
+  li { margin-bottom:${totalItems <= 35 ? 3 : 2}px; line-height:${totalItems <= 40 ? 1.6 : 1.4}; }
+  .sig { text-align:center; font-weight:600; margin-top:12px; }
+</style>
+</head>
+<body>
+<table>
+  <tr><td colspan="2" class="h">${billTitle}</td></tr>
+  ${rowsHtml}
+  <tr><td colspan="2" class="dh">Deductions:- &nbsp; Rs.</td></tr>
+  ${dedHtml}
+</table>
+<div class="note-section">
+  <ol>${notesHtml}</ol>
+  <div class="sig">${signatoryName}</div>
+</div>
+</body>
+</html>`;
+}
