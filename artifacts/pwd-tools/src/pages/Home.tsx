@@ -23,11 +23,11 @@ const TOOLS = [
     htmlFile: "SecurityRefund.html",
   },
   {
-    id: "bill-note-sheet",
-    icon: "📝",
-    name: "Bill Note Sheet",
-    description: "Complete Hindi bill note sheet with automated testing & PDF generation",
-    htmlFile: "BillNoteSheet.html",
+    id: "hindi-bill-note-sheet",
+    icon: "📄",
+    name: "Hindi Bill Note Sheet",
+    description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
+    htmlFile: null,
   },
   {
     id: "deductions-table",
@@ -70,13 +70,6 @@ const TOOLS = [
     name: "Bill Deviation Generator",
     description: "Generate bill deviation reports",
     htmlFile: "BillDeviationGenerator.html",
-  },
-  {
-    id: "hindi-bill-note-sheet",
-    icon: "📄",
-    name: "Hindi Bill Note Sheet",
-    description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
-    htmlFile: null,
   },
 ];
 
