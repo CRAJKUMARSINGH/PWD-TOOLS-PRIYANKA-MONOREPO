@@ -39,6 +39,26 @@ export default defineConfig(async () => {
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
+      // Skip gzip size reporting — main cause of slow post-processing
+      reportCompressedSize: false,
+      // Raise chunk warning threshold to avoid noise
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Split heavy vendor libs into separate cacheable chunks
+            "vendor-react": ["react", "react-dom"],
+            "vendor-query": ["@tanstack/react-query"],
+            "vendor-ui": [
+              "@radix-ui/react-dialog",
+              "@radix-ui/react-select",
+              "@radix-ui/react-tabs",
+              "@radix-ui/react-tooltip",
+              "@radix-ui/react-accordion",
+            ],
+          },
+        },
+      },
     },
     server: {
       port,
