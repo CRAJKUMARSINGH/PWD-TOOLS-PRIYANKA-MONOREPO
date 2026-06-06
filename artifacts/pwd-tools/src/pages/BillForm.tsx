@@ -321,7 +321,7 @@ const defaultForm: FormData = {
   lc1: "",
   depV: "0",
   signatoryName: "प्रेमलता जैन, AAO",
-  officeName: "PWD Electric Circle, Udaipur",
+  officeName: "PWD Rural circle",
   contractorSearch: "",
 };
 

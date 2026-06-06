@@ -527,7 +527,7 @@
                 if (extraItem === 'Yes') {
                     const extraItemPercentage = (extraItemAmount / workOrderAmount) * 100;
                     if (extraItemPercentage > 5) {
-                        note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, जो 5% से अधिक है। जिसकी स्वीकृति Superintending Engineer, Electric Circle Udaipur कार्यालय के क्षेत्राधिकार में है।\n`;
+                        note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, जो 5% से अधिक है। जिसकी स्वीकृति Superintending Engineer, PWD Rural circle कार्यालय के क्षेत्राधिकार में है।\n`;
                     } else if (extraItemPercentage === 5) {
                         note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, जो 5% के बराबर है। जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।\n`;
                     } else {
@@ -558,7 +558,7 @@
                     serialNumber++;
                     let scheduleDuration = Math.floor((scheduleCompletion - startDate) / (1000 * 60 * 60 * 24));
                     if (delayDays > (scheduleDuration / 2 + 1)) {
-                        note += `${serialNumber}. Time Extension केस Superintending Engineer, Electric Circle, Udaipur कार्यालय द्वारा अनुमोदित किया जाना है।\n`;
+                        note += `${serialNumber}. Time Extension केस Superintending Engineer, PWD Rural circle कार्यालय द्वारा अनुमोदित किया जाना है।\n`;
                     } else {
                         note += `${serialNumber}. Time Extension केस इस कार्यालय द्वारा अनुमोदित किया जाना है।\n`;
                     }
@@ -571,7 +571,7 @@
                 if (extraItem === 'Yes') {
                     const extraItemPercentage = (extraItemAmount / workOrderAmount) * 100;
                     if (extraItemPercentage > 5) {
-                        note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, जो 5% से अधिक है। जिसकी स्वीकृति Superintending Engineer, Electric Circle, Udaipur कार्यालय के क्षेत्राधिकार में है।\n`;
+                        note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, जो 5% से अधिक है। जिसकी स्वीकृति Superintending Engineer, PWD Rural circle कार्यालय के क्षेत्राधिकार में है।\n`;
                     } else if (extraItemPercentage === 5) {
                         note += `${serialNumber++}. ₹${extraItemAmount.toFixed(2)} की Extra Items कार्यान्वित किए गए हैं, जो वर्क ऑर्डर राशि का ${extraItemPercentage.toFixed(2)}% है, अथवा (5% के बराबर है)। जिसकी स्वीकृति इस कार्यालय के क्षेत्राधिकार में है।\n`;
                     } else {
