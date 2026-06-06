@@ -67,6 +67,7 @@
         }
 
         @media print {
+            @page { margin: 0; }
             .container {
                 border: none;
                 width: 210mm;
@@ -205,7 +206,7 @@
             const amountInWords = convertNumberToWords(parseFloat(amount));
             return `
                 <div class="header">
-                    <h2>Payable to: - ${payee} ( Electric Contractor)</h2>
+                    <h2>Payable to: - ${payee}</h2>
                     <h2>HAND RECEIPT (RPWA 28)</h2>
                     <p>(Referred to in PWF&A Rules 418,424,436 & 438)</p>
                     <p>Division - PWD District Div.-II, Udaipur</p>

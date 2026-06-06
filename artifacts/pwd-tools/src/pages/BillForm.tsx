@@ -995,9 +995,9 @@ function buildPrintHtml(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  @page { size: A4 portrait; margin: 10mm; }
+  @page { size: A4 portrait; margin: 0; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
+  body { padding: 10mm; font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
   table { width:100%; border-collapse:collapse; }
   td { border:1px solid #555; padding:${cellPad}; vertical-align:top; }
   .h  { text-align:center; font-weight:700; font-size:${baseFontPt + 1}pt; background:#fce4ec; color:#880e4f; padding:4px; }
