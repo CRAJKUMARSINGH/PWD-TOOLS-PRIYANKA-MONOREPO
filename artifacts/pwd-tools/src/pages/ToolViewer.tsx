@@ -1,7 +1,12 @@
 import { useLocation, useParams } from "wouter";
+import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import BillForm from "@/pages/BillForm";
+import ContractorRegistration from "@/pages/ContractorRegistration";
 
 const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | null }> = {
+  // Map of tool IDs to their metadata
+
+  "enrollment-data-form": { name: "Enrollment Data Form", icon: "🧾", htmlFile: null },
   "bill-generator":           { name: "Bill Generator",            icon: "🏗️", htmlFile: "BillGenerator.html" },
   "emd-refund":               { name: "EMD Refund",                icon: "💸", htmlFile: "EmdRefund.html" },
   "security-refund":          { name: "Security Refund",           icon: "🔒", htmlFile: "SecurityRefund.html" },
@@ -111,17 +116,28 @@ export default function ToolViewer() {
 
         {/* Content */}
         <div style={{ flex: 1, overflow: "hidden" }}>
-          {tool.htmlFile ? (
-            <iframe
-              src={`${base}/tools/${tool.htmlFile}`}
-              style={{ width: "100%", height: "100%", border: "none" }}
-              title={tool.name}
-            />
-          ) : (
-            <div style={{ height: "100%", overflowY: "auto" }}>
-              <BillForm />
-            </div>
-          )}
+            {tool.htmlFile ? (
+              <iframe
+                src={`${base}/tools/${tool.htmlFile}`}
+                style={{ width: "100%", height: "100%", border: "none" }}
+                title={tool.name}
+              />
+            ) : (
+              <div style={{ height: "100%", overflowY: "auto" }}>
+                {(() => {
+                  const componentMap: Record<string, React.ReactNode> = {
+          "contractor-registration": <ContractorRegistration />,
+          "enrollment-data-form": <EnrollmentDataForm />,
+          // default fallback
+          "default": <BillForm />,
+                    "contractor-registration": <ContractorRegistration />,
+                    // default fallback
+                    "default": <BillForm />,
+                  };
+                  return componentMap[id ?? ""] || componentMap["default"];
+                })()}
+              </div>
+            )}
         </div>
       </div>
     </>

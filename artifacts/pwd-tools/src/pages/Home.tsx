@@ -71,7 +71,21 @@ const TOOLS = [
     description: "Generate bill deviation reports",
     htmlFile: "BillDeviationGenerator.html",
   },
-];
+  {
+    id: "contractor-registration",
+    icon: "📝",
+    name: "Contractor Registration",
+    description: "Fill out the contractor enlistment form and generate a printable order",
+    htmlFile: null,
+  },
+    {
+      id: "enrollment-data-form",
+      icon: "🧾",
+      name: "Enrollment Data Form",
+      description: "Collect enrollment details and generate a printable summary",
+      htmlFile: null,
+    },
+  ];
 
 const DIYAS = [
   { left: "3%",  delay: "0s",    dur: "2.8s" },
