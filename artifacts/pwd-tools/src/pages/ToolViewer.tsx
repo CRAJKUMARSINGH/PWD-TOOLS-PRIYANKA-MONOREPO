@@ -18,6 +18,7 @@ const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | 
   "stamp-duty":               { name: "Stamp Duty",                icon: "⚖️", htmlFile: "StampDuty.html" },
   "bill-deviation-generator": { name: "Bill Deviation Generator",  icon: "📋", htmlFile: "BillDeviationGenerator.html" },
   "hindi-bill-note-sheet":    { name: "Hindi Bill Note Sheet",     icon: "📄", htmlFile: null },
+  "contractor-registration":   { name: "Contractor Registration",   icon: "📝", htmlFile: null },
 };
 
 const DIYAS_SMALL = [
