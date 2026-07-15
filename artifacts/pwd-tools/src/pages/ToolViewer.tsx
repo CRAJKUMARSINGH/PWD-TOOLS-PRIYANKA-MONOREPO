@@ -1,4 +1,4 @@
-import { useLocation, useParams } from "wouter";
+﻿import { useLocation, useParams } from "wouter";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import BillForm from "@/pages/BillForm";
 import ContractorRegistration from "@/pages/ContractorRegistration";
@@ -126,11 +126,8 @@ export default function ToolViewer() {
               <div style={{ height: "100%", overflowY: "auto" }}>
                 {(() => {
                   const componentMap: Record<string, React.ReactNode> = {
-          "contractor-registration": <ContractorRegistration />,
-          "enrollment-data-form": <EnrollmentDataForm />,
-          // default fallback
-          "default": <BillForm />,
                     "contractor-registration": <ContractorRegistration />,
+                    "enrollment-data-form": <EnrollmentDataForm />,
                     // default fallback
                     "default": <BillForm />,
                   };
