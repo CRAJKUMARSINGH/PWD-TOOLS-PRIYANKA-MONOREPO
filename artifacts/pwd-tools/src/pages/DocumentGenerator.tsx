@@ -79,7 +79,7 @@ const defaultData: DocumentData = {
   phone: '9079301304',
 
   enlistmentSerial: '95',
-  fiscalYear: '2025-26',
+  fiscalYear: '2026-27',
 
   classOfEnlistment: '"D" Class for Civil Work',
   statusOfEnlistment: 'TEMPORARY - VALIDITY FOR ONE YEAR',
