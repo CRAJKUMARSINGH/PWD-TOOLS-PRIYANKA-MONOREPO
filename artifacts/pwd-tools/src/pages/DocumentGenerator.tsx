@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -219,6 +219,7 @@ function buildStandaloneHtml(d: DocumentData): string {
       <td style="border:none;"></td>
       <td style="border:none;width:220px;text-align:center;">
         <div style="height:36px;"></div>
+        <div style="font-weight:bold;">[ ANIL KHINCHI ]</div>
         <div>Executive Engineer</div>
         <div>P.W.D. District Div.- II Udaipur</div>
       </td>
@@ -230,6 +231,7 @@ function buildStandaloneHtml(d: DocumentData): string {
     <div style="margin-top:4px;">Copy Submitted to:-</div>
     <div style="margin-top:3px;line-height:1.7;">${copyHtml}</div>
     <div style="text-align:right;margin-top:10px;">
+      <div style="font-weight:bold;">[ ANIL KHINCHI ]</div>
       <div>Executive Engineer</div>
       <div>P.W.D. District Div.- II Udaipur</div>
     </div>
@@ -583,6 +585,7 @@ export default function DocumentGenerator() {
           <div className="flex justify-end mb-3">
             <div className="text-center w-[220px]">
               <div className="h-10"></div>
+              <div className="leading-snug font-bold">[ ANIL KHINCHI ]</div>
               <div className="leading-snug">Executive Engineer</div>
               <div className="leading-snug">P.W.D. District Div.- II Udaipur</div>
             </div>
@@ -602,6 +605,7 @@ export default function DocumentGenerator() {
             </div>
             <div className="flex justify-end mt-3">
               <div className="text-center w-[220px]">
+                <div className="font-bold">[ ANIL KHINCHI ]</div>
                 <div>Executive Engineer</div>
                 <div>P.W.D. District Div.- II Udaipur</div>
               </div>
