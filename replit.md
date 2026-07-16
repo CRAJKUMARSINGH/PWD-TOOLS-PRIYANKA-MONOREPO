@@ -38,6 +38,7 @@ React + Vite frontend served at `/`. All tool logic comes directly from the sour
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **Routing**: wouter (client-side routing)
 
 ## Structure
 
