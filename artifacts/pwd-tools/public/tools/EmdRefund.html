@@ -12,13 +12,11 @@
         }
 
         .container {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 10mm;
+            width: 190mm;
+            margin: 10mm auto;
             border: 2px solid #ccc;
-            padding: 20px;
+            padding: 12px 15px;
             box-sizing: border-box;
-            position: relative;
         }
 
         .header {
@@ -26,8 +24,23 @@
             margin-bottom: 2px;
         }
 
+        .header h2 {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        .header p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
         .details {
             margin-bottom: 1px;
+        }
+
+        .details p {
+            margin: 3px 0;
+            font-size: 12px;
         }
 
         .amount-words {
@@ -37,26 +50,28 @@
         .signature-area {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .signature-area td, .signature-area th {
             border: 1px solid #ccc;
-            padding: 5px;
+            padding: 4px 5px;
             text-align: left;
+            font-size: 12px;
         }
 
         .offices {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .offices td, .offices th {
             border: 1px solid black;
-            padding: 5px;
+            padding: 4px 5px;
             text-align: left;
             word-wrap: break-word;
+            font-size: 12px;
         }
 
         .input-field {
@@ -67,31 +82,29 @@
         }
 
         @media print {
-            @page { margin: 0; }
-            .container {
-                border: none;
-                width: 210mm;
-                min-height: 297mm;
+            @page {
+                size: A4 portrait;
                 margin: 0;
-                padding: 0;
             }
-
-            .input-field {
-                border: none;
-            }
-
             body {
                 margin: 0;
+            }
+            .container {
+                border: none;
+                width: 100%;
+                margin: 0;
+                padding: 10mm 12mm;
+                box-sizing: border-box;
+            }
+            .input-field {
+                border: none;
             }
         }
 
         .seal-container {
-            position: absolute;
-            left: 10mm;
-            bottom: 10mm;
             width: 40mm;
             height: 25mm;
-            z-index: 10;
+            margin-top: 8px;
         }
 
         .seal {
@@ -106,18 +119,16 @@
         }
 
         .bottom-left-box {
-            position: absolute;
-            bottom: 40mm;
-            left: 40mm;
             border: 2px solid black;
-            padding: 10px;
+            padding: 8px 10px;
             width: 300px;
             text-align: left;
-            height: auto;
+            margin-top: 10px;
         }
 
         .bottom-left-box p {
             margin: 3px 0;
+            font-size: 12px;
         }
 
         .bottom-left-box .blue-text {
