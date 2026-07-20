@@ -39,8 +39,8 @@ const TOOLS = [
   {
     id: "financial-progress",
     icon: "📈",
-    name: "Financial Progress",
-    description: "Track financial progress of projects",
+    name: "Liquidity Damages Calculator",
+    description: "Financial Progress Tracker",
     htmlFile: "FinancialProgressTracker.html",
   },
   {
@@ -78,14 +78,14 @@ const TOOLS = [
     description: "Fill out the contractor enlistment form and generate a printable order",
     htmlFile: null,
   },
-    {
-      id: "enrollment-data-form",
-      icon: "🧾",
-      name: "Enrollment Data Form",
-      description: "Collect enrollment details and generate a printable summary",
-      htmlFile: null,
-    },
-  ];
+  {
+    id: "bank-communication",
+    icon: "🏦",
+    name: "Bank Communication",
+    description: "Generate bank guarantee verification and validity extension letters in Hindi",
+    htmlFile: null,
+  },
+];
 
 const DIYAS = [
   { left: "3%",  delay: "0s",    dur: "2.8s" },

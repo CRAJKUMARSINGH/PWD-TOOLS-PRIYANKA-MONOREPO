@@ -1,24 +1,24 @@
 ﻿import { useLocation, useParams } from "wouter";
-import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import BillForm from "@/pages/BillForm";
 import ContractorRegistration from "@/pages/ContractorRegistration";
+import BankCommunication from "@/pages/BankCommunication";
 
 const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | null }> = {
   // Map of tool IDs to their metadata
 
-  "enrollment-data-form": { name: "Enrollment Data Form", icon: "🧾", htmlFile: null },
   "bill-generator":           { name: "Bill Generator",            icon: "🏗️", htmlFile: "BillGenerator.html" },
   "emd-refund":               { name: "EMD Refund",                icon: "💸", htmlFile: "EmdRefund.html" },
   "security-refund":          { name: "Security Refund",           icon: "🔒", htmlFile: "SecurityRefund.html" },
   "bill-note-sheet":          { name: "Bill Note Sheet",           icon: "📝", htmlFile: "BillNoteSheet.html" },
   "deductions-table":         { name: "Deductions Table",          icon: "➖", htmlFile: "DeductionsTable.html" },
-  "financial-progress":       { name: "Financial Progress",        icon: "📈", htmlFile: "FinancialProgressTracker.html" },
+  "financial-progress":       { name: "Liquidity Damages Calculator", icon: "📈", htmlFile: "FinancialProgressTracker.html" },
   "apg-calculator":           { name: "APG Calculator",            icon: "🧮", htmlFile: "ApgCalculator.html" },
   "delay-calculator":         { name: "Delay Calculator",          icon: "⏱️", htmlFile: "DelayCalculator.html" },
   "stamp-duty":               { name: "Stamp Duty",                icon: "⚖️", htmlFile: "StampDuty.html" },
   "bill-deviation-generator": { name: "Bill Deviation Generator",  icon: "📋", htmlFile: "BillDeviationGenerator.html" },
   "hindi-bill-note-sheet":    { name: "Hindi Bill Note Sheet",     icon: "📄", htmlFile: null },
   "contractor-registration":   { name: "Contractor Registration",   icon: "📝", htmlFile: null },
+  "bank-communication":        { name: "Bank Communication",        icon: "🏦", htmlFile: null },
 };
 
 const DIYAS_SMALL = [
@@ -128,6 +128,7 @@ export default function ToolViewer() {
                 {(() => {
                   const componentMap: Record<string, React.ReactNode> = {
                     "contractor-registration": <ContractorRegistration />,
+                    "bank-communication": <BankCommunication />,
                     "enrollment-data-form": <EnrollmentDataForm />,
                     // default fallback
                     "default": <BillForm />,
