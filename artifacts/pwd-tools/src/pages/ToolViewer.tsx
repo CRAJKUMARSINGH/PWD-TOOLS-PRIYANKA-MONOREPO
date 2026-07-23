@@ -2,6 +2,7 @@
 import BillForm from "@/pages/BillForm";
 import ContractorRegistration from "@/pages/ContractorRegistration";
 import BankCommunication from "@/pages/BankCommunication";
+import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 
 const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | null }> = {
   // Map of tool IDs to their metadata
@@ -130,10 +131,9 @@ export default function ToolViewer() {
                     "contractor-registration": <ContractorRegistration />,
                     "bank-communication": <BankCommunication />,
                     "enrollment-data-form": <EnrollmentDataForm />,
-                    // default fallback
-                    "default": <BillForm />,
+                    "hindi-bill-note-sheet": <BillForm />,
                   };
-                  return componentMap[id ?? ""] || componentMap["default"];
+                  return componentMap[id ?? ""] ?? <BillForm />;
                 })()}
               </div>
             )}
