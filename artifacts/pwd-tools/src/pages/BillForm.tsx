@@ -431,7 +431,7 @@ const defaultForm: FormData = {
   lc1: "",
   depV: "0",
   miningRoyaltyOption: "A0",
-  signatoryName: "AUDTOR I/II/III",
+  signatoryName: "AUDITOR Badgaon/Gogunda/Sayra",
   officeName: "PWD District Div.-II, Udaipur",
   contractorSearch: "",
 };
