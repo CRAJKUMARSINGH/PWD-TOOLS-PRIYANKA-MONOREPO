@@ -132,7 +132,25 @@ function buildVerificationHtml(d: BankCommunicationData): string {
     उक्त बैंक गारन्टी की छाया प्रति संलग्न कर भिजवाई जा रही है।
     कृपया सत्यापित कराने का कष्ट करावे।
   </p>
-  <div style="margin-top:24px;"><strong>सलग्न:-</strong> BG की छाया प्रति</div>`;
+  <div style="margin-top:24px;"><strong>सलग्न:-</strong> BG की छाया प्रति</div>
+  <div style="text-align:right;margin:32px 0 24px;">
+    <div style="height:40px;"></div>
+    <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
+    <div>${esc(d.signatoryDesignation)}</div>
+    <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+  </div>
+  <div style="margin-top:16px;font-size:12px;">
+    <div style="margin-bottom:4px;"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
+    <div style="margin-bottom:8px;">
+      प्रतिलिपि ${esc(d.ccBankName)}, ${esc(d.ccBankAddress)} को प्रस्तुत कर
+      निवेदन है कि उक्त बैंक गारन्टी को सत्यापित कर इस कार्यालय को अवगत करावें।
+    </div>
+    <div style="text-align:right;margin-top:20px;">
+      <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
+      <div>${esc(d.signatoryDesignation)}</div>
+      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+    </div>
+  </div>`;
 }
 
 function buildExtensionHtml(d: BankCommunicationData): string {
@@ -337,8 +355,36 @@ function VerificationPreview({ d }: { d: BankCommunicationData }) {
         कृपया सत्यापित कराने का कष्ट करावे।
       </p>
 
-      <div className="mt-8">
+      <div className="mt-6">
         <span className="font-bold">सलग्न:-</span> BG की छाया प्रति
+      </div>
+
+      <div className="flex justify-end mb-6 mt-8">
+        <div className="text-center w-[220px]">
+          <div className="h-10" />
+          <div className="font-bold">({d.signatoryName})</div>
+          <div>{d.signatoryDesignation}</div>
+          <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+        </div>
+      </div>
+
+      <div className="mt-6 text-[12px]">
+        <div className="mb-1">
+          <span className="font-bold">क्रमांक:-</span>{' '}
+          {d.letterNo || '………………………………'}
+        </div>
+        <p className="text-justify leading-relaxed">
+          प्रतिलिपि {d.ccBankName}, {d.ccBankAddress} को प्रस्तुत कर
+          निवेदन है कि उक्त बैंक गारन्टी को सत्यापित कर इस कार्यालय को अवगत
+          करावें।
+        </p>
+        <div className="flex justify-end mt-6">
+          <div className="text-center w-[220px]">
+            <div className="font-bold">({d.signatoryName})</div>
+            <div>{d.signatoryDesignation}</div>
+            <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+          </div>
+        </div>
       </div>
     </>
   );
@@ -730,6 +776,42 @@ export default function BankCommunicationGenerator() {
                     className="min-h-[72px] resize-none"
                   />
                 </Field>
+
+                <Field label="हस्ताक्षरकर्ता का नाम" hint="Signatory Name">
+                  <Input
+                    value={data.signatoryName}
+                    onChange={(e) => update('signatoryName', e.target.value)}
+                    placeholder="जैसे: अनिल खिच्ची"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="पदनाम" hint="Designation">
+                  <Input
+                    value={data.signatoryDesignation}
+                    onChange={(e) => update('signatoryDesignation', e.target.value)}
+                    placeholder="जैसे: अधिशाषी अभियन्ता"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="प्रतिलिपि — बैंक का नाम" hint="CC Bank Name">
+                  <Input
+                    value={data.ccBankName}
+                    onChange={(e) => update('ccBankName', e.target.value)}
+                    placeholder="जैसे: यूनियन बैंक ऑफ इण्डिया"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="प्रतिलिपि — बैंक का पता" hint="CC Bank Address">
+                  <Textarea
+                    value={data.ccBankAddress}
+                    onChange={(e) => update('ccBankAddress', e.target.value)}
+                    placeholder="बैंक शाखा का पूरा पता"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
               </section>
             ) : template === 'bg-extension' ? (
               <section className="space-y-3">
@@ -820,6 +902,15 @@ export default function BankCommunicationGenerator() {
                     value={data.signatoryName}
                     onChange={(e) => update('signatoryName', e.target.value)}
                     placeholder="जैसे: अनिल खिच्ची"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="पदनाम" hint="Designation">
+                  <Input
+                    value={data.signatoryDesignation}
+                    onChange={(e) => update('signatoryDesignation', e.target.value)}
+                    placeholder="जैसे: अधिशाषी अभियन्ता"
                     className="h-10"
                   />
                 </Field>
