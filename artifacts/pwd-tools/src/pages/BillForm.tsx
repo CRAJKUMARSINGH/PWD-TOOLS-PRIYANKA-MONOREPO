@@ -388,6 +388,7 @@ interface FormData {
   hasExtraItem: YesNo;
   extraItemAmount: string;
   hasExcessItem: YesNo;
+  headWiseBifurcation: YesNo;
   sd10: string;
   it2: string;
   gst2: string;
@@ -425,6 +426,7 @@ const defaultForm: FormData = {
   hasExtraItem: "No",
   extraItemAmount: "0",
   hasExcessItem: "Yes",  // Always Yes - removed from form, auto-detected by work %
+  headWiseBifurcation: "No",
   sd10: "",
   it2: "",
   gst2: "",
@@ -670,7 +672,7 @@ export default function BillForm() {
   }
 
   function handlePrint() {
-    const html = buildPrintHtml(billTitle, outputRows, deductionRows, notePoints, form.signatoryName, getPdfFilename());
+    const html = buildPrintHtml(billTitle, outputRows, deductionRows, notePoints, form.signatoryName, getPdfFilename(), form.headWiseBifurcation, thisBillAmt);
     const win = window.open("", "_blank", "width=794,height=1123");
     if (!win) { alert("Please allow popups to print."); return; }
     win.document.write(html);
@@ -1029,6 +1031,30 @@ export default function BillForm() {
               </div>
             </div>
 
+            {/* Head-wise Bifurcation */}
+            <div className={sectionCls}>
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मद वार विभाजन / Head-wise Bifurcation</h3>
+              <div className="grid grid-cols-2 gap-3 items-start">
+                <div>
+                  <label className={labelCls}>क्या मद वार विभाजन आवश्यक है? / Head-wise Bifurcation Needed?</label>
+                  <select className={inputCls} value={form.headWiseBifurcation} onChange={set("headWiseBifurcation")}>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+                {form.headWiseBifurcation === "Yes" && thisBillAmt > 0 && (
+                  <div className="col-span-2">
+                    <div className="rounded-lg p-2 text-xs font-semibold" style={{ background: "#fff8e1", border: "1.5px solid #e6a817", color: "#7B2D00" }}>
+                      <div className="mb-1 font-bold" style={{ color: "#880e4f" }}>Present Bill Amount: ₹{thisBillAmt.toLocaleString("en-IN")}</div>
+                      <div>5054 — 337 (70%) = ₹{Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</div>
+                      <div>5054 — 789 (17%) = ₹{Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</div>
+                      <div>5054 — 796 (13%) = ₹{Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Other Details */}
             <div className={sectionCls}>
               <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>अन्य विवरण / Other Details</h3>
@@ -1065,6 +1091,8 @@ export default function BillForm() {
               deductionRows={deductionRows}
               notePoints={notePoints}
               signatoryName={form.signatoryName}
+              headWiseBifurcation={form.headWiseBifurcation}
+              thisBillAmt={thisBillAmt}
             />
           </div>
         </div>
@@ -1079,9 +1107,11 @@ interface TableProps {
   deductionRows: [string, string][];
   notePoints: string[];
   signatoryName: string;
+  headWiseBifurcation?: YesNo;
+  thisBillAmt?: number;
 }
 
-function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, signatoryName }: TableProps) {
+function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, signatoryName, headWiseBifurcation, thisBillAmt }: TableProps) {
   const tdL = "border border-gray-500 px-2 py-1 font-semibold bg-gray-50 w-1/2 align-top text-xs";
   const tdR = "border border-gray-500 px-2 py-1 w-1/2 align-top text-xs";
 
@@ -1113,6 +1143,27 @@ function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, sign
               <td className={tdR}>{value}</td>
             </tr>
           ))}
+          {headWiseBifurcation === "Yes" && thisBillAmt && thisBillAmt > 0 && (
+            <>
+              <tr>
+                <td colSpan={2} className="border border-gray-500 px-2 py-1 font-bold bg-yellow-50 text-xs" style={{ color: "#7B2D00", borderTop: "2px solid #e6a817" }}>
+                  मद वार विभाजन / Head-wise Bifurcation — Head 5054 (Present Bill Amount: Rs. {thisBillAmt.toLocaleString("en-IN")})
+                </td>
+              </tr>
+              <tr>
+                <td className={tdL + " pl-6"}>5054 — 337 (70%)</td>
+                <td className={tdR}>Rs. {Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</td>
+              </tr>
+              <tr>
+                <td className={tdL + " pl-6"}>5054 — 789 (17%)</td>
+                <td className={tdR}>Rs. {Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</td>
+              </tr>
+              <tr>
+                <td className={tdL + " pl-6"}>5054 — 796 (13%)</td>
+                <td className={tdR}>Rs. {Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 
@@ -1135,6 +1186,8 @@ function buildPrintHtml(
   notePoints: string[],
   signatoryName: string,
   filename: string,
+  headWiseBifurcation?: YesNo,
+  thisBillAmt?: number,
 ): string {
   const totalItems = outputRows.length + deductionRows.length + notePoints.length;
   const baseFontPt = totalItems <= 30 ? 9 : totalItems <= 40 ? 8 : totalItems <= 55 ? 7.5 : 7;
@@ -1146,6 +1199,12 @@ function buildPrintHtml(
   const dedHtml = deductionRows
     .map(([l, v]) => `<tr><td class="l" style="padding-left:1.5em">${l}</td><td class="r">${v}</td></tr>`)
     .join("");
+  const bifurcationHtml = (headWiseBifurcation === "Yes" && thisBillAmt && thisBillAmt > 0)
+    ? `<tr><td colspan="2" class="dh" style="color:#7B2D00;background:#fffde7;border-top:2px solid #e6a817;">मद वार विभाजन / Head-wise Bifurcation &mdash; Head 5054 &nbsp;(Present Bill Amount: Rs. ${thisBillAmt.toLocaleString("en-IN")})</td></tr>` +
+      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 337 (70%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</td></tr>` +
+      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 789 (17%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</td></tr>` +
+      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 796 (13%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</td></tr>`
+    : "";
   const notesHtml = notePoints.map(pt => `<li>${pt}</li>`).join("");
 
   return `<!DOCTYPE html>
@@ -1177,6 +1236,7 @@ function buildPrintHtml(
   ${rowsHtml}
   <tr><td colspan="2" class="dh">Deductions:- &nbsp; Rs.</td></tr>
   ${dedHtml}
+  ${bifurcationHtml}
 </table>
 <div class="note-section">
   <ol>${notesHtml}</ol>
