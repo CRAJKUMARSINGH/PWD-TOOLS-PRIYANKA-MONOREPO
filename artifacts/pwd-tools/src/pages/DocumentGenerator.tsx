@@ -33,7 +33,11 @@ type DocumentData = {
   powerOfAttorney: string;
   tenderLimit: string;
   techPersonnel: string;
-  securityDeposited: string;
+  // Security — broken into 3 parts
+  securityType: 'BG' | 'FDR' | 'NSC';
+  securityBankName: string;
+  securityNumberDate: string;
+  securityAmount: string;
   prevEnlistmentRef: string;
   taxClearance: string;
 
@@ -69,17 +73,17 @@ const FISCAL_YEAR = currentFiscalYear();
 const defaultData: DocumentData = {
   officeName: 'OFFICE OF THE EXECUTIVE ENGINEER',
   departmentName: 'P.W.D. DISTRICT DIV.- II UDAIPUR',
-  regNo: 'D-03/10825-26 (T)',
+  regNo: '',
 
-  contractorName: 'HETAL ENTERPRISES , M/S SANDA BAI S/O KISHAN SINGH',
-  address: 'PATELO KI BHAGEL, SHOBHAWAS, NANDESHMA, TEHSIL SAYRA, UDAIPUR (RAJ.)',
-  panNo: 'HXCPB4796N',
-  gstNo: '08HXCPB4796NIZS',
-  email: 'PTCGOGUNDA@GMAIL.COM',
-  phone: '9079301304',
+  contractorName: '',
+  address: '',
+  panNo: '',
+  gstNo: '',
+  email: '',
+  phone: '',
 
-  enlistmentSerial: '95',
-  fiscalYear: '2026-27',
+  enlistmentSerial: '',
+  fiscalYear: currentFiscalYear(),
 
   classOfEnlistment: '"D" Class for Civil Work',
   statusOfEnlistment: 'TEMPORARY - VALIDITY FOR ONE YEAR',
@@ -88,7 +92,10 @@ const defaultData: DocumentData = {
   powerOfAttorney: 'NA',
   tenderLimit: 'Up to Rs. 30 Lacs.',
   techPersonnel: 'NA',
-  securityDeposited: '75000/- FDR No. 50301367833065 Date 11/06/2026 HDFC BANK LTD GOGUNDA',
+  securityType: 'FDR',
+  securityBankName: '',
+  securityNumberDate: '',
+  securityAmount: '',
   prevEnlistmentRef: 'NA',
   taxClearance: 'Shall be produced every year by the end of September.',
 
@@ -96,6 +103,14 @@ const defaultData: DocumentData = {
 };
 
 type TableRowSpec = { no: string; label: string; value: string; bold?: boolean };
+
+function buildSecurityString(d: DocumentData): string {
+  const parts: string[] = [];
+  if (d.securityAmount) parts.push(`Rs. ${d.securityAmount}/-`);
+  if (d.securityType)   parts.push(`${d.securityType} No. ${d.securityNumberDate || '………………'}`);
+  if (d.securityBankName) parts.push(d.securityBankName);
+  return parts.join(' | ') || '………………………………';
+}
 
 function getTableRows(d: DocumentData): TableRowSpec[] {
   const code = formatEnlistmentCode(d.enlistmentSerial, d.fiscalYear);
@@ -112,7 +127,7 @@ function getTableRows(d: DocumentData): TableRowSpec[] {
     { no: '',  label: 'Name of person holding the power of Attorney', value: d.powerOfAttorney },
     { no: '7', label: 'Extent up to Which Qualified to Tender', value: d.tenderLimit },
     { no: '8', label: 'Name of Technical Personal', value: d.techPersonnel },
-    { no: '9', label: 'Security Deposited', value: d.securityDeposited },
+    { no: '9', label: 'Security Deposited', value: buildSecurityString(d) },
     { no: '10', label: 'Ref. of previous enlistment', value: d.prevEnlistmentRef },
     { no: '11', label: 'Sales Tax Clearance Certificate', value: d.taxClearance },
   ];
@@ -157,8 +172,9 @@ function buildStandaloneHtml(d: DocumentData): string {
 <title>Contractor Enlistment Order</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: A4 portrait; margin: 15mm; }
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; }
+  @page { size: A4 portrait; margin-top: 15mm; margin-bottom: 15mm; margin-left: 15mm; margin-right: 15mm; }
+  @page { marks: none; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; padding:0; }
   .wrap { max-width: 180mm; margin: 0 auto; }
   table { border-collapse: collapse; width: 100%; }
   .hdr { text-align:center; margin-bottom:18px; }
@@ -463,6 +479,63 @@ export default function DocumentGenerator() {
               ) : (
                 <div className="rounded-md border border-dashed px-4 py-2.5 text-center text-xs text-muted-foreground">
                   क्रमांक डालने पर कोड यहाँ दिखेगा
+                </div>
+              )}
+            </section>
+
+            {/* ── STEP 3: Security Details ── */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 border-b pb-1.5">
+                <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">3</span>
+                <div>
+                  <p className="text-sm font-bold leading-none">सुरक्षा जमा विवरण</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Security Deposit Details</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="राशि / Amount (₹)">
+                  <Input
+                    value={data.securityAmount}
+                    onChange={(e) => update('securityAmount', e.target.value)}
+                    placeholder="जैसे: 75000"
+                    className="h-10"
+                  />
+                </Field>
+                <Field label="प्रकार / Type">
+                  <select
+                    className="h-10 w-full border border-input rounded-md px-3 bg-background"
+                    value={data.securityType}
+                    onChange={(e) => update('securityType', e.target.value as 'BG' | 'FDR' | 'NSC')}
+                  >
+                    <option value="BG">BG — Bank Guarantee</option>
+                    <option value="FDR">FDR — Fixed Deposit Receipt</option>
+                    <option value="NSC">NSC — National Savings Certificate</option>
+                  </select>
+                </Field>
+              </div>
+
+              <Field label="बैंक का नाम / Bank Name">
+                <Input
+                  value={data.securityBankName}
+                  onChange={(e) => update('securityBankName', e.target.value)}
+                  placeholder="जैसे: HDFC BANK LTD GOGUNDA"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="संख्या और तिथि / Number & Date">
+                <Input
+                  value={data.securityNumberDate}
+                  onChange={(e) => update('securityNumberDate', e.target.value)}
+                  placeholder="जैसे: 50301367833065 Date 11/06/2026"
+                  className="h-10"
+                />
+              </Field>
+
+              {data.securityAmount && (
+                <div className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
+                  <span className="font-semibold text-primary">Preview:</span> {buildSecurityString(data)}
                 </div>
               )}
             </section>

@@ -279,7 +279,12 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 15mm;
+    margin-top: 15mm;
+    margin-bottom: 15mm;
+    margin-left: 15mm;
+    margin-right: 15mm;
+    /* Suppress browser-injected header and footer */
+    marks: none;
   }
   body, html {
     background: transparent !important;
