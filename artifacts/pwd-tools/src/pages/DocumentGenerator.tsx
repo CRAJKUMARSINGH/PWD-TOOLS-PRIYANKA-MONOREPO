@@ -95,7 +95,7 @@ const defaultData: DocumentData = {
   securityType: 'FDR',
   securityBankName: '',
   securityNumberDate: '',
-  securityAmount: '',
+  securityAmount: '75000',
   prevEnlistmentRef: 'NA',
   taxClearance: 'Shall be produced every year by the end of September.',
 
@@ -489,19 +489,11 @@ export default function DocumentGenerator() {
                 <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">3</span>
                 <div>
                   <p className="text-sm font-bold leading-none">सुरक्षा जमा विवरण</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Security Deposit Details</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Security Deposit Details (Fixed Amount: Rs. 75,000/-)</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="राशि / Amount (₹)">
-                  <Input
-                    value={data.securityAmount}
-                    onChange={(e) => update('securityAmount', e.target.value)}
-                    placeholder="जैसे: 75000"
-                    className="h-10"
-                  />
-                </Field>
+              <div className="grid grid-cols-1 gap-3">
                 <Field label="प्रकार / Type">
                   <select
                     className="h-10 w-full border border-input rounded-md px-3 bg-background"
@@ -533,11 +525,9 @@ export default function DocumentGenerator() {
                 />
               </Field>
 
-              {data.securityAmount && (
-                <div className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
-                  <span className="font-semibold text-primary">Preview:</span> {buildSecurityString(data)}
-                </div>
-              )}
+              <div className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
+                <span className="font-semibold text-primary">Preview:</span> {buildSecurityString(data)}
+              </div>
             </section>
 
             {/* ── Actions ── */}
