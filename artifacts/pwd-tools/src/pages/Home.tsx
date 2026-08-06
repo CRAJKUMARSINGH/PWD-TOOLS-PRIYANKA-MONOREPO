@@ -7,6 +7,7 @@ const TOOLS = [
     name: "Bill Generator",
     description: "Complete bill package with all documents and PDFs",
     htmlFile: "BillGenerator.html",
+    directPath: null as string | null,
   },
   {
     id: "emd-refund",
@@ -14,6 +15,7 @@ const TOOLS = [
     name: "EMD Refund",
     description: "Calculate EMD refunds with penalties",
     htmlFile: "EmdRefund.html",
+    directPath: null as string | null,
   },
   {
     id: "security-refund",
@@ -21,6 +23,7 @@ const TOOLS = [
     name: "Security Refund",
     description: "Security deposit refund calculator",
     htmlFile: "SecurityRefund.html",
+    directPath: null as string | null,
   },
   {
     id: "hindi-bill-note-sheet",
@@ -28,6 +31,7 @@ const TOOLS = [
     name: "Hindi Bill Note Sheet",
     description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
     htmlFile: null,
+    directPath: null as string | null,
   },
   {
     id: "deductions-table",
@@ -35,6 +39,7 @@ const TOOLS = [
     name: "Deductions Table",
     description: "Calculate TDS and security deductions",
     htmlFile: "DeductionsTable.html",
+    directPath: null as string | null,
   },
   {
     id: "financial-progress",
@@ -42,6 +47,7 @@ const TOOLS = [
     name: "Liquidity Damages Calculator",
     description: "Financial Progress Tracker",
     htmlFile: "FinancialProgressTracker.html",
+    directPath: null as string | null,
   },
   {
     id: "apg-calculator",
@@ -49,6 +55,7 @@ const TOOLS = [
     name: "APG Calculator",
     description: "Calculate APG values",
     htmlFile: "ApgCalculator.html",
+    directPath: null as string | null,
   },
   {
     id: "delay-calculator",
@@ -56,6 +63,7 @@ const TOOLS = [
     name: "Delay Calculator",
     description: "Calculate project delays and extensions",
     htmlFile: "DelayCalculator.html",
+    directPath: null as string | null,
   },
   {
     id: "stamp-duty",
@@ -63,6 +71,7 @@ const TOOLS = [
     name: "Stamp Duty",
     description: "Calculate stamp duty for documents",
     htmlFile: "StampDuty.html",
+    directPath: null as string | null,
   },
   {
     id: "bill-deviation-generator",
@@ -70,6 +79,7 @@ const TOOLS = [
     name: "Bill Deviation Generator",
     description: "Generate bill deviation reports",
     htmlFile: "BillDeviationGenerator.html",
+    directPath: null as string | null,
   },
   {
     id: "contractor-registration",
@@ -77,6 +87,7 @@ const TOOLS = [
     name: "Contractor Registration",
     description: "Fill out the contractor enlistment form and generate a printable order",
     htmlFile: null,
+    directPath: null as string | null,
   },
   {
     id: "bank-communication",
@@ -84,6 +95,15 @@ const TOOLS = [
     name: "Bank Communication",
     description: "Generate bank guarantee verification and validity extension letters in Hindi",
     htmlFile: null,
+    directPath: null as string | null,
+  },
+  {
+    id: "audit-reply",
+    icon: "🗂️",
+    name: "Audit Reply Tool",
+    description: "अंकेक्षण प्रतिवेदन उत्तर — Fill audit para replies and download formatted DOCX for Distt. Dn. II Udaipur",
+    htmlFile: null,
+    directPath: "/audit-reply",
   },
 ];
 
@@ -180,7 +200,7 @@ export default function Home() {
             {TOOLS.map((tool) => (
               <button
                 key={tool.id}
-                onClick={() => navigate(`/tool/${tool.id}`)}
+                onClick={() => navigate(tool.directPath ?? `/tool/${tool.id}`)}
                 className="tool-card-navratri"
               >
                 <div style={{ fontSize: "36px", filter: "drop-shadow(0 0 4px rgba(230,168,23,0.4))" }}>{tool.icon}</div>
