@@ -157,9 +157,9 @@ function buildStandaloneHtml(d: DocumentData): string {
 <title>Contractor Enlistment Order</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: A4; margin: 18mm 20mm; }
+  @page { size: A4 portrait; margin: 15mm; }
   body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; }
-  .wrap { max-width: 170mm; margin: 0 auto; }
+  .wrap { max-width: 180mm; margin: 0 auto; }
   table { border-collapse: collapse; width: 100%; }
   .hdr { text-align:center; margin-bottom:18px; }
   .hdr-title { font-size:16px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
