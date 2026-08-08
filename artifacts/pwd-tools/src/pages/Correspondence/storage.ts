@@ -1,45 +1,4 @@
-import type { Correspondence, LetterFormData } from "./types";
-import { StorageService } from "../../../../../tmp/legal_corr_manager/src/lib/storage";
-
-// Wrapper functions using IndexedDB via StorageService
-export async function loadCorrespondence(): Promise<Correspondence[]> {
-  return await StorageService.loadCorrespondence();
-}
-
-export async function saveCorrespondence(data: LetterFormData): Promise<Correspondence> {
-  const items = await StorageService.loadCorrespondence();
-  const newItem: Correspondence = {
-    ...data,
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  } as any;
-  items.unshift(newItem);
-  await StorageService.saveCorrespondence(items);
-  return newItem;
-}
-
-export async function updateCorrespondence(id: string, data: Partial<LetterFormData>): Promise<Correspondence | null> {
-  const items = await StorageService.loadCorrespondence();
-  const idx = items.findIndex(i => i.id === id);
-  if (idx === -1) return null;
-  const updated = { ...items[idx], ...data, updatedAt: new Date().toISOString() } as Correspondence;
-  items[idx] = updated;
-  await StorageService.saveCorrespondence(items);
-  return updated;
-}
-
-export async function deleteCorrespondence(id: string): Promise<void> {
-  const items = await StorageService.loadCorrespondence();
-  const filtered = items.filter(i => i.id !== id);
-  await StorageService.saveCorrespondence(filtered);
-}
-
-export async function getCorrespondence(id: string): Promise<Correspondence | undefined> {
-  const items = await StorageService.loadCorrespondence();
-  return items.find(i => i.id === id);
-}
-
+import type { Letter, LetterFormData } from "./types";
 
 const STORAGE_KEY = "pwd_correspondence_letters";
 

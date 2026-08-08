@@ -1,31 +1,31 @@
 import { useState, useCallback } from "react";
 import { Mail } from "lucide-react";
 import type { View, LetterFormData } from "./types";
-import { loadCorrespondence, saveCorrespondence, updateCorrespondence, deleteCorrespondence, getCorrespondence } from "./storage";
+import { loadLetters, saveLetter, updateLetter, deleteLetter, getLetter } from "./storage";
 import LetterList from "./LetterList";
 import LetterForm from "./LetterForm";
 import LetterDetail from "./LetterDetail";
 
 export default function CorrespondencePage() {
   const [view, setView] = useState<View>({ name: "list" });
-  const [letters, setLetters] = useState(() => loadCorrespondence());
+  const [letters, setLetters] = useState(() => loadLetters());
 
-  const refresh = useCallback(() => setLetters(loadCorrespondence()), []);
+  const refresh = useCallback(() => setLetters(loadLetters()), []);
 
   function handleCreate(data: LetterFormData) {
-    saveCorrespondence(data);
+    saveLetter(data);
     refresh();
     setView({ name: "list" });
   }
 
   function handleUpdate(id: string, data: LetterFormData) {
-    updateCorrespondence(id, data);
+    updateLetter(id, data);
     refresh();
     setView({ name: "detail", id });
   }
 
   function handleDelete(id: string) {
-    deleteCorrespondence(id);
+    deleteLetter(id);
     refresh();
     setView({ name: "list" });
   }
@@ -75,7 +75,7 @@ export default function CorrespondencePage() {
         )}
 
         {view.name === "edit" && (() => {
-          const letter = getCorrespondence(view.id);
+          const letter = getLetter(view.id);
           if (!letter) {
             setView({ name: "list" });
             return null;
@@ -91,7 +91,7 @@ export default function CorrespondencePage() {
         })()}
 
         {view.name === "detail" && (() => {
-          const letter = getCorrespondence(view.id);
+          const letter = getLetter(view.id);
           if (!letter) {
             setView({ name: "list" });
             return null;

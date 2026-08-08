@@ -49,6 +49,4 @@ export const DEFAULT_FROM_NAME_EN = "Anil Khichi";
 export const DEFAULT_FROM_DESIGNATION_EN = "Executive Engineer";
 export const DEFAULT_FROM_OFFICE_EN = "PWD, District Division–II, Udaipur";
 
-// Re-export Correspondence types from external module
-export type { Correspondence, LetterFormData, View } from "../../tmp/legal_corr_manager/src/types";
 
