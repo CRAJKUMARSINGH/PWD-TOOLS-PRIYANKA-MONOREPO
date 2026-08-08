@@ -1,5 +1,5 @@
+import { Edit2, Eye, FileText, Mail, Plus, Reply, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Plus, Reply, FileText, Trash2, Eye, Edit2, Mail, FileCheck } from "lucide-react";
 import type { Letter, View } from "./types";
 
 interface Props {
@@ -73,11 +73,10 @@ export default function LetterList({ letters, onNavigate, onDelete }: Props) {
           <button
             key={v}
             onClick={() => setFilterType(v)}
-            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-              filterType === v
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${filterType === v
                 ? "bg-blue-700 text-white border-blue-700"
                 : "bg-white text-gray-600 border-gray-300 hover:border-blue-400"
-            }`}
+              }`}
           >
             {v === "all" ? "सभी" : TYPE_LABEL[v]}
           </button>
@@ -87,11 +86,10 @@ export default function LetterList({ letters, onNavigate, onDelete }: Props) {
           <button
             key={v}
             onClick={() => setFilterStatus(v)}
-            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-              filterStatus === v
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${filterStatus === v
                 ? "bg-gray-800 text-white border-gray-800"
                 : "bg-white text-gray-600 border-gray-300 hover:border-gray-500"
-            }`}
+              }`}
           >
             {v === "all" ? "सभी" : STATUS_LABEL[v]}
           </button>
@@ -124,20 +122,18 @@ export default function LetterList({ letters, onNavigate, onDelete }: Props) {
                 <div className="flex flex-wrap items-center gap-2 mb-0.5">
                   <span className="text-xs font-mono text-gray-500">{letter.letterNumber}</span>
                   <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      letter.type === "reply"
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${letter.type === "reply"
                         ? "bg-indigo-100 text-indigo-700"
                         : "bg-blue-100 text-blue-700"
-                    }`}
+                      }`}
                   >
                     {TYPE_LABEL[letter.type]}
                   </span>
                   <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      letter.status === "final"
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${letter.status === "final"
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-amber-100 text-amber-700"
-                    }`}
+                      }`}
                   >
                     {STATUS_LABEL[letter.status]}
                   </span>

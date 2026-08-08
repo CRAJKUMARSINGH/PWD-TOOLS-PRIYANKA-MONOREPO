@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Printer, RefreshCw, FileDown } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { FileDown, Printer, RefreshCw } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type DocumentData = {
@@ -107,7 +107,7 @@ type TableRowSpec = { no: string; label: string; value: string; bold?: boolean }
 function buildSecurityString(d: DocumentData): string {
   const parts: string[] = [];
   if (d.securityAmount) parts.push(`Rs. ${d.securityAmount}/-`);
-  if (d.securityType)   parts.push(`${d.securityType} No. ${d.securityNumberDate || '………………'}`);
+  if (d.securityType) parts.push(`${d.securityType} No. ${d.securityNumberDate || '………………'}`);
   if (d.securityBankName) parts.push(d.securityBankName);
   return parts.join(' | ') || '………………………………';
 }
@@ -116,15 +116,15 @@ function getTableRows(d: DocumentData): TableRowSpec[] {
   const code = formatEnlistmentCode(d.enlistmentSerial, d.fiscalYear);
   return [
     { no: '1', label: 'Name of Contract/Firm', value: d.contractorName ? `M/s. ${d.contractorName}` : '', bold: true },
-    { no: '',  label: '(i) Full Address', value: d.address },
-    { no: '',  label: '(ii) E-Mail-ID', value: d.email },
-    { no: '',  label: '(iii) Phone Nos. -Land Line/ Mobile', value: d.phone },
+    { no: '', label: '(i) Full Address', value: d.address },
+    { no: '', label: '(ii) E-Mail-ID', value: d.email },
+    { no: '', label: '(iii) Phone Nos. -Land Line/ Mobile', value: d.phone },
     { no: '2', label: 'Registration Number', value: code, bold: true },
     { no: '3', label: 'Class of Enlistment', value: d.classOfEnlistment },
     { no: '4', label: 'Status of Enlistment', value: d.statusOfEnlistment },
     { no: '5', label: 'Status of Firm', value: d.statusOfFirm },
     { no: '6', label: 'Name of Partners/Directors/Proprietors', value: d.partners },
-    { no: '',  label: 'Name of person holding the power of Attorney', value: d.powerOfAttorney },
+    { no: '', label: 'Name of person holding the power of Attorney', value: d.powerOfAttorney },
     { no: '7', label: 'Extent up to Which Qualified to Tender', value: d.tenderLimit },
     { no: '8', label: 'Name of Technical Personal', value: d.techPersonnel },
     { no: '9', label: 'Security Deposited', value: buildSecurityString(d) },
@@ -305,9 +305,8 @@ function TableRow({
       <div className="border-b border-r doc-border-black p-1.5 text-center font-bold break-words min-w-0">{no}</div>
       <div className="border-b border-r doc-border-black p-1.5 font-bold break-words min-w-0">{label}</div>
       <div
-        className={`border-b border-r doc-border-black p-1.5 break-words min-w-0 whitespace-pre-wrap ${
-          isBoldValue ? 'font-bold' : ''
-        }`}
+        className={`border-b border-r doc-border-black p-1.5 break-words min-w-0 whitespace-pre-wrap ${isBoldValue ? 'font-bold' : ''
+          }`}
       >
         {value}
       </div>
@@ -366,7 +365,7 @@ export default function DocumentGenerator() {
             </Button>
           </div>
           <p className="mt-2 text-[11px] text-primary-foreground/80 bg-primary-foreground/10 rounded px-2 py-1 leading-relaxed">
-            📋 नीचे जानकारी भरें — दाईं तरफ कागज़ अपने आप तैयार होगा।<br/>
+            📋 नीचे जानकारी भरें — दाईं तरफ कागज़ अपने आप तैयार होगा।<br />
             <span className="text-primary-foreground/60">Fill the boxes below. The document on the right updates automatically.</span>
           </p>
         </div>
@@ -453,7 +452,7 @@ export default function DocumentGenerator() {
               </div>
 
               <p className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2 leading-relaxed">
-                ✏️ सिर्फ क्रमांक लिखें — कोड अपने आप बनेगा।<br/>
+                ✏️ सिर्फ क्रमांक लिखें — कोड अपने आप बनेगा।<br />
                 <span className="text-muted-foreground/70">Enter only the serial number; code is auto-formatted.</span>
               </p>
 
@@ -565,7 +564,7 @@ export default function DocumentGenerator() {
         {/* Toolbar (hidden on print) */}
         <div className="max-w-[210mm] mx-auto mb-4 flex flex-wrap items-center justify-between gap-2 hide-on-print">
           <p className="text-xs text-muted-foreground">
-            Disable "Headers and footers" in the print dialog for best output.
+            Disable &quot;Headers and footers&quot; in the print dialog for best output.
           </p>
           <div className="flex gap-2">
             <Button size="sm" onClick={handlePrint}>
@@ -649,8 +648,8 @@ export default function DocumentGenerator() {
           {/* Note box */}
           <div className="p-2.5 border doc-border-black mb-3 text-[11px]">
             <p className="font-bold">
-              Note: - The Contractor/Firm shall follow the provisions laid down under "Rules for Enlistment of
-              contractor in PWD" (Appendix XVI rules 334 of PWF &amp; AR) and modified to time.
+              Note: - The Contractor/Firm shall follow the provisions laid down under &quot;Rules for Enlistment of
+              contractor in PWD&quot; (Appendix XVI rules 334 of PWF &amp; AR) and modified to time.
             </p>
           </div>
 
