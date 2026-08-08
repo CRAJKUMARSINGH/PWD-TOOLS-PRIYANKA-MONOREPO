@@ -1,6 +1,6 @@
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType, VerticalAlign, ShadingType, BorderStyle } from "docx";
 import { saveAs } from "file-saver";
-import { CASES } from "../data/audit-cases";
+import { CASES } from "@/data/audit-cases";
 
 function mangalRun(text: string, bold = false): TextRun {
   return new TextRun({

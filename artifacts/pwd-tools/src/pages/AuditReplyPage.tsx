@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Download, FileText } from 'lucide-react';
-import { CASES } from '../data/audit-cases';
-import { generateDocx } from '../lib/generate-docx';
+import { CASES } from '@/data/audit-cases';
+import { generateDocx } from '@/lib/generate-docx';
 
 function loadFromStorage() {
   try {
