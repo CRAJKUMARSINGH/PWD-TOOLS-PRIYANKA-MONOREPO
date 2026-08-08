@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -177,6 +177,16 @@ function buildStandaloneHtml(d: DocumentData): string {
   body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; padding:0; }
   .wrap { max-width: 180mm; margin: 0 auto; }
   table { border-collapse: collapse; width: 100%; }
+  .contractor-output,
+  .contractor-output * { line-height: 1 !important; }
+  .contractor-output p,
+  .contractor-output h1,
+  .contractor-output h2,
+  .contractor-output h3,
+  .contractor-output div,
+  .contractor-output table { margin-top: 0 !important; margin-bottom: 0 !important; }
+  .contractor-output header,
+  .contractor-output footer { display: none !important; }
   .hdr { text-align:center; margin-bottom:18px; }
   .hdr-title { font-size:16px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
   .hdr-sub { font-size:13px; font-weight:bold; margin-top:3px; }
@@ -185,7 +195,7 @@ function buildStandaloneHtml(d: DocumentData): string {
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap contractor-output">
   <div class="hdr">
     <div class="hdr-title">${esc(d.officeName)}</div>
     <div class="hdr-sub">${esc(d.departmentName)}</div>
@@ -568,7 +578,7 @@ export default function DocumentGenerator() {
         </div>
 
         {/* ── THE A4 PAGE ── */}
-        <div ref={pageRef} className="a4-page doc-font text-[12px] leading-snug">
+        <div ref={pageRef} className="a4-page contractor-output doc-font text-[12px] leading-snug">
 
           {/* Office Header */}
           <div className="text-center mb-5">

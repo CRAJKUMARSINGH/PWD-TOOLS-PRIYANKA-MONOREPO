@@ -284,9 +284,19 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
     font-size: 12px; line-height: 1.6; color: #000; margin: 0;
   }
   .wrap { max-width: 170mm; margin: 0 auto; }
+  .contractor-output,
+  .contractor-output * { line-height: 1 !important; }
+  .contractor-output p,
+  .contractor-output h1,
+  .contractor-output h2,
+  .contractor-output h3,
+  .contractor-output div,
+  .contractor-output table { margin-top: 0 !important; margin-bottom: 0 !important; }
+  .contractor-output header,
+  .contractor-output footer { display: none !important; }
 </style>
 </head>
-<body><div class="wrap">${body}</div></body>
+<body><div class="wrap contractor-output">${body}</div></body>
 </html>`;
 }
 
@@ -1069,7 +1079,7 @@ export default function BankCommunicationGenerator() {
 
         <div
           ref={pageRef}
-          className="a4-page doc-font text-[12px] leading-snug"
+          className="a4-page contractor-output doc-font text-[12px] leading-snug"
           style={{ fontFamily: "'Noto Sans Devanagari', 'Mangal', 'Nirmala UI', sans-serif" }}
         >
           {template === 'bg-verification' ? (

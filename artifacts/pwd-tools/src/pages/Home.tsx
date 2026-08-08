@@ -105,6 +105,14 @@ const TOOLS = [
     htmlFile: null,
     directPath: "/audit-reply",
   },
+  {
+    id: "correspondence",
+    icon: "✉️",
+    name: "पत्र-व्यवहार (Correspondence)",
+    description: "bilingual drafting tool (हिन्दी, English, bilingual) for letters, replies, drafts, A4 preview, and Word DOCX export",
+    htmlFile: null,
+    directPath: "/correspondence",
+  },
 ];
 
 const DIYAS = [

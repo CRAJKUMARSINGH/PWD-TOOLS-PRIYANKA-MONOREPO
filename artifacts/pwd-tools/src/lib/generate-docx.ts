@@ -9,7 +9,6 @@ function mangalRun(text: string, bold = false): TextRun {
     font: { name: "Mangal", cs: "Mangal" },
     language: { value: "hi-IN", eastAsia: "hi-IN", bidirectional: "hi-IN" },
     size: 18,
-    complexScriptSize: 18,
   });
 }
 
@@ -18,7 +17,7 @@ function createCellContent(text: string, bold = false) {
   return text.split('\n').map(line => 
     new Paragraph({
       children: [mangalRun(line, bold)],
-      spacing: { after: 40 },
+      spacing: { before: 0, after: 0, line: 240 },
     })
   );
 }
@@ -32,7 +31,7 @@ export async function generateDocx(cases: typeof CASES, replies: Record<string, 
       properties: {
         page: {
           size: { width: 16838, height: 11906, orientation: "landscape" as const },
-          margin: { top: 851, bottom: 851, left: 851, right: 851 },
+          margin: { top: 851, bottom: 851, left: 851, right: 851, header: 0, footer: 0 },
         },
       },
       children: [
@@ -42,13 +41,12 @@ export async function generateDocx(cases: typeof CASES, replies: Record<string, 
               text: "अंकेक्षण प्रतिवेदन उत्तर — जिला प्रभाग II, उदयपुर",
               bold: true,
               size: 28,
-              complexScriptSize: 28,
               font: { name: "Mangal", cs: "Mangal" },
               language: { value: "hi-IN", eastAsia: "hi-IN", bidirectional: "hi-IN" },
             })
           ],
           alignment: AlignmentType.CENTER,
-          spacing: { after: 400 },
+          spacing: { before: 0, after: 0, line: 240 },
         }),
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
