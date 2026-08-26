@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +44,6 @@
             text-align: center;
             margin-bottom: 30px;
             color: var(--primary-color);
-            position: relative;
         }
 
         .header h1 {
@@ -74,7 +74,8 @@
             color: var(--primary-color);
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -83,7 +84,8 @@
             transition: var(--transition);
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: var(--secondary-color);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
@@ -94,6 +96,54 @@
             font-size: 14px;
             margin-top: 5px;
             display: none;
+        }
+
+        /* A0/B15/C30 toggle buttons */
+        .royalty-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .royalty-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: 2px solid;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            background: #fff8e1;
+            color: #5d4037;
+            border-color: #8d6e63;
+        }
+
+        .royalty-btn.active-a0 {
+            background: #5d4037;
+            color: #fff;
+            border-color: #5d4037;
+        }
+
+        .royalty-btn.active-b15 {
+            background: #e65100;
+            color: #fff;
+            border-color: #e65100;
+        }
+
+        .royalty-btn.active-c30 {
+            background: #b71c1c;
+            color: #fff;
+            border-color: #b71c1c;
+        }
+
+        .royalty-info {
+            font-size: 0.82rem;
+            margin-top: 6px;
+            color: #e65100;
+            font-weight: 600;
+            min-height: 18px;
         }
 
         .actions {
@@ -148,7 +198,7 @@
         .btn-add {
             background-color: #e67e22;
         }
-        
+
         .btn-add:hover {
             background-color: #d35400;
         }
@@ -172,11 +222,14 @@
             background-color: white;
         }
 
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid #ddd;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px 15px;
             text-align: left;
         }
@@ -241,7 +294,7 @@
             display: none;
         }
 
-        /* Modal for custom deductions */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -265,8 +318,15 @@
         }
 
         @keyframes modalFadeIn {
-            from {opacity: 0; transform: translateY(-50px);}
-            to {opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -303,35 +363,42 @@
             flex: 0 1 auto;
         }
 
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .form-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .actions {
-                flex-direction: column;
-            }
-            
-            .modal-content {
-                width: 90%;
-                margin: 20% auto;
-            }
-        }
-
-        /* Animation Styles */
         @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(10px);}
-            to {opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
 
-        /* Print Styles */
+        @media (max-width: 768px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 20% auto;
+            }
+        }
+
         @media print {
-            @page { margin: 0; }
+            @page {
+                margin: 0;
+            }
+
             body * {
                 visibility: hidden;
             }
@@ -340,7 +407,8 @@
                 background-color: white;
             }
 
-            #printArea, #printArea * {
+            #printArea,
+            #printArea * {
                 visibility: visible;
             }
 
@@ -390,28 +458,10 @@
                 background-color: #f2f2f2 !important;
                 color: black !important;
             }
-
-            .print-footer {
-                margin-top: 40px;
-                text-align: center;
-                font-size: 14px;
-            }
-
-            .print-signatures {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 60px;
-            }
-
-            .signature-block {
-                border-top: 1px solid black;
-                width: 200px;
-                text-align: center;
-                padding-top: 5px;
-            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -424,31 +474,50 @@
         <div class="form-container">
             <div>
                 <div class="form-group">
-                    <label for="amount">Bill Amount (Γé╣):</label>
+                    <label for="amount">Bill Amount (&#8377;):</label>
                     <input type="number" id="amount" placeholder="Enter the total bill amount" min="0" step="1">
                     <div class="error" id="amountError"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="dv_deduction">(M.D.)Deposit-Vth (MD5) Amount (&#8377;):</label>
-                    <input type="number" id="dv_deduction" placeholder="Enter Dep-V deduction amount" min="0" step="1">
+                    <label for="dv_deduction">(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108-00-00) Amount
+                        (&#8377;):</label>
+                    <input type="number" id="dv_deduction" placeholder="Enter (M.D.)Deposit-Vth (MD5) deduction amount"
+                        min="0" step="1">
                     <div class="error" id="dvError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mining Royalty / DFMT Option:</label>
+                    <div class="royalty-options">
+                        <button type="button" class="royalty-btn active-a0" id="btn-A0"
+                            onclick="setRoyaltyOption('A0')">
+                            A0<br><small>Royalty 0% | DFMT 0%</small>
+                        </button>
+                        <button type="button" class="royalty-btn" id="btn-B15" onclick="setRoyaltyOption('B15')">
+                            B15<br><small>Royalty 1.5% | DFMT 0.15%</small>
+                        </button>
+                        <button type="button" class="royalty-btn" id="btn-C30" onclick="setRoyaltyOption('C30')">
+                            C30<br><small>Royalty 3% | DFMT 0.3%</small>
+                        </button>
+                    </div>
+                    <div class="royalty-info" id="royaltyInfo"></div>
                 </div>
             </div>
         </div>
 
         <div class="actions">
-            <button onclick="generateTable()" class="btn-generate">
-                <span class="button-icon">≡ƒôè</span> Generate Table
+            <button onclick="generateTable()">
+                <span class="button-icon">&#128202;</span> Generate Table
             </button>
             <button onclick="openCustomDeductionModal()" class="btn-add">
-                <span class="button-icon">Γ₧ò</span> Add Custom Deduction
+                <span class="button-icon">&#10133;</span> Add Custom Deduction
             </button>
             <button onclick="resetForm()" class="btn-reset">
-                <span class="button-icon">≡ƒöä</span> Reset
+                <span class="button-icon">&#128260;</span> Reset
             </button>
             <button onclick="printResults()" class="btn-print">
-                <span class="button-icon">≡ƒû¿∩╕Å</span> Print Table
+                <span class="button-icon">&#128424;</span> Print Table
             </button>
         </div>
 
@@ -467,12 +536,12 @@
                 <h2>Add Custom Deduction</h2>
                 <span class="close-btn" onclick="closeCustomDeductionModal()">&times;</span>
             </div>
-            
+
             <div class="form-group">
                 <label for="customName">Deduction Name:</label>
                 <input type="text" id="customName" placeholder="Enter deduction name">
             </div>
-            
+
             <div class="form-group">
                 <label for="deductionType">Deduction Type:</label>
                 <select id="deductionType">
@@ -480,17 +549,17 @@
                     <option value="fixed">Fixed Amount</option>
                 </select>
             </div>
-            
+
             <div class="form-group" id="percentageInput">
                 <label for="customPercentage">Percentage:</label>
                 <input type="number" id="customPercentage" placeholder="Enter percentage" min="0" max="100" step="0.01">
             </div>
-            
+
             <div class="form-group" id="fixedInput" style="display: none;">
-                <label for="customAmount">Amount (Γé╣):</label>
+                <label for="customAmount">Amount (&#8377;):</label>
                 <input type="number" id="customAmount" placeholder="Enter fixed amount" min="0" step="1">
             </div>
-            
+
             <div class="modal-buttons">
                 <button onclick="closeCustomDeductionModal()" class="btn-reset">Cancel</button>
                 <button onclick="addCustomDeduction()" class="btn-add">Add Deduction</button>
@@ -504,30 +573,45 @@
             <div class="print-title">Deductions Table</div>
             <div class="print-subtitle" id="printBillTitle"></div>
         </div>
-
         <div class="print-info">
             <div id="printDate"></div>
             <div id="printReference"></div>
         </div>
-
         <div id="printTableContainer"></div>
     </div>
 
     <script>
-        // Add this at the beginning of the script section
-        window.addEventListener('error', function(e) {
+        window.addEventListener('error', function (e) {
             if (e.message.includes('NetworkError')) {
                 console.log('Network error handled');
-                return true; // Prevents the error from showing in console
+                return true;
             }
         });
 
-        // Store custom deductions
         let customDeductions = [];
-        
-        
-        
-        // Format currency in Indian Rupees
+        let royaltyOption = 'A0'; // default
+
+        // ── Royalty option selector ──────────────────────────────────────────
+        function setRoyaltyOption(opt) {
+            royaltyOption = opt;
+            ['A0', 'B15', 'C30'].forEach(function (o) {
+                var btn = document.getElementById('btn-' + o);
+                btn.className = 'royalty-btn';
+            });
+            var activeClass = opt === 'A0' ? 'active-a0' : opt === 'B15' ? 'active-b15' : 'active-c30';
+            document.getElementById('btn-' + opt).classList.add(activeClass);
+
+            var info = document.getElementById('royaltyInfo');
+            if (opt === 'A0') {
+                info.textContent = '';
+            } else {
+                var royaltyPct = opt === 'B15' ? '1.5%' : '3%';
+                var dfmtPct = opt === 'B15' ? '0.15%' : '0.3%';
+                info.textContent = '\u25b6 Mines & Minerals / Royalty: ' + royaltyPct + '  |  PD Account (DMFT): ' + dfmtPct;
+            }
+        }
+
+        // ── Currency formatter ───────────────────────────────────────────────
         function formatIndianCurrency(amount) {
             return new Intl.NumberFormat('en-IN', {
                 style: 'currency',
@@ -535,211 +619,178 @@
                 maximumFractionDigits: 2
             }).format(amount);
         }
-        
-        // Validate form inputs
+
+        // ── Round to next even (used for GST only) ───────────────────────────
+        function roundToEven(num) {
+            var r = Math.round(num);
+            return (r % 2 !== 0) ? r + 1 : r;
+        }
+
+        // ── Validation ───────────────────────────────────────────────────────
         function validateForm() {
-            let isValid = true;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const dvDeduction = parseFloat(document.getElementById('dv_deduction').value);
-            
-            // Reset error messages
+            var isValid = true;
+            var amount = parseFloat(document.getElementById('amount').value);
+            var dvDeduction = parseFloat(document.getElementById('dv_deduction').value);
+
             document.getElementById('amountError').style.display = 'none';
             document.getElementById('dvError').style.display = 'none';
-            
+
             if (isNaN(amount) || amount <= 0) {
                 document.getElementById('amountError').textContent = 'Please enter a valid bill amount greater than zero';
                 document.getElementById('amountError').style.display = 'block';
                 isValid = false;
             }
-            
+
             if (dvDeduction !== 0 && (isNaN(dvDeduction) || dvDeduction < 0)) {
                 document.getElementById('dvError').textContent = 'Please enter a valid (M.D.)Deposit-Vth (MD5) amount (must be zero or positive)';
                 document.getElementById('dvError').style.display = 'block';
                 isValid = false;
             }
-            
+
             return isValid;
         }
-        
-                function roundToEven(num) {
-        // First, round to the nearest whole number
-        const roundedToNearest = Math.round(num);
 
-        // Check if the rounded number is odd
-        if (roundedToNearest % 2 !== 0) {
-            // If it's odd, round up to the next even number
-            return roundedToNearest + 1;
-        } else {
-            // If it's already even, return it
-            return roundedToNearest;
-        }
-        }
-                
-        
-        // Generate the deduction table
+        // ── Generate Table ───────────────────────────────────────────────────
         function generateTable() {
             if (!validateForm()) return;
-            
-            const amount = parseFloat(document.getElementById('amount').value);
-            const dvDeduction = parseFloat(document.getElementById('dv_deduction').value) || 0;
-            
+
+            var amount = parseFloat(document.getElementById('amount').value);
+            var dvDeduction = parseFloat(document.getElementById('dv_deduction').value) || 0;
+
             // Fixed rates
-            const itRate = 2;      // Income Tax
-            const gstRate = 2;     // GSTIN Deduction
-            const dfmtRate = 0.30; // PD Account (DMFT)
-            const lcRate = 1;      // Labour Welfare
-            const royaltyRate = 3; // Mines & Minerals / Royalty
-            const sdRate = 10;     // Deposit-II (SD2)
-            
-            // Create table
-            const table = document.createElement('table');
+            var itRate = 2;   // Income Tax
+            var gstRate = 2;   // GSTIN Deduction
+            var lcRate = 1;   // Labour Welfare
+            var sdRate = 10;  // Deposit-II (SD2)
+
+            // Mining Royalty & DFMT rates — based on A0/B15/C30 (matching BillForm.tsx logic)
+            var miningRoyaltyPct = royaltyOption === 'B15' ? 1.5 : royaltyOption === 'C30' ? 3 : 0;
+            var dfmtPct = royaltyOption === 'B15' ? 0.15 : royaltyOption === 'C30' ? 0.3 : 0;
+
+            // Special handling for GST — round to next even number
+            var gstAmount = roundToEven(amount * gstRate / 100);
+
+            // Build deductions in prescribed order
+            var deductions = [];
+
+            // 1. Income Tax @ 2%
+            deductions.push({ type: "Income Tax (8658-00-112-00-00)", rate: itRate + "%", amount: Math.round(amount * itRate / 100) });
+
+            // 2. GSTIN Deduction @ 2%
+            deductions.push({ type: "GSTIN Deduction (8658-00-139-00-00)", rate: gstRate + "%", amount: gstAmount });
+
+            // 3. PD Account (DMFT) — only for B15 / C30
+            if (royaltyOption !== 'A0') {
+                deductions.push({ type: "PD Account (DMFT) 8342 (8342-00-120-65-00)", rate: dfmtPct + "%", amount: Math.round(amount * dfmtPct / 100) });
+            }
+
+            // 4. Labour Welfare @ 1%
+            deductions.push({ type: "Labour Welfare (0230-00-800-06-00)", rate: lcRate + "%", amount: Math.round(amount * lcRate / 100) });
+
+            // 5. Mines & Minerals / Royalty — only for B15 / C30
+            if (royaltyOption !== 'A0') {
+                deductions.push({ type: "Mines & Minerals / Royalty (0853-00-102-01-01)", rate: miningRoyaltyPct + "%", amount: Math.round(amount * miningRoyaltyPct / 100) });
+            }
+
+            // 6. Deposit-II (SD2) @ 10%
+            deductions.push({ type: "Deposit-II (SD2) (8443) (8443-00-108-00-00)", rate: sdRate + "%", amount: Math.round(amount * sdRate / 100) });
+
+            // 7. (M.D.)Deposit-Vth (MD5) — fixed input
+            deductions.push({ type: "(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108-00-00)", rate: "-", amount: dvDeduction });
+
+            // Append any custom deductions
+            customDeductions.forEach(function (item) { deductions.push(item); });
+
+            // ── Build table ──────────────────────────────────────────────────
+            var table = document.createElement('table');
             table.className = 'fade-in';
-            
-            // Add header row
-            const headerRow = table.insertRow();
-            const headers = ["S.No.", "Deduction Type", "Percentage/Rate", "Deduction Amount (Γé╣)"];
-            headers.forEach(text => {
-                const th = document.createElement('th');
+
+            var headerRow = table.insertRow();
+            ["S.No.", "Deduction Type", "Percentage / Rate", "Deduction Amount (\u20b9)"].forEach(function (text) {
+                var th = document.createElement('th');
                 th.textContent = text;
                 headerRow.appendChild(th);
             });
-            
-            // Calculate standard deductions
-            // Special handling for GST - round to next even number
-            const gstAmount = roundToEven(amount * gstRate / 100);
-            
-            const deductions = [
-                { type: "Income Tax (8658-00-112-00-00)",                      rate: `${itRate}%`, amount: Math.round(amount * itRate / 100) },
-                { type: "GSTIN Deduction (8658-00-139-00-00)",                 rate: `${gstRate}%`, amount: gstAmount },
-                { type: "PD Account (DMFT) 8342 (8342-00-120-65-00)",          rate: `${dfmtRate}%`, amount: Math.round(amount * dfmtRate / 100) },
-                { type: "Labour Welfare (0230-00-800-06-00)",                  rate: `${lcRate}%`, amount: Math.round(amount * lcRate / 100) },
-                { type: "Mines & Minerals / Royalty (0853-00-102-01-01)",      rate: `${royaltyRate}%`, amount: Math.round(amount * royaltyRate / 100) },
-                { type: "Deposit-II (SD2) (8443) (8443-00-108-00-00)",         rate: `${sdRate}%`, amount: Math.round(amount * sdRate / 100) },
-                { type: "(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108-00-00)", rate: "-", amount: dvDeduction }
-            ];
-            
-            // Add custom deductions to the list
-            customDeductions.forEach(item => {
-                deductions.push(item);
-            });
-            
-            // Calculate total deductions
-            let totalDeduction = 0;
-            let serialNo = 1;
-            
-            // Add rows for each deduction
-            deductions.forEach(item => {
-                const row = table.insertRow();
-                
-                // Add serial number
-                const cellNum = row.insertCell();
-                cellNum.textContent = serialNo++;
-                
-                // Add deduction type
-                const cellType = row.insertCell();
-                cellType.textContent = item.type;
-                
-                // Add rate/percentage
-                const cellRate = row.insertCell();
-                cellRate.textContent = item.rate;
-                
-                // Add amount
-                const cellAmount = row.insertCell();
-                cellAmount.textContent = formatIndianCurrency(item.amount);
-                cellAmount.className = 'amount-cell';
-                
-                // Add to total deduction
+
+            var totalDeduction = 0;
+            var serialNo = 1;
+
+            deductions.forEach(function (item) {
+                var row = table.insertRow();
+
+                var c1 = row.insertCell(); c1.textContent = serialNo++;
+                var c2 = row.insertCell(); c2.textContent = item.type;
+                var c3 = row.insertCell(); c3.textContent = item.rate;
+                var c4 = row.insertCell();
+                c4.textContent = formatIndianCurrency(item.amount);
+                c4.className = 'amount-cell';
+
                 totalDeduction += item.amount;
-                
-                // Add custom class for custom deductions
-                if (item.isCustom) {
-                    row.className = 'custom-deduction';
-                }
+
+                if (item.isCustom) { row.className = 'custom-deduction'; }
             });
-            
-            // Calculate cheque amount
-            const chequeAmount = Math.round(amount - totalDeduction);
-            
-            // Add cheque row
-            const chequeRow = table.insertRow();
+
+            // Cheque row
+            var chequeAmount = Math.round(amount - totalDeduction);
+            var chequeRow = table.insertRow();
             chequeRow.className = 'cheque-row';
-            const chequeCells = [serialNo++, "CHEQUE", "-", formatIndianCurrency(chequeAmount)];
-            chequeCells.forEach((text, index) => {
-                const cell = chequeRow.insertCell();
+            [serialNo++, "CHEQUE", "-", formatIndianCurrency(chequeAmount)].forEach(function (text, i) {
+                var cell = chequeRow.insertCell();
                 cell.textContent = text;
-                if (index === 3) cell.className = 'amount-cell';
+                if (i === 3) cell.className = 'amount-cell';
             });
-            
-            // Add total row
-            const totalRow = table.insertRow();
+
+            // Total row
+            var totalRow = table.insertRow();
             totalRow.className = 'total-row';
-            const totalCells = ["-", "TOTAL", "-", formatIndianCurrency(amount)];
-            totalCells.forEach((text, index) => {
-                const cell = totalRow.insertCell();
+            ["-", "TOTAL", "-", formatIndianCurrency(amount)].forEach(function (text, i) {
+                var cell = totalRow.insertCell();
                 cell.textContent = text;
-                if (index === 3) cell.className = 'amount-cell';
+                if (i === 3) cell.className = 'amount-cell';
             });
-            
-            // Display the table
-            const tableContainer = document.getElementById('tableContainer');
+
+            // Display
+            var tableContainer = document.getElementById('tableContainer');
             tableContainer.innerHTML = '';
             tableContainer.appendChild(table);
             tableContainer.style.display = 'block';
-            
-            // Clone table for print
-            const printTableContainer = document.getElementById('printTableContainer');
-            const printTable = table.cloneNode(true);
+
+            // Clone for print
+            var printTableContainer = document.getElementById('printTableContainer');
+            var printTable = table.cloneNode(true);
             printTable.className = 'print-table';
             printTableContainer.innerHTML = '';
             printTableContainer.appendChild(printTable);
-            
-           
-            
-            
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
+
+            var successMessage = document.getElementById('successMessage');
             successMessage.textContent = 'Deductions table generated successfully!';
             successMessage.style.display = 'block';
-            
-            // Auto-hide success message after 5 seconds
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000);
+            setTimeout(function () { successMessage.style.display = 'none'; }, 5000);
         }
-        
-        // Reset the form
+
+        // ── Reset ────────────────────────────────────────────────────────────
         function resetForm() {
             document.getElementById('amount').value = '';
             document.getElementById('dv_deduction').value = '';
-            
-            // Reset errors
             document.getElementById('amountError').style.display = 'none';
             document.getElementById('dvError').style.display = 'none';
-            
-            // Hide table
             document.getElementById('tableContainer').style.display = 'none';
-            
-            // Clear custom deductions
-            customDeductions = [];
-            
-            // Hide success message
             document.getElementById('successMessage').style.display = 'none';
+            customDeductions = [];
+            setRoyaltyOption('A0');
         }
-        
-        // Print the table
+
+        // ── Print ────────────────────────────────────────────────────────────
         function printResults() {
             if (document.getElementById('tableContainer').style.display === 'none') {
                 alert('Please generate a deductions table first.');
                 return;
             }
-            
-            // Make sure print area is visible but properly styled
             document.getElementById('printArea').style.display = 'block';
-            
             window.print();
         }
-        
-        // Open custom deduction modal
+
+        // ── Custom Deduction Modal ────────────────────────────────────────────
         function openCustomDeductionModal() {
             document.getElementById('customName').value = '';
             document.getElementById('customPercentage').value = '';
@@ -749,16 +800,13 @@
             document.getElementById('fixedInput').style.display = 'none';
             document.getElementById('customDeductionModal').style.display = 'block';
         }
-        
-        // Close custom deduction modal
+
         function closeCustomDeductionModal() {
             document.getElementById('customDeductionModal').style.display = 'none';
         }
-        
-        // Toggle between percentage and fixed amount inputs
-        document.getElementById('deductionType').addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue === 'percentage') {
+
+        document.getElementById('deductionType').addEventListener('change', function () {
+            if (this.value === 'percentage') {
                 document.getElementById('percentageInput').style.display = 'block';
                 document.getElementById('fixedInput').style.display = 'none';
             } else {
@@ -766,38 +814,27 @@
                 document.getElementById('fixedInput').style.display = 'block';
             }
         });
-        
-        // Add custom deduction
+
         function addCustomDeduction() {
-            const deductionName = document.getElementById('customName').value.trim();
-            const deductionType = document.getElementById('deductionType').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            
-            if (!deductionName) {
-                alert('Please enter a name for the deduction');
-                return;
-            }
-            
-            if (!amount) {
-                alert('Please enter the bill amount first');
-                return;
-            }
-            
-            let customDeduction = {
-                type: deductionName,
-                isCustom: true
-            };
-            
+            var deductionName = document.getElementById('customName').value.trim();
+            var deductionType = document.getElementById('deductionType').value;
+            var amount = parseFloat(document.getElementById('amount').value);
+
+            if (!deductionName) { alert('Please enter a name for the deduction'); return; }
+            if (!amount) { alert('Please enter the bill amount first'); return; }
+
+            var customDeduction = { type: deductionName, isCustom: true };
+
             if (deductionType === 'percentage') {
-                const percentage = parseFloat(document.getElementById('customPercentage').value);
+                var percentage = parseFloat(document.getElementById('customPercentage').value);
                 if (isNaN(percentage) || percentage < 0 || percentage > 100) {
                     alert('Please enter a valid percentage between 0 and 100');
                     return;
                 }
-                customDeduction.rate = `${percentage}%`;
+                customDeduction.rate = percentage + '%';
                 customDeduction.amount = Math.round(amount * percentage / 100);
             } else {
-                const fixedAmount = parseFloat(document.getElementById('customAmount').value);
+                var fixedAmount = parseFloat(document.getElementById('customAmount').value);
                 if (isNaN(fixedAmount) || fixedAmount < 0) {
                     alert('Please enter a valid amount');
                     return;
@@ -805,55 +842,39 @@
                 customDeduction.rate = '-';
                 customDeduction.amount = fixedAmount;
             }
-            
-            // Add to custom deductions array
+
             customDeductions.push(customDeduction);
-            
-            // Close modal
             closeCustomDeductionModal();
-            
-            // Regenerate table if already displayed
+
             if (document.getElementById('tableContainer').style.display !== 'none') {
                 generateTable();
             }
-            
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = `Custom deduction "${deductionName}" added successfully!`;
+
+            var successMessage = document.getElementById('successMessage');
+            successMessage.textContent = 'Custom deduction "' + deductionName + '" added successfully!';
             successMessage.style.display = 'block';
-            
-            // Auto-hide success message after 3 seconds
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 3000);
+            setTimeout(function () { successMessage.style.display = 'none'; }, 3000);
         }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById('customDeductionModal');
-            if (event.target === modal) {
-                closeCustomDeductionModal();
-            }
+
+        window.onclick = function (event) {
+            var modal = document.getElementById('customDeductionModal');
+            if (event.target === modal) { closeCustomDeductionModal(); }
         };
-        
-        // Set up real-time validation
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function() {
+
+        // Real-time validation
+        document.querySelectorAll('input').forEach(function (input) {
+            input.addEventListener('input', function () {
                 if (this.id === 'amount') {
-                    const amount = parseFloat(this.value);
-                    if (!isNaN(amount) && amount > 0) {
-                        document.getElementById('amountError').style.display = 'none';
-                    }
+                    var v = parseFloat(this.value);
+                    if (!isNaN(v) && v > 0) document.getElementById('amountError').style.display = 'none';
                 }
-                
                 if (this.id === 'dv_deduction') {
-                    const dvDeduction = parseFloat(this.value);
-                    if (!isNaN(dvDeduction) && dvDeduction >= 0) {
-                        document.getElementById('dvError').style.display = 'none';
-                    }
+                    var v = parseFloat(this.value);
+                    if (!isNaN(v) && v >= 0) document.getElementById('dvError').style.display = 'none';
                 }
             });
         });
     </script>
 </body>
+
 </html>
