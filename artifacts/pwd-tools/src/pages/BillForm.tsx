@@ -4,7 +4,7 @@ type YesNo = "Yes" | "No";
 type OrigDep = "Original" | "Deposit";
 type BillType = "Running" | "Final";
 
-const ORDINALS = ["1ST","2ND","3RD","4TH","5TH","6TH","7TH","8TH","9TH","10TH"];
+const ORDINALS = ["1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
 function getBillTitle(billNumber: number, billType: BillType): string {
   const ord = ORDINALS[billNumber - 1] ?? `${billNumber}TH`;
@@ -439,15 +439,15 @@ const defaultForm: FormData = {
 };
 
 const DIYAS = [
-  { left: "3%",  delay: "0s",    dur: "2.8s" },
-  { left: "11%", delay: "0.4s",  dur: "3.2s" },
-  { left: "21%", delay: "0.9s",  dur: "2.5s" },
-  { left: "33%", delay: "0.2s",  dur: "3.6s" },
-  { left: "46%", delay: "1.1s",  dur: "2.9s" },
-  { left: "59%", delay: "0.6s",  dur: "3.1s" },
-  { left: "70%", delay: "1.4s",  dur: "2.7s" },
-  { left: "81%", delay: "0.3s",  dur: "3.4s" },
-  { left: "91%", delay: "0.8s",  dur: "2.6s" },
+  { left: "3%", delay: "0s", dur: "2.8s" },
+  { left: "11%", delay: "0.4s", dur: "3.2s" },
+  { left: "21%", delay: "0.9s", dur: "2.5s" },
+  { left: "33%", delay: "0.2s", dur: "3.6s" },
+  { left: "46%", delay: "1.1s", dur: "2.9s" },
+  { left: "59%", delay: "0.6s", dur: "3.1s" },
+  { left: "70%", delay: "1.4s", dur: "2.7s" },
+  { left: "81%", delay: "0.3s", dur: "3.4s" },
+  { left: "91%", delay: "0.8s", dur: "2.6s" },
 ];
 
 function Diyas() {
@@ -458,7 +458,7 @@ function Diyas() {
           <div style={{ fontSize: "22px", lineHeight: 1, filter: "drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 12px #FF8C00)" }}>🪔</div>
         </div>
       ))}
-      {["8%","25%","43%","62%","78%","95%"].map((left, i) => (
+      {["8%", "25%", "43%", "62%", "78%", "95%"].map((left, i) => (
         <div key={`f${i}`} style={{ position: "absolute", top: "4px", left, fontSize: "16px", opacity: 0.7, animation: `floatBalloon ${2.4 + i * 0.3}s ${i * 0.5}s ease-in-out infinite` }}>🌸</div>
       ))}
     </div>
@@ -483,15 +483,15 @@ export default function BillForm() {
     };
 
   const effectiveSubDivision = form.subDivision === "__custom__" ? form.subDivisionCustom : form.subDivision;
-  const effectiveContractor  = form.nameOfContractor === "__custom__" ? form.nameOfContractorCustom : form.nameOfContractor;
+  const effectiveContractor = form.nameOfContractor === "__custom__" ? form.nameOfContractorCustom : form.nameOfContractor;
 
   const billTitle = getBillTitle(form.billNumber, form.billType);
   const isFinal = form.billType === "Final";
 
   const workOrderAmt = parseFloat(form.totalWorkOrderAmount) || 0;
-  const lastBillAmt  = parseFloat(form.sumPaymentLastBill) || 0;
-  const thisBillAmt  = parseFloat(form.amountThisBill) || 0;
-  const extraAmt     = parseFloat(form.extraItemAmount) || 0;
+  const lastBillAmt = parseFloat(form.sumPaymentLastBill) || 0;
+  const thisBillAmt = parseFloat(form.amountThisBill) || 0;
+  const extraAmt = parseFloat(form.extraItemAmount) || 0;
 
   const overrideUpto = parseFloat(form.uptoDateBillOverride) || 0;
   const actualExpenditure = overrideUpto > 0 ? overrideUpto : (lastBillAmt + thisBillAmt);
@@ -500,29 +500,29 @@ export default function BillForm() {
   const balanceDisplay = rawBalance < 0 ? "Nil" : `Rs. ${rawBalance.toLocaleString("en-IN")}`;
 
   const sd10 = form.sd10 !== "" ? parseFloat(form.sd10) : Math.round(thisBillAmt * 0.1);
-  const it2  = form.it2  !== "" ? parseFloat(form.it2)  : Math.round(thisBillAmt * 0.02);
+  const it2 = form.it2 !== "" ? parseFloat(form.it2) : Math.round(thisBillAmt * 0.02);
   const rawGst = thisBillAmt * 0.02;
   const gstCalc = Math.round(rawGst) % 2 === 0 ? Math.round(rawGst) : Math.round(rawGst) + 1;
   const gst2 = form.gst2 !== "" ? parseFloat(form.gst2) : gstCalc;
-  const lc1  = form.lc1  !== "" ? parseFloat(form.lc1)  : Math.round(thisBillAmt * 0.01);
-  const depV  = parseFloat(form.depV) || 0;
+  const lc1 = form.lc1 !== "" ? parseFloat(form.lc1) : Math.round(thisBillAmt * 0.01);
+  const depV = parseFloat(form.depV) || 0;
 
   // Mining Royalty & DFMT (based on option A0 / B15 / C30)
   const miningRoyaltyPct = form.miningRoyaltyOption === "B15" ? 0.015 : form.miningRoyaltyOption === "C30" ? 0.03 : 0;
-  const dfmtPct          = form.miningRoyaltyOption === "B15" ? 0.0015 : form.miningRoyaltyOption === "C30" ? 0.003 : 0;
-  const miningRoyalty    = Math.round(thisBillAmt * miningRoyaltyPct);
-  const dfmt             = Math.round(thisBillAmt * dfmtPct);
+  const dfmtPct = form.miningRoyaltyOption === "B15" ? 0.0015 : form.miningRoyaltyOption === "C30" ? 0.003 : 0;
+  const miningRoyalty = Math.round(thisBillAmt * miningRoyaltyPct);
+  const dfmt = Math.round(thisBillAmt * dfmtPct);
 
   const totalDeductions = sd10 + it2 + gst2 + lc1 + miningRoyalty + dfmt + depV;
-  const chequeAmount    = thisBillAmt - totalDeductions;
-  const totalCheck      = totalDeductions + chequeAmount;
+  const chequeAmount = thisBillAmt - totalDeductions;
+  const totalCheck = totalDeductions + chequeAmount;
 
-  const progressPct  = workOrderAmt > 0 ? ((actualExpenditure / workOrderAmt) * 100).toFixed(2) : "0.00";
-  const pctNum       = parseFloat(progressPct);
-  const extraPct     = workOrderAmt > 0 ? ((extraAmt / workOrderAmt) * 100).toFixed(2) : "0.00";
+  const progressPct = workOrderAmt > 0 ? ((actualExpenditure / workOrderAmt) * 100).toFixed(2) : "0.00";
+  const pctNum = parseFloat(progressPct);
+  const extraPct = workOrderAmt > 0 ? ((extraAmt / workOrderAmt) * 100).toFixed(2) : "0.00";
   const extraExceeds5 = parseFloat(extraPct) > 5;
 
-  const delayDays        = daysBetween(form.dateOfCompletion, form.actualDateOfCompletion);
+  const delayDays = daysBetween(form.dateOfCompletion, form.actualDateOfCompletion);
   const scheduleDuration = daysBetween(form.dateOfCommencement, form.dateOfCompletion);
 
   const checkingDateAEN = form.dateOfMeasurement;
@@ -651,13 +651,13 @@ export default function BillForm() {
   ];
 
   const deductionRows: [string, string][] = [
-    ["SD @ 10%", `Rs. ${sd10.toLocaleString("en-IN")}`],
-    ["IT @ 2%", `Rs. ${it2.toLocaleString("en-IN")}`],
-    ["GST @ 2%", `Rs. ${gst2.toLocaleString("en-IN")}`],
-    ["LC @ 1% (Labour Cess)", `Rs. ${lc1.toLocaleString("en-IN")}`],
-    ...(miningRoyalty > 0 ? [[`Mining Royalty (${(miningRoyaltyPct * 100).toFixed(2)}%)`, `Rs. ${miningRoyalty.toLocaleString("en-IN")}`] as [string, string]] : []),
-    ...(dfmt > 0 ? [[`DFMT (${(dfmtPct * 100).toFixed(2)}%)`, `Rs. ${dfmt.toLocaleString("en-IN")}`] as [string, string]] : []),
-    ...(depV > 0 ? [["Dep-V (M.D.)", `Rs. ${depV.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Income Tax (8658-00-112-00-00)", `Rs. ${it2.toLocaleString("en-IN")}`],
+    ["GSTIN Deduction (8658-00-139-00-00)", `Rs. ${gst2.toLocaleString("en-IN")}`],
+    ...(dfmt > 0 ? [["PD Account (DMFT) 8342 (8342-00-120-65-00)", `Rs. ${dfmt.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Labour Welfare (0230-00-800-06-00)", `Rs. ${lc1.toLocaleString("en-IN")}`],
+    ...(miningRoyalty > 0 ? [["Mines & Minerals / Royalty (0853-00-102-01-01)", `Rs. ${miningRoyalty.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Deposit-II (SD2) (8443) (8443-00-108-00-00)", `Rs. ${sd10.toLocaleString("en-IN")}`],
+    ...(depV > 0 ? [["(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108-00-00)", `Rs. ${depV.toLocaleString("en-IN")}`] as [string, string]] : []),
     ["Cheque / Amount", `Rs. ${chequeAmount.toLocaleString("en-IN")}`],
     ["Total", `Rs. ${totalCheck.toLocaleString("en-IN")}`],
   ];
@@ -681,8 +681,8 @@ export default function BillForm() {
     setTimeout(() => { win.print(); }, 600);
   }
 
-  const inputCls   = "navratri-input";
-  const labelCls   = "navratri-label";
+  const inputCls = "navratri-input";
+  const labelCls = "navratri-label";
   const sectionCls = "navratri-section";
 
   return (
@@ -838,9 +838,9 @@ export default function BillForm() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelCls}>6. ठेकेदार / Contractor</label>
-                    <input 
-                      className={inputCls} 
-                      value={form.contractorSearch !== "" ? form.contractorSearch : (form.nameOfContractor && form.nameOfContractor !== "Contractor [collapse]" ? form.nameOfContractor : "")} 
+                    <input
+                      className={inputCls}
+                      value={form.contractorSearch !== "" ? form.contractorSearch : (form.nameOfContractor && form.nameOfContractor !== "Contractor [collapse]" ? form.nameOfContractor : "")}
                       onChange={(e) => {
                         const val = e.target.value;
                         setField("contractorSearch", val);
@@ -873,7 +873,7 @@ export default function BillForm() {
                           .filter(c => c.toLowerCase().includes(form.contractorSearch.toLowerCase()))
                           .slice(0, 10)
                           .map(c => (
-                            <div 
+                            <div
                               key={c}
                               className="px-2 py-1 text-xs cursor-pointer hover:bg-orange-100"
                               onClick={() => {
@@ -915,10 +915,10 @@ export default function BillForm() {
                   <input className={inputCls} value={form.dateOfCompletion} onChange={setDate("dateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
                 </div>
                 {isFinal && (
-                <div>
-                  <label className={labelCls}>10. वास्तविक पूर्णता तिथि / Actual Completion Date</label>
-                  <input className={inputCls} value={form.actualDateOfCompletion} onChange={setDate("actualDateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
-                </div>
+                  <div>
+                    <label className={labelCls}>10. वास्तविक पूर्णता तिथि / Actual Completion Date</label>
+                    <input className={inputCls} value={form.actualDateOfCompletion} onChange={setDate("actualDateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                  </div>
                 )}
                 <div>
                   <label className={labelCls}>11. कुल कार्यादेश राशि / Total Work Order Amount (₹)</label>
@@ -985,9 +985,9 @@ export default function BillForm() {
                     {(["A0", "B15", "C30"] as const).map((opt) => {
                       const active = form.miningRoyaltyOption === opt;
                       const meta: Record<string, { royalty: string; dfmt: string; color: string; bg: string; border: string }> = {
-                        A0:  { royalty: "0%",    dfmt: "0%",     color: active ? "#fff"     : "#5d4037", bg: active ? "#5d4037"  : "#fff8e1", border: "#8d6e63" },
-                        B15: { royalty: "1.5%",  dfmt: "0.15%",  color: active ? "#fff"     : "#e65100", bg: active ? "#e65100"  : "#fff3e0", border: "#ff8f00" },
-                        C30: { royalty: "3%",    dfmt: "0.3%",   color: active ? "#fff"     : "#b71c1c", bg: active ? "#b71c1c"  : "#fce4ec", border: "#e53935" },
+                        A0: { royalty: "0%", dfmt: "0%", color: active ? "#fff" : "#5d4037", bg: active ? "#5d4037" : "#fff8e1", border: "#8d6e63" },
+                        B15: { royalty: "1.5%", dfmt: "0.15%", color: active ? "#fff" : "#e65100", bg: active ? "#e65100" : "#fff3e0", border: "#ff8f00" },
+                        C30: { royalty: "3%", dfmt: "0.3%", color: active ? "#fff" : "#b71c1c", bg: active ? "#b71c1c" : "#fce4ec", border: "#e53935" },
                       };
                       const m = meta[opt];
                       return (
@@ -1201,9 +1201,9 @@ function buildPrintHtml(
     .join("");
   const bifurcationHtml = (headWiseBifurcation === "Yes" && thisBillAmt && thisBillAmt > 0)
     ? `<tr><td colspan="2" class="dh" style="color:#7B2D00;background:#fffde7;border-top:2px solid #e6a817;">मद वार विभाजन / Head-wise Bifurcation &mdash; Head 5054 &nbsp;(Present Bill Amount: Rs. ${thisBillAmt.toLocaleString("en-IN")})</td></tr>` +
-      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 337 (70%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</td></tr>` +
-      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 789 (17%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</td></tr>` +
-      `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 796 (13%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</td></tr>`
+    `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 337 (70%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</td></tr>` +
+    `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 789 (17%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</td></tr>` +
+    `<tr><td class="l" style="padding-left:1.5em">5054 &mdash; 796 (13%)</td><td class="r">Rs. ${Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</td></tr>`
     : "";
   const notesHtml = notePoints.map(pt => `<li>${pt}</li>`).join("");
 
