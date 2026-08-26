@@ -651,13 +651,13 @@ export default function BillForm() {
   ];
 
   const deductionRows: [string, string][] = [
-    ["Income Tax (8658-00-112)", `${it2.toLocaleString("en-IN")}`],
-    ["GSTIN Deduction (8658-00-139)", `${gst2.toLocaleString("en-IN")}`],
-    ...(dfmt > 0 ? [["PD Account (DMFT) 8342 (8342-00-120-65)", `${dfmt.toLocaleString("en-IN")}`] as [string, string]] : []),
-    ["Labour Welfare (0230-00-800-06)", `${lc1.toLocaleString("en-IN")}`],
-    ...(miningRoyalty > 0 ? [["Mines & Minerals / Royalty (0853-00-102-01-01)", `${miningRoyalty.toLocaleString("en-IN")}`] as [string, string]] : []),
-    ["Deposit-II (SD2) (8443) (8443-00-108)", `${sd10.toLocaleString("en-IN")}`],
-    ...(depV > 0 ? [["(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108)", `${depV.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Income Tax (8658-00-112-00-00)", `Rs. ${it2.toLocaleString("en-IN")}`],
+    ["GSTIN Deduction (8658-00-139-00-00)", `Rs. ${gst2.toLocaleString("en-IN")}`],
+    ...(dfmt > 0 ? [["PD Account (DMFT) 8342 (8342-00-120-65-00)", `Rs. ${dfmt.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Labour Welfare (0230-00-800-06-00)", `Rs. ${lc1.toLocaleString("en-IN")}`],
+    ...(miningRoyalty > 0 ? [["Mines & Minerals / Royalty (0853-00-102-01-01)", `Rs. ${miningRoyalty.toLocaleString("en-IN")}`] as [string, string]] : []),
+    ["Deposit-II (SD2) (8443) (8443-00-108-00-00)", `Rs. ${sd10.toLocaleString("en-IN")}`],
+    ...(depV > 0 ? [["(M.D.)Deposit-Vth (MD5) (8443) (8443-00-108-00-00)", `Rs. ${depV.toLocaleString("en-IN")}`] as [string, string]] : []),
     ["Cheque / Amount", `${chequeAmount.toLocaleString("en-IN")}`],
     ["Total", `${totalCheck.toLocaleString("en-IN")}`],
   ];
