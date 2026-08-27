@@ -1,7 +1,7 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 import path from "path";
+import { defineConfig } from "vite";
 
 const port = Number(process.env.PORT ?? 3000);
 const basePath = process.env.BASE_PATH ?? "/";
@@ -12,12 +12,12 @@ export default defineConfig(async () => {
   const replitPlugins =
     !isProduction && isReplit
       ? await Promise.all([
-          import("@replit/vite-plugin-runtime-error-modal").then((m) => m.default()),
-          import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer({ root: path.resolve(import.meta.dirname, "..") })
-          ),
-          import("@replit/vite-plugin-dev-banner").then((m) => m.devBanner()),
-        ])
+        import("@replit/vite-plugin-runtime-error-modal").then((m) => m.default()),
+        import("@replit/vite-plugin-cartographer").then((m) =>
+          m.cartographer({ root: path.resolve(import.meta.dirname, "..") })
+        ),
+        import("@replit/vite-plugin-dev-banner").then((m) => m.devBanner()),
+      ])
       : [];
 
   return {
@@ -26,12 +26,6 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "src"),
-        "@assets": path.resolve(
-          import.meta.dirname,
-          "..",
-          "..",
-          "attached_assets"
-        ),
       },
       dedupe: ["react", "react-dom"],
     },
