@@ -12,9 +12,12 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },
   "dependencies": {
+    "browser-image-compression": "2.0.2",
     "dexie": "^4.0.1",
     "docx": "^9.7.1",
-    "file-saver": "^2.0.5"
+    "exif-js": "2.3.0",
+    "file-saver": "^2.0.5",
+    "piexifjs": "1.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

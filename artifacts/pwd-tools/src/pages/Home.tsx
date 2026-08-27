@@ -1,12 +1,13 @@
 import { useLocation } from "wouter";
 
 const TOOLS = [
+  // ── Priority tools (pinned first) ─────────────────────────────────────
   {
-    id: "bill-generator",
-    icon: "🏗️",
-    name: "Bill Generator",
-    description: "Complete bill package with all documents and PDFs",
-    htmlFile: "BillGenerator.html",
+    id: "hindi-bill-note-sheet",
+    icon: "📄",
+    name: "Hindi Bill Note Sheet",
+    description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
+    htmlFile: "BillNoteSheet.html",
     directPath: null as string | null,
   },
   {
@@ -18,27 +19,52 @@ const TOOLS = [
     directPath: null as string | null,
   },
   {
+    id: "image-compressor",
+    icon: "📷",
+    name: "Image Compressor",
+    description: "Compress site photos to 250 KB for PWD portal upload — EXIF & GPS metadata preserved, auto-named by contractor & road",
+    htmlFile: null,
+    directPath: "/image-compressor",
+  },
+  {
+    id: "contractor-registration",
+    icon: "📝",
+    name: "Contractor Registration",
+    description: "Fill out the contractor enlistment form and generate a printable order",
+    htmlFile: null,
+    directPath: "/contractor-registration",
+  },
+  {
+    id: "bank-communication",
+    icon: "🏦",
+    name: "Bank Communication",
+    description: "Generate bank guarantee verification and validity extension letters in Hindi",
+    htmlFile: null,
+    directPath: "/bank-communication",
+  },
+  {
+    id: "correspondence",
+    icon: "✉️",
+    name: "पत्र-व्यवहार (Correspondence)",
+    description: "bilingual drafting tool (हिन्दी, English, bilingual) for letters, replies, drafts, A4 preview, and Word DOCX export",
+    htmlFile: null,
+    directPath: "/correspondence",
+  },
+  // ── Remaining tools ────────────────────────────────────────────────────
+  {
+    id: "bill-generator",
+    icon: "🏗️",
+    name: "Bill Generator",
+    description: "Complete bill package with all documents and PDFs",
+    htmlFile: "BillGenerator.html",
+    directPath: null as string | null,
+  },
+  {
     id: "security-refund",
     icon: "🔒",
     name: "Security Refund",
     description: "Security deposit refund calculator",
     htmlFile: "SecurityRefund.html",
-    directPath: null as string | null,
-  },
-  {
-    id: "hindi-bill-note-sheet",
-    icon: "📄",
-    name: "Hindi Bill Note Sheet",
-    description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
-    htmlFile: null,
-    directPath: null as string | null,
-  },
-  {
-    id: "deductions-table",
-    icon: "➖",
-    name: "Deductions Table",
-    description: "Calculate TDS and security deductions",
-    htmlFile: "DeductionsTable.html",
     directPath: null as string | null,
   },
   {
@@ -82,22 +108,6 @@ const TOOLS = [
     directPath: null as string | null,
   },
   {
-    id: "contractor-registration",
-    icon: "📝",
-    name: "Contractor Registration",
-    description: "Fill out the contractor enlistment form and generate a printable order",
-    htmlFile: null,
-    directPath: null as string | null,
-  },
-  {
-    id: "bank-communication",
-    icon: "🏦",
-    name: "Bank Communication",
-    description: "Generate bank guarantee verification and validity extension letters in Hindi",
-    htmlFile: null,
-    directPath: null as string | null,
-  },
-  {
     id: "audit-reply",
     icon: "🗂️",
     name: "Audit Reply Tool",
@@ -106,25 +116,73 @@ const TOOLS = [
     directPath: "/audit-reply",
   },
   {
-    id: "correspondence",
-    icon: "✉️",
-    name: "पत्र-व्यवहार (Correspondence)",
-    description: "bilingual drafting tool (हिन्दी, English, bilingual) for letters, replies, drafts, A4 preview, and Word DOCX export",
+    id: "legal-correspondence",
+    icon: "⚖️",
+    name: "Legal Correspondence",
+    description: "Structured legal letter drafting with live A4 preview, style presets, print output, and finalize workflow",
     htmlFile: null,
-    directPath: "/correspondence",
+    directPath: "/legal-correspondence",
+  },
+  {
+    id: "notice",
+    icon: "🔔",
+    name: "Notice / Show-Cause Generator",
+    description: "Generate show-cause, blacklist, warning and general notices to contractors — Hindi A4 DOCX",
+    htmlFile: null,
+    directPath: "/notice",
+  },
+  {
+    id: "work-order",
+    icon: "📋",
+    name: "Work Order Generator",
+    description: "Generate Hindi work orders / supply orders with full A4 preview and DOCX download",
+    htmlFile: null,
+    directPath: "/work-order",
+  },
+  {
+    id: "eot-letter",
+    icon: "📅",
+    name: "EOT Letter (Extension of Time)",
+    description: "Generate EOT application, sanction or rejection letters — Hindi A4 DOCX with LD details",
+    htmlFile: null,
+    directPath: "/eot-letter",
+  },
+  {
+    id: "rescission-notice",
+    icon: "🔨",
+    name: "Rescission / Risk-Cost Order",
+    description: "Generate contract rescission office order and risk-cost recovery notice — Hindi A4 DOCX with CC block",
+    htmlFile: null,
+    directPath: "/rescission-notice",
+  },
+  {
+    id: "bill-scrutiny",
+    icon: "🧾",
+    name: "Bill Scrutiny Sheet (React)",
+    description: "Interactive Hindi bill note sheet with live preview, auto-deductions, and print/PDF",
+    htmlFile: null,
+    directPath: "/bill-form",
+  },
+  {
+    id: "document-generator",
+    icon: "📃",
+    name: "Document Generator",
+    description: "General A4 document composer with print and Word (.doc) export",
+    htmlFile: null,
+    directPath: "/document-generator",
   },
 ];
 
 const DIYAS = [
-  { left: "3%",  delay: "0s",    dur: "2.8s" },
-  { left: "11%", delay: "0.4s",  dur: "3.2s" },
-  { left: "21%", delay: "0.9s",  dur: "2.5s" },
-  { left: "33%", delay: "0.2s",  dur: "3.6s" },
-  { left: "46%", delay: "1.1s",  dur: "2.9s" },
-  { left: "59%", delay: "0.6s",  dur: "3.1s" },
-  { left: "70%", delay: "1.4s",  dur: "2.7s" },
-  { left: "81%", delay: "0.3s",  dur: "3.4s" },
-  { left: "91%", delay: "0.8s",  dur: "2.6s" },
+  { left: "3%", delay: "0s", dur: "2.8s" },
+  { left: "11%", delay: "0.4s", dur: "3.2s" },
+  { left: "21%", delay: "0.9s", dur: "2.5s" },
+  { left: "33%", delay: "0.2s", dur: "3.6s" },
+  { left: "46%", delay: "1.1s", dur: "2.9s" },
+  { left: "59%", delay: "0.6s", dur: "3.1s" },
+  { left: "70%", delay: "1.4s", dur: "2.7s" },
+  { left: "81%", delay: "0.3s", dur: "3.4s" },
+  { left: "91%", delay: "0.8s", dur: "2.6s" },
 ];
 
 function Diyas() {
@@ -135,7 +193,7 @@ function Diyas() {
           <div style={{ fontSize: "22px", lineHeight: 1, filter: "drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 12px #FF8C00)" }}>🪔</div>
         </div>
       ))}
-      {["8%","25%","43%","62%","78%","95%"].map((left, i) => (
+      {["8%", "25%", "43%", "62%", "78%", "95%"].map((left, i) => (
         <div key={`f${i}`} style={{ position: "absolute", top: "4px", left, fontSize: "16px", opacity: 0.7, animation: `floatBalloon ${2.4 + i * 0.3}s ${i * 0.5}s ease-in-out infinite` }}>🌸</div>
       ))}
     </div>
