@@ -1,7 +1,7 @@
 [build]
   # Run from monorepo root so workspace:* packages resolve correctly
   base    = "."
-  command = "pnpm install --frozen-lockfile && pnpm --filter @workspace/pwd-tools run build"
+  command = "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/pwd-tools run build"
   publish = "artifacts/pwd-tools/dist/public"
 
 [build.environment]
