@@ -47,26 +47,70 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return window.btoa(binary);
 }
 
-/** Read file, parse EXIF via piexifjs, return dump string + whether GPS tags exist */
-function readExif(file: File): Promise<{ dump: string | null; hasGps: boolean }> {
+type ExifData = {
+  "0th": Record<string, any>;
+  Exif: Record<string, any>;
+  GPS: Record<string, any>;
+  Interop: Record<string, any>;
+  "1st": Record<string, any>;
+  thumbnail: string | null;
+};
+
+function createEmptyExif(): ExifData {
+  return {
+    "0th": {},
+    Exif: {},
+    GPS: {},
+    Interop: {},
+    "1st": {},
+    thumbnail: null,
+  };
+}
+
+function decimalToDmsRational(value: number): [number, number][] {
+  const absolute = Math.abs(value);
+  const degrees = Math.floor(absolute);
+  const minutesFloat = (absolute - degrees) * 60;
+  const minutes = Math.floor(minutesFloat);
+  const seconds = (minutesFloat - minutes) * 60;
+
+  return [
+    [degrees, 1],
+    [minutes, 1],
+    [Math.round(seconds * 10000), 10000],
+  ];
+}
+
+function buildGpsIfd(lat: number, lng: number) {
+  return {
+    [piexifjs.GPSIFD.GPSVersionID]: [2, 3, 0, 0],
+    [piexifjs.GPSIFD.GPSLatitudeRef]: lat >= 0 ? "N" : "S",
+    [piexifjs.GPSIFD.GPSLatitude]: decimalToDmsRational(lat),
+    [piexifjs.GPSIFD.GPSLongitudeRef]: lng >= 0 ? "E" : "W",
+    [piexifjs.GPSIFD.GPSLongitude]: decimalToDmsRational(lng),
+    [piexifjs.GPSIFD.GPSMapDatum]: "WGS-84",
+  };
+}
+
+/** Read file, parse EXIF via piexifjs, return EXIF object + whether GPS tags exist */
+function readExif(file: File): Promise<{ exif: ExifData | null; hasGps: boolean }> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const base64 = arrayBufferToBase64(e.target?.result as ArrayBuffer);
         const dataUrl = `data:image/jpeg;base64,${base64}`;
-        const exifObj = piexifjs.load(dataUrl);
-        const dump = piexifjs.dump(exifObj);
+        const exifObj = piexifjs.load(dataUrl) as ExifData;
         // GPS IFD key is "GPS" in piexifjs; check if it has any entries
         const gpsData = exifObj["GPS"] ?? {};
         const hasGps = Object.keys(gpsData).length > 0;
-        resolve({ dump, hasGps });
+        resolve({ exif: exifObj, hasGps });
       } catch {
         // Non-JPEG or no EXIF at all — treat as no GPS
-        resolve({ dump: null, hasGps: false });
+        resolve({ exif: null, hasGps: false });
       }
     };
-    reader.onerror = () => resolve({ dump: null, hasGps: false });
+    reader.onerror = () => resolve({ exif: null, hasGps: false });
     reader.readAsArrayBuffer(file);
   });
 }
@@ -81,7 +125,7 @@ export default function ImageCompressor() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [hasGps, setHasGps] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [exifDump, setExifDump] = useState<string | null>(null);
+  const [exifData, setExifData] = useState<ExifData | null>(null);
   const [contractorName, setContractorName] = useState("");
   const [roadName, setRoadName] = useState("");
   const [downloadComplete, setDownloadComplete] = useState(false);
@@ -92,8 +136,8 @@ export default function ImageCompressor() {
   const handleFileSelect = async (file: File) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
-    const { dump, hasGps } = await readExif(file);
-    setExifDump(dump);
+    const { exif, hasGps } = await readExif(file);
+    setExifData(exif);
     setHasGps(hasGps);
     if (!hasGps) setShowGpsPopup(true);
   };
@@ -117,14 +161,33 @@ export default function ImageCompressor() {
 
       let finalBlob: Blob = compressed;
 
-      // Re-inject EXIF if we had it
-      if (exifDump && hasGps) {
+      const selectedLocationDetails = !hasGps
+        ? LOCATIONS.find((loc) => loc.name === selectedLocation)
+        : undefined;
+
+      const nextExif: ExifData | null = (() => {
+        if (!exifData && !selectedLocationDetails) return null;
+
+        const baseExif = exifData
+          ? JSON.parse(JSON.stringify(exifData)) as ExifData
+          : createEmptyExif();
+
+        if (selectedLocationDetails) {
+          baseExif.GPS = buildGpsIfd(selectedLocationDetails.lat, selectedLocationDetails.lng);
+        }
+
+        return baseExif;
+      })();
+
+      // Re-inject existing EXIF and add GPS when user selected a location
+      if (nextExif) {
         finalBlob = await new Promise<Blob>((resolve) => {
           const reader = new FileReader();
           reader.onload = (e) => {
             try {
               const base64 = arrayBufferToBase64(e.target?.result as ArrayBuffer);
-              const inserted = piexifjs.insert(exifDump, `data:image/jpeg;base64,${base64}`);
+              const dump = piexifjs.dump(nextExif);
+              const inserted = piexifjs.insert(dump, `data:image/jpeg;base64,${base64}`);
               const bin = window.atob(inserted.split(",")[1]);
               const bytes = new Uint8Array(bin.length);
               for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -162,7 +225,7 @@ export default function ImageCompressor() {
     setShowGpsPopup(false);
     setSelectedLocation("");
     setHasGps(false);
-    setExifDump(null);
+    setExifData(null);
     setContractorName("");
     setRoadName("");
     setDownloadComplete(false);

@@ -2,7 +2,7 @@ export type LegalLetterStatus = "draft" | "final";
 
 export interface LegalLetterLocal {
   id: number;
-  letterNumber: string | null;
+  letterNumber: string | null | undefined;
   date: string;
   toName: string | null;
   toAddress: string;
@@ -25,7 +25,7 @@ export interface LegalLetterLocal {
 export interface LegalStyleLocal {
   id: number;
   name: string;
-  pageSize: string;
+  pageSize?: string;
   marginTopMm: number;
   marginBottomMm: number;
   marginLeftMm: number;
@@ -45,6 +45,6 @@ export type LegalView =
   | { name: "print"; id: number }
   | { name: "styles" };
 
-export const DEFAULT_FROM_NAME        = "अनिल खीची";
+export const DEFAULT_FROM_NAME = "अनिल खीची";
 export const DEFAULT_FROM_DESIGNATION = "अधिशासी अभियंता";
-export const DEFAULT_FROM_OFFICE      = "सा.नि.वि., जिला खण्ड–II, उदयपुर";
+export const DEFAULT_FROM_OFFICE = "सा.नि.वि., जिला खण्ड–II, उदयपुर";

@@ -14,6 +14,7 @@ import LegalCorrespondencePage from "@/pages/LegalCorrespondence";
 import NotFound from "@/pages/not-found";
 import NoticePage from "@/pages/NoticePage";
 import RescissionNoticePage from "@/pages/RescissionNoticePage";
+import SpeedMoneyTool from "@/pages/SpeedMoneyTool";
 import ToolViewer from "@/pages/ToolViewer";
 import WorkOrderPage from "@/pages/WorkOrderPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -31,7 +32,8 @@ function Router() {
       <Route path="/correspondence" component={CorrespondencePage} />
       <Route path="/legal-correspondence" component={LegalCorrespondencePage} />
       {/* ── Bill & Financial ── */}
-      <Route path="/bill-form" component={BillForm} />
+      <Route path="/bill-form" component={() => <BillForm />} />
+      <Route path="/speed-money-tool" component={SpeedMoneyTool} />
       <Route path="/document-generator" component={DocumentGenerator} />
       <Route path="/enrollment-data" component={EnrollmentDataForm} />
       {/* ── Contractor ── */}

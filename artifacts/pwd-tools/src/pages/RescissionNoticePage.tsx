@@ -2,26 +2,26 @@
  * Rescission / Risk-Cost Notice Generator
  * Generates Hindi A4 rescission order and risk-cost notice with DOCX download.
  */
-import { useState } from "react";
-import { Document, Packer, Paragraph, TextRun, AlignmentType, PageOrientation, BorderStyle } from "docx";
+import { AlignmentType, BorderStyle, Document, Packer, PageOrientation, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import { ArrowLeft, Download, Gavel } from "lucide-react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
 const A4_W = 11906; const A4_H = 16838; const MAR = 1417; const ZERO = 0;
 const FONT = "Mangal";
 const sp = { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as const };
-const para = (text: string, align = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
+const para = (text: string, align: typeof AlignmentType[keyof typeof AlignmentType] = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
   new Paragraph({ children: [new TextRun({ text, font: FONT, size, bold })], alignment: align, spacing: sp, ...(firstLine ? { indent: { firstLine } } : {}) });
 const blank = () => new Paragraph({ children: [], spacing: sp });
 
 const INP = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400";
 const LBL = "block text-xs font-semibold text-gray-700 mb-1";
-const TA  = INP + " resize-none";
+const TA = INP + " resize-none";
 
 function today() {
   const d = new Date();
-  return `${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export default function RescissionNoticePage() {
@@ -166,10 +166,10 @@ export default function RescissionNoticePage() {
           <p className="text-xs text-justify mb-4">रिस्क-कोस्ट राशि रु. {form.riskCostAmount}/- ({form.riskCostPercent}%) वसूल की जाएगी।</p>
           <p className="text-xs mb-4">भवदीय,</p>
           <p className="text-xs font-bold">({form.fromName})</p>
-          <p className="text-xs mb-4">{form.fromDesignation}<br/>{form.fromOffice}</p>
-          <hr className="border-black mt-4 mb-1"/>
+          <p className="text-xs mb-4">{form.fromDesignation}<br />{form.fromOffice}</p>
+          <hr className="border-black mt-4 mb-1" />
           <p className="text-xs font-bold mb-1">प्रतिलिपि:</p>
-          {form.ccLines.split("\n").map((l, i) => <p key={i} className="text-xs">{i+1}. {l}</p>)}
+          {form.ccLines.split("\n").map((l, i) => <p key={i} className="text-xs">{i + 1}. {l}</p>)}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useState } from "react";
 type YesNo = "Yes" | "No";
 type OrigDep = "Original" | "Deposit";
 type BillType = "Running" | "Final";
+type BillFormMode = "bill-note" | "speed-money";
 
 const ORDINALS = ["1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
@@ -400,6 +401,17 @@ interface FormData {
   contractorSearch: string;
 }
 
+interface BillFormProps {
+  mode?: BillFormMode;
+}
+
+interface RecentFormEntry {
+  id: string;
+  label: string;
+  savedAt: string;
+  form: FormData;
+}
+
 const defaultForm: FormData = {
   billNumber: 1,
   billType: "Running",
@@ -438,6 +450,8 @@ const defaultForm: FormData = {
   contractorSearch: "",
 };
 
+const SPEED_MONEY_RECENT_STORAGE_KEY = "speed-money-tool-recent-inputs";
+
 const DIYAS = [
   { left: "3%", delay: "0s", dur: "2.8s" },
   { left: "11%", delay: "0.4s", dur: "3.2s" },
@@ -465,8 +479,27 @@ function Diyas() {
   );
 }
 
-export default function BillForm() {
+function getRecentInputLabel(form: FormData): string {
+  const contractor = form.nameOfContractor === "__custom__" ? form.nameOfContractorCustom : form.nameOfContractor;
+  const agreement = form.agreementNo || "No Agreement";
+  const billNo = `${form.billNumber}${form.billType === "Final" ? " Final" : " Running"}`;
+  return [contractor || "Unnamed Contractor", agreement, billNo].join(" • ");
+}
+
+export default function BillForm({ mode = "bill-note" }: BillFormProps) {
+  const isSpeedMoney = mode === "speed-money";
   const [form, setForm] = useState<FormData>(defaultForm);
+  const [recentInputs, setRecentInputs] = useState<RecentFormEntry[]>(() => {
+    if (mode !== "speed-money") return [];
+    try {
+      const raw = window.localStorage.getItem(SPEED_MONEY_RECENT_STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as RecentFormEntry[];
+      return Array.isArray(parsed) ? parsed.slice(0, 10) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const setField = (field: keyof FormData, value: string | number) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -481,6 +514,45 @@ export default function BillForm() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       setField(field, e.target.value);
     };
+
+  const saveRecentInput = () => {
+    if (!isSpeedMoney) return;
+
+    const entry: RecentFormEntry = {
+      // eslint-disable-next-line react-hooks/purity
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      label: getRecentInputLabel(form),
+      // eslint-disable-next-line react-hooks/purity
+      savedAt: new Date().toLocaleString(),
+      form: { ...form, contractorSearch: "" },
+    };
+
+    setRecentInputs((prev) => {
+      const next = [entry, ...prev].slice(0, 10);
+      try {
+        window.localStorage.setItem(SPEED_MONEY_RECENT_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // localStorage write may fail in private mode; ignore gracefully
+      }
+      return next;
+    });
+  };
+
+  const loadRecentInput = (entry: RecentFormEntry) => {
+    setForm({ ...entry.form, contractorSearch: "" });
+  };
+
+  const deleteRecentInput = (id: string) => {
+    setRecentInputs((prev) => {
+      const next = prev.filter((entry) => entry.id !== id);
+      try {
+        window.localStorage.setItem(SPEED_MONEY_RECENT_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // localStorage write may fail in private mode; ignore gracefully
+      }
+      return next;
+    });
+  };
 
   const effectiveSubDivision = form.subDivision === "__custom__" ? form.subDivisionCustom : form.subDivision;
   const effectiveContractor = form.nameOfContractor === "__custom__" ? form.nameOfContractorCustom : form.nameOfContractor;
@@ -516,6 +588,9 @@ export default function BillForm() {
   const totalDeductions = sd10 + it2 + gst2 + lc1 + miningRoyalty + dfmt + depV;
   const chequeAmount = thisBillAmt - totalDeductions;
   const totalCheck = totalDeductions + chequeAmount;
+
+  const speedMoneyRaw = chequeAmount * 0.002;
+  const speedMoneyAmt = Math.round(speedMoneyRaw / 100) * 100;
 
   const progressPct = workOrderAmt > 0 ? ((actualExpenditure / workOrderAmt) * 100).toFixed(2) : "0.00";
   const pctNum = parseFloat(progressPct);
@@ -650,7 +725,7 @@ export default function BillForm() {
     ...(form.otherInputs ? [["20. Other Inputs", form.otherInputs] as [string, string]] : []),
   ];
 
-  const deductionRows: [string, string][] = [
+  const baseDeductionRows: [string, string][] = [
     ["Income Tax (8658-00-112-00-00)", `Rs. ${it2.toLocaleString("en-IN")}`],
     ["GSTIN Deduction (8658-00-139-00-00)", `Rs. ${gst2.toLocaleString("en-IN")}`],
     ...(dfmt > 0 ? [["PD Account (DMFT) 8342 (8342-00-120-65-00)", `Rs. ${dfmt.toLocaleString("en-IN")}`] as [string, string]] : []),
@@ -662,6 +737,14 @@ export default function BillForm() {
     ["Total", `${totalCheck.toLocaleString("en-IN")}`],
   ];
 
+  const deductionRows: [string, string][] = isSpeedMoney
+    ? [
+      ["Cheque / Amount", `Rs. ${chequeAmount.toLocaleString("en-IN")}`],
+      ["Total", `Rs. ${totalCheck.toLocaleString("en-IN")}`],
+      ["Speed Money (0.20% of Cheque, rounded to ₹100)", `Rs. ${speedMoneyAmt.toLocaleString("en-IN")}`],
+    ]
+    : baseDeductionRows;
+
   function getPdfFilename(): string {
     const contractorFirstWord = (effectiveContractor || "Contractor")
       .replace(/^M\/s\.\s*/i, "")
@@ -672,7 +755,10 @@ export default function BillForm() {
   }
 
   function handlePrint() {
-    const html = buildPrintHtml(billTitle, outputRows, deductionRows, notePoints, form.signatoryName, getPdfFilename(), form.headWiseBifurcation, thisBillAmt);
+    if (isSpeedMoney) saveRecentInput();
+    const html = isSpeedMoney
+      ? buildDeductionsPrintHtml("SPEED MONEY CALCULATION", deductionRows, getPdfFilename())
+      : buildPrintHtml(billTitle, outputRows, deductionRows, notePoints, form.signatoryName, getPdfFilename(), form.headWiseBifurcation, thisBillAmt);
     const win = window.open("", "_blank", "width=794,height=1123");
     if (!win) { alert("Please allow popups to print."); return; }
     win.document.write(html);
@@ -759,10 +845,12 @@ export default function BillForm() {
           <Diyas />
           <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 20px 6px" }}>
             <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "0.08em", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
-              🪔 हिंदी बिल नोट शीट जनरेटर 🪔
+              {isSpeedMoney ? "🪔 SPEED MONEY TOOL 🪔" : "🪔 हिंदी बिल नोट शीट जनरेटर 🪔"}
             </div>
             <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", letterSpacing: "0.12em", marginTop: "2px" }}>
-              Hindi Bill Note Sheet Generator &nbsp;✦&nbsp; नवरात्रि की शुभकामनाएं
+              {isSpeedMoney
+                ? "Deduction Table Only Output &nbsp;✦&nbsp; Last 10 inputs saved"
+                : "Hindi Bill Note Sheet Generator &nbsp;✦&nbsp; नवरात्रि की शुभकामनाएं"}
             </div>
           </div>
           {/* Rangoli border strip */}
@@ -774,205 +862,265 @@ export default function BillForm() {
           {/* INPUT FORM */}
           <div className="lg:w-1/2 flex flex-col">
             <div style={{ background: "linear-gradient(135deg, #7B0D00, #c0392b, #e67e22)", border: "2px solid #FFD700", borderRadius: "14px", padding: "12px 16px", marginBottom: "16px", boxShadow: "0 4px 20px rgba(200,80,0,0.25)" }}>
-              <h2 className="font-bold text-sm" style={{ color: "#FFD700", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>✦ इनपुट फॉर्म / Input Form — Bill Details ✦</h2>
-              <p className="text-xs mt-1" style={{ color: "#FFEAA7" }}>विवरण भरें, नोट शीट स्वतः अपडेट होगी / Fill details, note sheet updates automatically</p>
+              <h2 className="font-bold text-sm" style={{ color: "#FFD700", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>
+                {isSpeedMoney ? "✦ Input Form — Speed Money Details ✦" : "✦ इनपुट फॉर्म / Input Form — Bill Details ✦"}
+              </h2>
+              <p className="text-xs mt-1" style={{ color: "#FFEAA7" }}>
+                {isSpeedMoney
+                  ? "Fill details, then print the deduction table. Latest 10 inputs stay available below."
+                  : "विवरण भरें, नोट शीट स्वतः अपडेट होगी / Fill details, note sheet updates automatically"}
+              </p>
             </div>
+
+            {isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>Recent Inputs (Last 10)</h3>
+                {recentInputs.length === 0 ? (
+                  <p className="text-xs text-gray-600">No saved input data yet. It will appear here after you print or save the deduction table.</p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {recentInputs.map((entry) => (
+                      <div key={entry.id} className="rounded-lg border border-orange-200 bg-white/80 p-2">
+                        <div className="text-xs font-semibold text-[#7B2D00]">{entry.label}</div>
+                        <div className="text-[11px] text-gray-500 mt-1">{entry.savedAt}</div>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => loadRecentInput(entry)}
+                            className="rounded px-3 py-1 text-xs font-bold"
+                            style={{ background: "#fff3e0", color: "#7B2D00", border: "1px solid #e6a817" }}
+                          >
+                            Load
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteRecentInput(entry.id)}
+                            className="rounded px-3 py-1 text-xs font-bold"
+                            style={{ background: "#fff5f5", color: "#c0392b", border: "1px solid #f0a0a0" }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Bill Number & Type */}
-            <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>बिल पहचान / Bill Identity</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>बिल क्रमांक / Bill Number</label>
-                  <select className={inputCls} value={form.billNumber} onChange={e => setField("billNumber", parseInt(e.target.value))}>
-                    {ORDINALS.map((o, i) => <option key={i} value={i + 1}>{o}</option>)}
-                  </select>
+            {!isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>बिल पहचान / Bill Identity</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelCls}>बिल क्रमांक / Bill Number</label>
+                    <select className={inputCls} value={form.billNumber} onChange={e => setField("billNumber", parseInt(e.target.value))}>
+                      {ORDINALS.map((o, i) => <option key={i} value={i + 1}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>बिल प्रकार / Bill Type</label>
+                    <select className={inputCls} value={form.billType} onChange={e => setField("billType", e.target.value as BillType)}>
+                      <option value="Running">Running</option>
+                      <option value="Final">Final</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className={labelCls}>बिल प्रकार / Bill Type</label>
-                  <select className={inputCls} value={form.billType} onChange={e => setField("billType", e.target.value as BillType)}>
-                    <option value="Running">Running</option>
-                    <option value="Final">Final</option>
-                  </select>
+                <div className="mt-2 p-2 rounded text-center font-bold text-xs" style={{ background: "linear-gradient(90deg,#7B0D00,#c0392b,#e67e22,#c0392b,#7B0D00)", color: "#FFD700", border: "2px solid #FFD700", letterSpacing: "0.05em", textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
+                  {billTitle}
                 </div>
               </div>
-              <div className="mt-2 p-2 rounded text-center font-bold text-xs" style={{ background: "linear-gradient(90deg,#7B0D00,#c0392b,#e67e22,#c0392b,#7B0D00)", color: "#FFD700", border: "2px solid #FFD700", letterSpacing: "0.05em", textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
-                {billTitle}
-              </div>
-            </div>
+            )}
 
             {/* Basic Info */}
-            <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मूल जानकारी / Basic Information</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelCls}>1. बजट शीर्ष / Budget Head</label>
-                    <input className={inputCls} value={form.budgetHead} onChange={set("budgetHead")} />
+            {!isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मूल जानकारी / Basic Information</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelCls}>1. बजट शीर्ष / Budget Head</label>
+                      <input className={inputCls} value={form.budgetHead} onChange={set("budgetHead")} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>2. अनुबंध संख्या / Agreement No.</label>
+                      <input className={inputCls} value={form.agreementNo} onChange={set("agreementNo")} placeholder="e.g. 62/2024-25" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelCls}>3. एम.बी. संख्या व पृष्ठ / MB No. & Page</label>
+                      <input className={inputCls} value={form.mbNo} onChange={set("mbNo")} placeholder="e.g. 813/Page 84-85" />
+                    </div>
+                    <div>
+                      <label className={labelCls}>4. उप-खंड / Sub Division</label>
+                      <select className={inputCls} value={form.subDivision} onChange={set("subDivision")}>
+                        {SUB_DIVISIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        <option value="__custom__">Other (type below)</option>
+                      </select>
+                      {form.subDivision === "__custom__" && (
+                        <input className={inputCls + " mt-1"} value={form.subDivisionCustom} onChange={set("subDivisionCustom")} placeholder="Enter sub division name" />
+                      )}
+                    </div>
                   </div>
                   <div>
-                    <label className={labelCls}>2. अनुबंध संख्या / Agreement No.</label>
-                    <input className={inputCls} value={form.agreementNo} onChange={set("agreementNo")} placeholder="e.g. 62/2024-25" />
+                    <label className={labelCls}>5. कार्य का नाम / Name of Work</label>
+                    <textarea className={inputCls} rows={2} value={form.nameOfWork} onChange={set("nameOfWork")} />
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelCls}>3. एम.बी. संख्या व पृष्ठ / MB No. & Page</label>
-                    <input className={inputCls} value={form.mbNo} onChange={set("mbNo")} placeholder="e.g. 813/Page 84-85" />
-                  </div>
-                  <div>
-                    <label className={labelCls}>4. उप-खंड / Sub Division</label>
-                    <select className={inputCls} value={form.subDivision} onChange={set("subDivision")}>
-                      {SUB_DIVISIONS.map(s => <option key={s} value={s}>{s}</option>)}
-                      <option value="__custom__">Other (type below)</option>
-                    </select>
-                    {form.subDivision === "__custom__" && (
-                      <input className={inputCls + " mt-1"} value={form.subDivisionCustom} onChange={set("subDivisionCustom")} placeholder="Enter sub division name" />
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls}>5. कार्य का नाम / Name of Work</label>
-                  <textarea className={inputCls} rows={2} value={form.nameOfWork} onChange={set("nameOfWork")} />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelCls}>6. ठेकेदार / Contractor</label>
-                    <input
-                      className={inputCls}
-                      value={form.contractorSearch !== "" ? form.contractorSearch : (form.nameOfContractor && form.nameOfContractor !== "Contractor [collapse]" ? form.nameOfContractor : "")}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setField("contractorSearch", val);
-                        // If exact match found, set it
-                        const exactMatch = CONTRACTORS.find(c => c.toLowerCase() === val.toLowerCase());
-                        if (exactMatch) {
-                          setField("nameOfContractor", exactMatch);
-                        } else if (val === "") {
-                          setField("nameOfContractor", CONTRACTORS[0]);
-                        }
-                      }}
-                      onFocus={() => setField("contractorSearch", "")}
-                      onBlur={() => setField("contractorSearch", "")}
-                      placeholder="Type to search contractors..."
-                      list="contractor-list"
-                    />
-                    <datalist id="contractor-list">
-                      {CONTRACTORS
-                        .filter(c => {
-                          const search = (form.contractorSearch || "").toLowerCase();
-                          return search === "" || c.toLowerCase().includes(search);
-                        })
-                        .map(c => <option key={c} value={c}>{c}</option>)
-                      }
-                      <option value="__custom__">Other (type custom name)</option>
-                    </datalist>
-                    {form.contractorSearch && form.contractorSearch !== form.nameOfContractor && !CONTRACTORS.includes(form.contractorSearch) && (
-                      <div className="mt-1 max-h-32 overflow-y-auto border border-orange-300 rounded bg-white shadow-lg">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelCls}>6. ठेकेदार / Contractor</label>
+                      <input
+                        className={inputCls}
+                        value={form.contractorSearch !== "" ? form.contractorSearch : (form.nameOfContractor && form.nameOfContractor !== "Contractor [collapse]" ? form.nameOfContractor : "")}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setField("contractorSearch", val);
+                          const exactMatch = CONTRACTORS.find(c => c.toLowerCase() === val.toLowerCase());
+                          if (exactMatch) {
+                            setField("nameOfContractor", exactMatch);
+                          } else if (val === "") {
+                            setField("nameOfContractor", CONTRACTORS[0]);
+                          }
+                        }}
+                        onFocus={() => setField("contractorSearch", "")}
+                        onBlur={() => setField("contractorSearch", "")}
+                        placeholder="Type to search contractors..."
+                        list="contractor-list"
+                      />
+                      <datalist id="contractor-list">
                         {CONTRACTORS
-                          .filter(c => c.toLowerCase().includes(form.contractorSearch.toLowerCase()))
-                          .slice(0, 10)
-                          .map(c => (
-                            <div
-                              key={c}
-                              className="px-2 py-1 text-xs cursor-pointer hover:bg-orange-100"
-                              onClick={() => {
-                                setField("nameOfContractor", c);
-                                setField("contractorSearch", "");
-                              }}
-                            >
-                              {c}
-                            </div>
-                          ))
+                          .filter(c => {
+                            const search = (form.contractorSearch || "").toLowerCase();
+                            return search === "" || c.toLowerCase().includes(search);
+                          })
+                          .map(c => <option key={c} value={c}>{c}</option>)
                         }
-                      </div>
-                    )}
-                    {form.nameOfContractor === "__custom__" && (
-                      <input className={inputCls + " mt-1"} value={form.nameOfContractorCustom} onChange={set("nameOfContractorCustom")} placeholder="M/s. Name, Town" />
-                    )}
-                  </div>
-                  <div>
-                    <label className={labelCls}>7. मूल / जमा / Original / Deposit</label>
-                    <select className={inputCls} value={form.originalOrDeposit} onChange={set("originalOrDeposit")}>
-                      <option>Original</option>
-                      <option>Deposit</option>
-                    </select>
+                        <option value="__custom__">Other (type custom name)</option>
+                      </datalist>
+                      {form.contractorSearch && form.contractorSearch !== form.nameOfContractor && !CONTRACTORS.includes(form.contractorSearch) && (
+                        <div className="mt-1 max-h-32 overflow-y-auto border border-orange-300 rounded bg-white shadow-lg">
+                          {CONTRACTORS
+                            .filter(c => c.toLowerCase().includes(form.contractorSearch.toLowerCase()))
+                            .slice(0, 10)
+                            .map(c => (
+                              <div
+                                key={c}
+                                className="px-2 py-1 text-xs cursor-pointer hover:bg-orange-100"
+                                onClick={() => {
+                                  setField("nameOfContractor", c);
+                                  setField("contractorSearch", "");
+                                }}
+                              >
+                                {c}
+                              </div>
+                            ))
+                          }
+                        </div>
+                      )}
+                      {form.nameOfContractor === "__custom__" && (
+                        <input className={inputCls + " mt-1"} value={form.nameOfContractorCustom} onChange={set("nameOfContractorCustom")} placeholder="M/s. Name, Town" />
+                      )}
+                    </div>
+                    <div>
+                      <label className={labelCls}>7. मूल / जमा / Original / Deposit</label>
+                      <select className={inputCls} value={form.originalOrDeposit} onChange={set("originalOrDeposit")}>
+                        <option>Original</option>
+                        <option>Deposit</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Dates & Amounts */}
             <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>तिथियाँ व राशि / Dates & Amounts <span className="font-normal text-xs">(DD/MM/YYYY)</span></h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>8. प्रारंभ तिथि / Date of Commencement</label>
-                  <input className={inputCls} value={form.dateOfCommencement} onChange={setDate("dateOfCommencement")} placeholder="DDMMYYYY" maxLength={10} />
-                </div>
-                <div>
-                  <label className={labelCls}>9. पूर्णता तिथि (निर्धारित) / Date of Completion (Scheduled)</label>
-                  <input className={inputCls} value={form.dateOfCompletion} onChange={setDate("dateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
-                </div>
-                {isFinal && (
+              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>
+                {isSpeedMoney ? "राशि / Amount" : (<>तिथियाँ व राशि / Dates & Amounts <span className="font-normal text-xs">(DD/MM/YYYY)</span></>)}
+              </h3>
+              {isSpeedMoney ? (
+                <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className={labelCls}>10. वास्तविक पूर्णता तिथि / Actual Completion Date</label>
-                    <input className={inputCls} value={form.actualDateOfCompletion} onChange={setDate("actualDateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                    <label className={labelCls}>बिल राशि / Amount of This Bill (₹)</label>
+                    <input type="number" className={inputCls} value={form.amountThisBill} onChange={set("amountThisBill")} placeholder="0" />
                   </div>
-                )}
-                <div>
-                  <label className={labelCls}>11. कुल कार्यादेश राशि / Total Work Order Amount (₹)</label>
-                  <input type="number" className={inputCls} value={form.totalWorkOrderAmount} onChange={set("totalWorkOrderAmount")} placeholder="0" />
                 </div>
-                <div>
-                  <label className={labelCls}>12A. पिछले बिल तक भुगतान / Payment Upto Last Bill (₹)</label>
-                  <input type="number" className={inputCls} value={form.sumPaymentLastBill} onChange={set("sumPaymentLastBill")} placeholder="0" />
-                </div>
-                <div>
-                  <label className={labelCls}>12B. इस बिल की राशि / Amount of This Bill (₹)</label>
-                  <input type="number" className={inputCls} value={form.amountThisBill} onChange={set("amountThisBill")} placeholder="0" />
-                </div>
-                <div>
-                  <label className={labelCls}>15. माप तिथि / Date of Measurement</label>
-                  <input className={inputCls} value={form.dateOfMeasurement} onChange={setDate("dateOfMeasurement")} placeholder="DDMMYYYY" maxLength={10} />
-                </div>
-              </div>
-              {isFinal && lateSubmission && (
-                <div className="mt-2 p-2 rounded text-xs font-bold text-red-700 bg-red-50 border border-red-200">
-                  ⚠️ आज की तिथि में कार्य पूर्णता के {daysSinceCompletion} दिन हो चुके हैं — फाइनल बिल देरी नोट जुड़ेगा।
-                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelCls}>8. प्रारंभ तिथि / Date of Commencement</label>
+                      <input className={inputCls} value={form.dateOfCommencement} onChange={setDate("dateOfCommencement")} placeholder="DDMMYYYY" maxLength={10} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>9. पूर्णता तिथि (निर्धारित) / Date of Completion (Scheduled)</label>
+                      <input className={inputCls} value={form.dateOfCompletion} onChange={setDate("dateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                    </div>
+                    {isFinal && (
+                      <div>
+                        <label className={labelCls}>10. वास्तविक पूर्णता तिथि / Actual Completion Date</label>
+                        <input className={inputCls} value={form.actualDateOfCompletion} onChange={setDate("actualDateOfCompletion")} placeholder="DDMMYYYY" maxLength={10} />
+                      </div>
+                    )}
+                    <div>
+                      <label className={labelCls}>11. कुल कार्यादेश राशि / Total Work Order Amount (₹)</label>
+                      <input type="number" className={inputCls} value={form.totalWorkOrderAmount} onChange={set("totalWorkOrderAmount")} placeholder="0" />
+                    </div>
+                    <div>
+                      <label className={labelCls}>12A. पिछले बिल तक भुगतान / Payment Upto Last Bill (₹)</label>
+                      <input type="number" className={inputCls} value={form.sumPaymentLastBill} onChange={set("sumPaymentLastBill")} placeholder="0" />
+                    </div>
+                    <div>
+                      <label className={labelCls}>12B. इस बिल की राशि / Amount of This Bill (₹)</label>
+                      <input type="number" className={inputCls} value={form.amountThisBill} onChange={set("amountThisBill")} placeholder="0" />
+                    </div>
+                    <div>
+                      <label className={labelCls}>15. माप तिथि / Date of Measurement</label>
+                      <input className={inputCls} value={form.dateOfMeasurement} onChange={setDate("dateOfMeasurement")} placeholder="DDMMYYYY" maxLength={10} />
+                    </div>
+                  </div>
+                  {isFinal && lateSubmission && (
+                    <div className="mt-2 p-2 rounded text-xs font-bold text-red-700 bg-red-50 border border-red-200">
+                      ⚠️ आज की तिथि में कार्य पूर्णता के {daysSinceCompletion} दिन हो चुके हैं — फाइनल बिल देरी नोट जुड़ेगा।
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
             {/* Conditions */}
-            <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>शर्तें / Conditions & Flags</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>(A) मरम्मत/रखरखाव कार्य? / Repair/Maintenance?</label>
-                  <select className={inputCls} value={form.isRepairMaintenance} onChange={set("isRepairMaintenance")}>
-                    <option>Yes</option><option>No</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelCls}>(B) अतिरिक्त मद? / Extra Item Executed?</label>
-                  <select className={inputCls} value={form.hasExtraItem} onChange={set("hasExtraItem")}>
-                    <option>Yes</option><option>No</option>
-                  </select>
-                </div>
-                {form.hasExtraItem === "Yes" && (
-                  <div className="col-span-2">
-                    <label className={labelCls}>अतिरिक्त मद राशि / Extra Items Amount (₹) <span className="font-normal text-gray-500">(0 = नोट नहीं / no note)</span></label>
-                    <input type="number" className={inputCls} value={form.extraItemAmount} onChange={set("extraItemAmount")} placeholder="0" />
-                    {extraAmt > 0 && (
-                      <p className={`text-xs mt-1 font-semibold ${extraExceeds5 ? "text-red-600" : "text-green-700"}`}>
-                        {extraPct}% — {extraExceeds5 ? "⚠️ >5%: SE approval needed" : "✓ ≤5%: Approved"}
-                      </p>
-                    )}
+            {!isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>शर्तें / Conditions & Flags</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelCls}>(A) मरम्मत/रखरखाव कार्य? / Repair/Maintenance?</label>
+                    <select className={inputCls} value={form.isRepairMaintenance} onChange={set("isRepairMaintenance")}>
+                      <option>Yes</option><option>No</option>
+                    </select>
                   </div>
-                )}
+                  <div>
+                    <label className={labelCls}>(B) अतिरिक्त मद? / Extra Item Executed?</label>
+                    <select className={inputCls} value={form.hasExtraItem} onChange={set("hasExtraItem")}>
+                      <option>Yes</option><option>No</option>
+                    </select>
+                  </div>
+                  {form.hasExtraItem === "Yes" && (
+                    <div className="col-span-2">
+                      <label className={labelCls}>अतिरिक्त मद राशि / Extra Items Amount (₹) <span className="font-normal text-gray-500">(0 = नोट नहीं / no note)</span></label>
+                      <input type="number" className={inputCls} value={form.extraItemAmount} onChange={set("extraItemAmount")} placeholder="0" />
+                      {extraAmt > 0 && (
+                        <p className={`text-xs mt-1 font-semibold ${extraExceeds5 ? "text-red-600" : "text-green-700"}`}>
+                          {extraPct}% — {extraExceeds5 ? "⚠️ >5%: SE approval needed" : "✓ ≤5%: Approved"}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Deductions */}
             <div className={sectionCls}>
@@ -1032,68 +1180,84 @@ export default function BillForm() {
             </div>
 
             {/* Head-wise Bifurcation */}
-            <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मद वार विभाजन / Head-wise Bifurcation</h3>
-              <div className="grid grid-cols-2 gap-3 items-start">
-                <div>
-                  <label className={labelCls}>क्या मद वार विभाजन आवश्यक है? / Head-wise Bifurcation Needed?</label>
-                  <select className={inputCls} value={form.headWiseBifurcation} onChange={set("headWiseBifurcation")}>
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                  </select>
-                </div>
-                {form.headWiseBifurcation === "Yes" && thisBillAmt > 0 && (
-                  <div className="col-span-2">
-                    <div className="rounded-lg p-2 text-xs font-semibold" style={{ background: "#fff8e1", border: "1.5px solid #e6a817", color: "#7B2D00" }}>
-                      <div className="mb-1 font-bold" style={{ color: "#880e4f" }}>Present Bill Amount: ₹{thisBillAmt.toLocaleString("en-IN")}</div>
-                      <div>5054 — 337 (70%) = ₹{Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</div>
-                      <div>5054 — 789 (17%) = ₹{Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</div>
-                      <div>5054 — 796 (13%) = ₹{Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</div>
-                    </div>
+            {!isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>मद वार विभाजन / Head-wise Bifurcation</h3>
+                <div className="grid grid-cols-2 gap-3 items-start">
+                  <div>
+                    <label className={labelCls}>क्या मद वार विभाजन आवश्यक है? / Head-wise Bifurcation Needed?</label>
+                    <select className={inputCls} value={form.headWiseBifurcation} onChange={set("headWiseBifurcation")}>
+                      <option value="No">No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
                   </div>
-                )}
+                  {form.headWiseBifurcation === "Yes" && thisBillAmt > 0 && (
+                    <div className="col-span-2">
+                      <div className="rounded-lg p-2 text-xs font-semibold" style={{ background: "#fff8e1", border: "1.5px solid #e6a817", color: "#7B2D00" }}>
+                        <div className="mb-1 font-bold" style={{ color: "#880e4f" }}>Present Bill Amount: ₹{thisBillAmt.toLocaleString("en-IN")}</div>
+                        <div>5054 — 337 (70%) = ₹{Math.round(thisBillAmt * 0.70).toLocaleString("en-IN")}</div>
+                        <div>5054 — 789 (17%) = ₹{Math.round(thisBillAmt * 0.17).toLocaleString("en-IN")}</div>
+                        <div>5054 — 796 (13%) = ₹{Math.round(thisBillAmt * 0.13).toLocaleString("en-IN")}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Other Details */}
-            <div className={sectionCls}>
-              <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>अन्य विवरण / Other Details</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className={labelCls}>हस्ताक्षरकर्ता / Signatory Name</label>
-                  <input className={inputCls} value={form.signatoryName} onChange={set("signatoryName")} />
-                </div>
-                <div>
-                  <label className={labelCls}>कार्यालय नाम / Office Name</label>
-                  <input className={inputCls} value={form.officeName} onChange={set("officeName")} />
+            {!isSpeedMoney && (
+              <div className={sectionCls}>
+                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>अन्य विवरण / Other Details</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelCls}>हस्ताक्षरकर्ता / Signatory Name</label>
+                    <input className={inputCls} value={form.signatoryName} onChange={set("signatoryName")} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>कार्यालय नाम / Office Name</label>
+                    <input className={inputCls} value={form.officeName} onChange={set("officeName")} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <button
               onClick={handlePrint}
               className="w-full font-bold py-3 rounded-xl text-sm transition-all mb-6 shadow-lg"
               style={{ background: "linear-gradient(90deg, #880e4f, #e91e63, #880e4f)", backgroundSize: "200% auto", color: "#fff", animation: "shimmer 3s linear infinite", border: "none", cursor: "pointer" }}
             >
-              🖨️ Print Note Sheet / Save PDF — {getPdfFilename()}
+              {isSpeedMoney
+                ? `🖨️ Print Deduction Table / Save PDF — ${getPdfFilename()}`
+                : `🖨️ Print Note Sheet / Save PDF — ${getPdfFilename()}`}
             </button>
           </div>
 
           {/* LIVE PREVIEW */}
           <div className="lg:w-1/2">
             <div className="rounded-xl p-3 mb-4" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)", border: "1px solid #f48fb1" }}>
-              <h2 className="font-bold text-sm" style={{ color: "#880e4f" }}>👁 Live Preview — Note Sheet Output</h2>
-              <p className="text-xs mt-1" style={{ color: "#c2185b" }}>Exactly what will print on A4 with 10 mm margins.</p>
+              <h2 className="font-bold text-sm" style={{ color: "#880e4f" }}>
+                {isSpeedMoney ? "👁 Live Preview — Deduction Table Output" : "👁 Live Preview — Note Sheet Output"}
+              </h2>
+              <p className="text-xs mt-1" style={{ color: "#c2185b" }}>
+                {isSpeedMoney
+                  ? "Only the deduction table will print on A4."
+                  : "Exactly what will print on A4 with 10 mm margins."}
+              </p>
             </div>
-            <NoteSheetTable
-              billTitle={billTitle}
-              outputRows={outputRows}
-              deductionRows={deductionRows}
-              notePoints={notePoints}
-              signatoryName={form.signatoryName}
-              headWiseBifurcation={form.headWiseBifurcation}
-              thisBillAmt={thisBillAmt}
-            />
+            {isSpeedMoney ? (
+              <DeductionsOnlyTable billTitle="SPEED MONEY CALCULATION" deductionRows={deductionRows} />
+            ) : (
+              <NoteSheetTable
+                billTitle={billTitle}
+                outputRows={outputRows}
+                deductionRows={deductionRows}
+                notePoints={notePoints}
+                signatoryName={form.signatoryName}
+                headWiseBifurcation={form.headWiseBifurcation}
+                thisBillAmt={thisBillAmt}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -1179,6 +1343,33 @@ function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, sign
   );
 }
 
+function DeductionsOnlyTable({ billTitle, deductionRows }: Pick<TableProps, "billTitle" | "deductionRows">) {
+  const tdL = "border border-gray-500 px-2 py-1 font-semibold bg-gray-50 w-1/2 align-top text-xs";
+  const tdR = "border border-gray-500 px-2 py-1 w-1/2 align-top text-xs";
+
+  return (
+    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif" }}>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <td colSpan={2} className="border border-gray-500 text-center font-bold py-2 text-sm" style={{ background: "#fce4ec", color: "#880e4f" }}>
+              {billTitle}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          {deductionRows.map(([label, value], i) => (
+            <tr key={i}>
+              <td className={tdL + " pl-6"}>{label}</td>
+              <td className={tdR}>{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function buildPrintHtml(
   billTitle: string,
   outputRows: [string, string][],
@@ -1242,6 +1433,44 @@ function buildPrintHtml(
   <ol>${notesHtml}</ol>
   <div class="sig">${signatoryName}</div>
 </div>
+</body>
+</html>`;
+}
+
+function buildDeductionsPrintHtml(
+  billTitle: string,
+  deductionRows: [string, string][],
+  filename: string,
+): string {
+  const baseFontPt = deductionRows.length <= 10 ? 9 : 8;
+  const dedHtml = deductionRows
+    .map(([l, v]) => `<tr><td class="l" style="padding-left:1.5em">${l}</td><td class="r">${v}</td></tr>`)
+    .join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>${filename}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { padding: 10mm; font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
+  table { width:100%; border-collapse:collapse; }
+  td { border:1px solid #555; padding:4px 6px; vertical-align:top; }
+  .h  { text-align:center; font-weight:700; font-size:${baseFontPt + 1}pt; background:#fce4ec; color:#880e4f; padding:4px; }
+  .l  { font-weight:600; background:#f5f5f5; width:50%; }
+  .r  { width:50%; }
+  .dh { font-weight:700; background:#ebebeb; }
+</style>
+</head>
+<body>
+<table>
+  <tr><td colspan="2" class="h">${billTitle}</td></tr>
+  ${dedHtml}
+</table>
 </body>
 </html>`;
 }

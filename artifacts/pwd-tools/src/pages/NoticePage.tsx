@@ -3,33 +3,33 @@
  * Generates bilingual Hindi/English A4 notice letters with DOCX download.
  * Covers: show-cause notice, blacklist notice, general notice to contractor.
  */
-import { useState } from "react";
-import { Document, Packer, Paragraph, TextRun, AlignmentType, PageOrientation, BorderStyle } from "docx";
+import { AlignmentType, Document, Packer, PageOrientation, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Download } from "lucide-react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
 const A4_W = 11906; const A4_H = 16838; const MAR = 1417; const ZERO = 0;
 const FONT = "Mangal";
 const sp = { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as const };
-const para = (text: string, align = AlignmentType.JUSTIFIED, indent?: number, bold = false, size = 22) =>
+const para = (text: string, align: typeof AlignmentType[keyof typeof AlignmentType] = AlignmentType.JUSTIFIED, indent?: number, bold = false, size = 22) =>
   new Paragraph({ children: [new TextRun({ text, font: FONT, size, bold })], alignment: align, spacing: sp, ...(indent ? { indent: { firstLine: indent } } : {}) });
 const blank = () => new Paragraph({ children: [], spacing: sp });
 
 const NOTICE_TYPES = [
   { id: "show-cause", label: "कारण बताओ नोटिस (Show-Cause Notice)" },
-  { id: "blacklist",  label: "ब्लैकलिस्ट नोटिस (Blacklist Notice)" },
-  { id: "general",   label: "सामान्य नोटिस (General Notice)" },
-  { id: "warning",   label: "चेतावनी पत्र (Warning Letter)" },
+  { id: "blacklist", label: "ब्लैकलिस्ट नोटिस (Blacklist Notice)" },
+  { id: "general", label: "सामान्य नोटिस (General Notice)" },
+  { id: "warning", label: "चेतावनी पत्र (Warning Letter)" },
 ];
 
 const INP = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400";
 const LBL = "block text-xs font-semibold text-gray-700 mb-1";
-const TA  = INP + " resize-none";
+const TA = INP + " resize-none";
 
 function today() {
   const d = new Date();
-  return `${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export default function NoticePage() {
@@ -148,7 +148,7 @@ export default function NoticePage() {
           <div className="flex justify-between text-xs mb-2">
             <span>क्रमांकः {form.letterNumber}</span><span>दिनांकः {form.date}</span>
           </div>
-          <div className="text-xs mb-2">प्रेषित:<br/>{form.toDesignation},<br/>{form.toName},<br/>{form.toOffice}।</div>
+          <div className="text-xs mb-2">प्रेषित:<br />{form.toDesignation},<br />{form.toName},<br />{form.toOffice}।</div>
           <p className="text-xs font-bold mb-2">विषय:– {noticeLabel} — {form.subject}</p>
           <p className="text-xs mb-2">महोदय,</p>
           <div className="text-xs text-justify mb-2 whitespace-pre-wrap">{form.body}</div>

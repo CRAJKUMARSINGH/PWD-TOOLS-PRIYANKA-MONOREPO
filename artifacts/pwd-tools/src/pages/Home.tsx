@@ -11,6 +11,14 @@ const TOOLS = [
     directPath: null as string | null,
   },
   {
+    id: "speed-money-tool",
+    icon: "💰",
+    name: "Speed Money Tool",
+    description: "Copy of the Hindi bill tool with deduction-table-only output and last 10 recent input sets",
+    htmlFile: null,
+    directPath: "/speed-money-tool",
+  },
+  {
     id: "emd-refund",
     icon: "💸",
     name: "EMD Refund",

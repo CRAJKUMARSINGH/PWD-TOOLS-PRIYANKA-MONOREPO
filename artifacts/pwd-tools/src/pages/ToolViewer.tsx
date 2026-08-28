@@ -1,35 +1,34 @@
-﻿import { useLocation, useParams } from "wouter";
+﻿import BankCommunication from "@/pages/BankCommunication";
 import BillForm from "@/pages/BillForm";
 import ContractorRegistration from "@/pages/ContractorRegistration";
-import BankCommunication from "@/pages/BankCommunication";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
+import { useLocation, useParams } from "wouter";
 
 const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | null }> = {
   // Map of tool IDs to their metadata
 
-  "bill-generator":           { name: "Bill Generator",            icon: "🏗️", htmlFile: "BillGenerator.html" },
-  "emd-refund":               { name: "EMD Refund",                icon: "💸", htmlFile: "EmdRefund.html" },
-  "security-refund":          { name: "Security Refund",           icon: "🔒", htmlFile: "SecurityRefund.html" },
-  "bill-note-sheet":          { name: "Bill Note Sheet",           icon: "📝", htmlFile: "BillNoteSheet.html" },
-  "deductions-table":         { name: "Deductions Table",          icon: "➖", htmlFile: "DeductionsTable.html" },
-  "financial-progress":       { name: "Liquidity Damages Calculator", icon: "📈", htmlFile: "FinancialProgressTracker.html" },
-  "apg-calculator":           { name: "APG Calculator",            icon: "🧮", htmlFile: "ApgCalculator.html" },
-  "delay-calculator":         { name: "Delay Calculator",          icon: "⏱️", htmlFile: "DelayCalculator.html" },
-  "stamp-duty":               { name: "Stamp Duty",                icon: "⚖️", htmlFile: "StampDuty.html" },
-  "bill-deviation-generator": { name: "Bill Deviation Generator",  icon: "📋", htmlFile: "BillDeviationGenerator.html" },
-  "hindi-bill-note-sheet":    { name: "Hindi Bill Note Sheet",     icon: "📄", htmlFile: null },
-  "contractor-registration":   { name: "Contractor Registration",   icon: "📝", htmlFile: null },
-  "bank-communication":        { name: "Bank Communication",        icon: "🏦", htmlFile: null },
+  "bill-generator": { name: "Bill Generator", icon: "🏗️", htmlFile: "BillGenerator.html" },
+  "emd-refund": { name: "EMD Refund", icon: "💸", htmlFile: "EmdRefund.html" },
+  "security-refund": { name: "Security Refund", icon: "🔒", htmlFile: "SecurityRefund.html" },
+  "bill-note-sheet": { name: "Bill Note Sheet", icon: "📝", htmlFile: "BillNoteSheet.html" },
+  "financial-progress": { name: "Liquidity Damages Calculator", icon: "📈", htmlFile: "FinancialProgressTracker.html" },
+  "apg-calculator": { name: "APG Calculator", icon: "🧮", htmlFile: "ApgCalculator.html" },
+  "delay-calculator": { name: "Delay Calculator", icon: "⏱️", htmlFile: "DelayCalculator.html" },
+  "stamp-duty": { name: "Stamp Duty", icon: "⚖️", htmlFile: "StampDuty.html" },
+  "bill-deviation-generator": { name: "Bill Deviation Generator", icon: "📋", htmlFile: "BillDeviationGenerator.html" },
+  "hindi-bill-note-sheet": { name: "Hindi Bill Note Sheet", icon: "📄", htmlFile: null },
+  "contractor-registration": { name: "Contractor Registration", icon: "📝", htmlFile: null },
+  "bank-communication": { name: "Bank Communication", icon: "🏦", htmlFile: null },
 };
 
 const DIYAS_SMALL = [
-  { left: "5%",  delay: "0s",    dur: "2.8s" },
-  { left: "18%", delay: "0.5s",  dur: "3.2s" },
-  { left: "33%", delay: "0.9s",  dur: "2.5s" },
-  { left: "50%", delay: "0.2s",  dur: "3.0s" },
-  { left: "65%", delay: "0.7s",  dur: "2.7s" },
-  { left: "80%", delay: "0.4s",  dur: "3.4s" },
-  { left: "93%", delay: "1.1s",  dur: "2.6s" },
+  { left: "5%", delay: "0s", dur: "2.8s" },
+  { left: "18%", delay: "0.5s", dur: "3.2s" },
+  { left: "33%", delay: "0.9s", dur: "2.5s" },
+  { left: "50%", delay: "0.2s", dur: "3.0s" },
+  { left: "65%", delay: "0.7s", dur: "2.7s" },
+  { left: "80%", delay: "0.4s", dur: "3.4s" },
+  { left: "93%", delay: "1.1s", dur: "2.6s" },
 ];
 
 function DiyasBar() {
@@ -118,25 +117,25 @@ export default function ToolViewer() {
 
         {/* Content */}
         <div style={{ flex: 1, overflow: "hidden" }}>
-            {tool.htmlFile ? (
-              <iframe
-                src={`${base}/tools/${tool.htmlFile}`}
-                style={{ width: "100%", height: "100%", border: "none" }}
-                title={tool.name}
-              />
-            ) : (
-              <div style={{ height: "100%", overflowY: "auto" }}>
-                {(() => {
-                  const componentMap: Record<string, React.ReactNode> = {
-                    "contractor-registration": <ContractorRegistration />,
-                    "bank-communication": <BankCommunication />,
-                    "enrollment-data-form": <EnrollmentDataForm />,
-                    "hindi-bill-note-sheet": <BillForm />,
-                  };
-                  return componentMap[id ?? ""] ?? <BillForm />;
-                })()}
-              </div>
-            )}
+          {tool.htmlFile ? (
+            <iframe
+              src={`${base}/tools/${tool.htmlFile}`}
+              style={{ width: "100%", height: "100%", border: "none" }}
+              title={tool.name}
+            />
+          ) : (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              {(() => {
+                const componentMap: Record<string, React.ReactNode> = {
+                  "contractor-registration": <ContractorRegistration />,
+                  "bank-communication": <BankCommunication />,
+                  "enrollment-data-form": <EnrollmentDataForm />,
+                  "hindi-bill-note-sheet": <BillForm />,
+                };
+                return componentMap[id ?? ""] ?? <BillForm />;
+              })()}
+            </div>
+          )}
         </div>
       </div>
     </>

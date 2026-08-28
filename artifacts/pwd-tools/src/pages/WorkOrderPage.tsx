@@ -2,26 +2,26 @@
  * Work Order / Supply Order Generator
  * Hindi A4 work order letter with DOCX download.
  */
-import { useState } from "react";
-import { Document, Packer, Paragraph, TextRun, AlignmentType, PageOrientation } from "docx";
+import { AlignmentType, Document, Packer, PageOrientation, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { ArrowLeft, Download, ClipboardList } from "lucide-react";
+import { ArrowLeft, ClipboardList, Download } from "lucide-react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
 const A4_W = 11906; const A4_H = 16838; const MAR = 1417; const ZERO = 0;
 const FONT = "Mangal";
 const sp = { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as const };
-const para = (text: string, align = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
+const para = (text: string, align: typeof AlignmentType[keyof typeof AlignmentType] = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
   new Paragraph({ children: [new TextRun({ text, font: FONT, size, bold })], alignment: align, spacing: sp, ...(firstLine ? { indent: { firstLine } } : {}) });
 const blank = () => new Paragraph({ children: [], spacing: sp });
 
 const INP = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400";
 const LBL = "block text-xs font-semibold text-gray-700 mb-1";
-const TA  = INP + " resize-none";
+const TA = INP + " resize-none";
 
 function today() {
   const d = new Date();
-  return `${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export default function WorkOrderPage() {
@@ -152,12 +152,12 @@ export default function WorkOrderPage() {
           <div className="flex justify-between text-xs mb-1"><span>क्रमांकः {form.letterNumber}</span><span>दिनांकः {form.date}</span></div>
           <div className="text-center font-bold text-sm my-2">कार्यादेश / WORK ORDER</div>
           <div className="text-xs mb-1">कार्यादेश संख्या: {form.workOrderNumber} &nbsp;&nbsp; दिनांक: {form.workOrderDate}</div>
-          <div className="text-xs mb-2">प्रति,<br/>{form.contractorName},<br/>{form.contractorAddress}।</div>
+          <div className="text-xs mb-2">प्रति,<br />{form.contractorName},<br />{form.contractorAddress}।</div>
           <p className="text-xs font-bold mb-2">विषय:– {form.nameOfWork} का कार्यादेश।</p>
           <p className="text-xs mb-2">महोदय,</p>
           <p className="text-xs text-justify mb-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;आपको सूचित किया जाता है कि {form.schemeName ? form.schemeName + " के अंतर्गत " : ""}{form.nameOfWork}{form.packageNumber ? ` (Package: ${form.packageNumber})` : ""}, अनुबंध संख्या {form.agreementNumber}, राशि रु. {form.amount}/-, आपको आवंटित किया जाता है।</p>
           <p className="text-xs mb-1">प्रारंभ: {form.startDate} &nbsp;|&nbsp; पूर्णता: {form.completionDate || form.completionDays + " दिन"}</p>
-          {form.specialConditions && <p className="text-xs mb-2 whitespace-pre-wrap">विशेष शर्तें:<br/>{form.specialConditions}</p>}
+          {form.specialConditions && <p className="text-xs mb-2 whitespace-pre-wrap">विशेष शर्तें:<br />{form.specialConditions}</p>}
           <p className="text-xs mb-4">कार्य गुणवत्तापूर्वक, निर्धारित समय-सीमा में पूर्ण करें।</p>
           <p className="text-xs mb-6">भवदीय,</p>
           <p className="text-xs font-bold">({form.fromName})</p>

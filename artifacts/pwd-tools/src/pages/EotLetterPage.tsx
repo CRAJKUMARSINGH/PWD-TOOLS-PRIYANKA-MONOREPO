@@ -2,32 +2,32 @@
  * Extension of Time (EOT) Letter Generator
  * Generates Hindi A4 EOT application / sanction letter with DOCX download.
  */
-import { useState } from "react";
-import { Document, Packer, Paragraph, TextRun, AlignmentType, PageOrientation } from "docx";
+import { AlignmentType, Document, Packer, PageOrientation, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { ArrowLeft, Download, CalendarClock } from "lucide-react";
+import { ArrowLeft, CalendarClock, Download } from "lucide-react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
 const A4_W = 11906; const A4_H = 16838; const MAR = 1417; const ZERO = 0;
 const FONT = "Mangal";
 const sp = { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as const };
-const para = (text: string, align = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
+const para = (text: string, align: typeof AlignmentType[keyof typeof AlignmentType] = AlignmentType.JUSTIFIED, firstLine?: number, bold = false, size = 22) =>
   new Paragraph({ children: [new TextRun({ text, font: FONT, size, bold })], alignment: align, spacing: sp, ...(firstLine ? { indent: { firstLine } } : {}) });
 const blank = () => new Paragraph({ children: [], spacing: sp });
 
 const EOT_TYPES = [
   { id: "application", label: "EOT आवेदन (Contractor to EE)" },
-  { id: "sanction",    label: "EOT स्वीकृति (EE sanction letter)" },
-  { id: "rejection",  label: "EOT अस्वीकृति (EE rejection letter)" },
+  { id: "sanction", label: "EOT स्वीकृति (EE sanction letter)" },
+  { id: "rejection", label: "EOT अस्वीकृति (EE rejection letter)" },
 ];
 
 const INP = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400";
 const LBL = "block text-xs font-semibold text-gray-700 mb-1";
-const TA  = INP + " resize-none";
+const TA = INP + " resize-none";
 
 function today() {
   const d = new Date();
-  return `${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export default function EotLetterPage() {
@@ -59,7 +59,7 @@ export default function EotLetterPage() {
 
   async function downloadDocx() {
     const isSanction = form.eotType === "sanction";
-    const isReject   = form.eotType === "rejection";
+    const isReject = form.eotType === "rejection";
     const children = [
       para("राजस्थान सरकार", AlignmentType.CENTER, undefined, true, 28),
       para(`${form.fromDesignation}, सार्वजनिक निर्माण विभाग`, AlignmentType.CENTER, undefined, true, 26),
@@ -165,7 +165,7 @@ export default function EotLetterPage() {
           <div className="text-center font-bold text-sm mb-2">{form.fromOffice}</div>
           <hr className="border-black mb-2" />
           <div className="flex justify-between text-xs mb-2"><span>क्रमांकः {form.letterNumber}</span><span>दिनांकः {form.date}</span></div>
-          <div className="text-xs mb-2">{form.contractorName},<br/>{form.contractorAddress}।</div>
+          <div className="text-xs mb-2">{form.contractorName},<br />{form.contractorAddress}।</div>
           <p className="text-xs font-bold mb-1">विषय:– {form.nameOfWork} — EOT {form.eotType === "sanction" ? "स्वीकृति" : form.eotType === "rejection" ? "अस्वीकृति" : "आवेदन"}</p>
           <p className="text-xs mb-1">संदर्भ: अनुबंध संख्या {form.agreementNumber}</p>
           <p className="text-xs mb-2">महोदय,</p>

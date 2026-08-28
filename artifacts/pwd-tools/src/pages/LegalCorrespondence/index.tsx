@@ -3,10 +3,27 @@
  * Self-contained inside pwd-tools; uses legalApi for data.
  * Requires VITE_API_URL to be set (shows error banner if not configured).
  */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowLeft,
-    Scale
+    CheckCircle2,
+    Clock,
+    Edit2,
+    FileText,
+    Loader2,
+    Plus,
+    Printer,
+    Scale,
+    Search,
+    Settings,
+    Trash2,
+    WifiOff,
 } from "lucide-react";
+import { useState } from "react";
+import { LEGAL_API_ENABLED, legalApi } from "./api";
+import LetterPrintPreview from "./LetterPrintPreview";
+import type { LegalLetterLocal, LegalView } from "./types";
+import { DEFAULT_FROM_DESIGNATION, DEFAULT_FROM_NAME, DEFAULT_FROM_OFFICE } from "./types";
 
 // ── Shared shell ──────────────────────────────────────────────────────────
 
@@ -199,7 +216,23 @@ function emptyForm(): FormState {
 }
 
 function fromApiToForm(l: LegalLetterLocal): FormState {
-    return { ...l, hierarchy: l.hierarchy ?? [], copyTo: l.copyTo ?? [] };
+    return {
+        letterNumber: l.letterNumber ?? null,
+        date: l.date ?? "",
+        toName: l.toName ?? null,
+        toAddress: l.toAddress ?? "",
+        subject: l.subject ?? "",
+        salutation: l.salutation ?? null,
+        body: l.body ?? "",
+        hierarchy: l.hierarchy ?? [],
+        copyTo: l.copyTo ?? [],
+        closing: l.closing ?? null,
+        fromName: l.fromName ?? null,
+        fromDesignation: l.fromDesignation ?? null,
+        fromOffice: l.fromOffice ?? null,
+        styleId: l.styleId ?? null,
+        status: (l.status as LegalLetterLocal["status"]) ?? "draft",
+    };
 }
 
 function LetterFormView({ id, onNavigate }: { id?: number; onNavigate: (v: LegalView) => void }) {
@@ -220,14 +253,34 @@ function LetterFormView({ id, onNavigate }: { id?: number; onNavigate: (v: Legal
 
     const [form, setForm] = useState<FormState>(emptyForm);
     const [initialised, setInitialised] = useState(false);
-    if (existing && !initialised) { setForm(fromApiToForm(existing)); setInitialised(true); }
+    if (existing && !initialised) { setForm(fromApiToForm(existing as LegalLetterLocal)); setInitialised(true); }
 
     const createMut = useMutation({
-        mutationFn: (data: FormState) => legalApi.createLetter({ ...data, toAddress: data.toAddress }),
+        mutationFn: (data: FormState) => legalApi.createLetter({
+            ...data,
+            letterNumber: data.letterNumber ?? undefined,
+            toName: data.toName ?? undefined,
+            salutation: data.salutation ?? undefined,
+            closing: data.closing ?? undefined,
+            fromName: data.fromName ?? undefined,
+            fromDesignation: data.fromDesignation ?? undefined,
+            fromOffice: data.fromOffice ?? undefined,
+            styleId: data.styleId ?? undefined,
+        }),
         onSuccess: (res) => { qc.invalidateQueries({ queryKey: ["legal"] }); onNavigate({ name: "edit", id: res.id }); },
     });
     const updateMut = useMutation({
-        mutationFn: (data: FormState) => legalApi.updateLetter(id!, data),
+        mutationFn: (data: FormState) => legalApi.updateLetter(id!, {
+            ...data,
+            letterNumber: data.letterNumber ?? undefined,
+            toName: data.toName ?? undefined,
+            salutation: data.salutation ?? undefined,
+            closing: data.closing ?? undefined,
+            fromName: data.fromName ?? undefined,
+            fromDesignation: data.fromDesignation ?? undefined,
+            fromOffice: data.fromOffice ?? undefined,
+            styleId: data.styleId ?? undefined,
+        }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ["legal"] }),
     });
     const finaliseMut = useMutation({
