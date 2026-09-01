@@ -8,6 +8,7 @@ import CorrespondencePage from "@/pages/Correspondence";
 import DocumentGenerator from "@/pages/DocumentGenerator";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import EotLetterPage from "@/pages/EotLetterPage";
+import ExcelToEmd from "@/pages/ExcelToEmd";
 import Home from "@/pages/Home";
 import ImageCompressor from "@/pages/ImageCompressor";
 import LegalCorrespondencePage from "@/pages/LegalCorrespondence";
@@ -34,6 +35,7 @@ function Router() {
       {/* ── Bill & Financial ── */}
       <Route path="/bill-form" component={() => <BillForm />} />
       <Route path="/speed-money-tool" component={SpeedMoneyTool} />
+      <Route path="/excel-to-emd" component={ExcelToEmd} />
       <Route path="/document-generator" component={DocumentGenerator} />
       <Route path="/enrollment-data" component={EnrollmentDataForm} />
       {/* ── Contractor ── */}

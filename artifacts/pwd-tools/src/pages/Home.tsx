@@ -27,6 +27,14 @@ const TOOLS = [
     directPath: null as string | null,
   },
   {
+    id: "excel-to-emd",
+    icon: "📊",
+    name: "Excel to EMD",
+    description: "Convert Excel data to EMD hand receipts (RPWA 28) for batch processing",
+    htmlFile: null,
+    directPath: "/excel-to-emd",
+  },
+  {
     id: "image-compressor",
     icon: "📷",
     name: "Image Compressor",
