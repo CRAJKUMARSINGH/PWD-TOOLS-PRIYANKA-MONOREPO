@@ -872,41 +872,7 @@ export default function BillForm({ mode = "bill-note" }: BillFormProps) {
               </p>
             </div>
 
-            {isSpeedMoney && (
-              <div className={sectionCls}>
-                <h3 className="font-bold text-sm mb-3 border-b pb-1" style={{ color: "#880e4f", borderColor: "#f48fb1" }}>Recent Inputs (Last 10)</h3>
-                {recentInputs.length === 0 ? (
-                  <p className="text-xs text-gray-600">No saved input data yet. It will appear here after you print or save the deduction table.</p>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {recentInputs.map((entry) => (
-                      <div key={entry.id} className="rounded-lg border border-orange-200 bg-white/80 p-2">
-                        <div className="text-xs font-semibold text-[#7B2D00]">{entry.label}</div>
-                        <div className="text-[11px] text-gray-500 mt-1">{entry.savedAt}</div>
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            type="button"
-                            onClick={() => loadRecentInput(entry)}
-                            className="rounded px-3 py-1 text-xs font-bold"
-                            style={{ background: "#fff3e0", color: "#7B2D00", border: "1px solid #e6a817" }}
-                          >
-                            Load
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteRecentInput(entry.id)}
-                            className="rounded px-3 py-1 text-xs font-bold"
-                            style={{ background: "#fff5f5", color: "#c0392b", border: "1px solid #f0a0a0" }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+
 
             {/* Bill Number & Type */}
             {!isSpeedMoney && (
@@ -1235,16 +1201,16 @@ export default function BillForm({ mode = "bill-note" }: BillFormProps) {
 
           {/* LIVE PREVIEW */}
           <div className="lg:w-1/2">
-            <div className="rounded-xl p-3 mb-4" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)", border: "1px solid #f48fb1" }}>
-              <h2 className="font-bold text-sm" style={{ color: "#880e4f" }}>
-                {isSpeedMoney ? "👁 Live Preview — Deduction Table Output" : "👁 Live Preview — Note Sheet Output"}
-              </h2>
-              <p className="text-xs mt-1" style={{ color: "#c2185b" }}>
-                {isSpeedMoney
-                  ? "Only the deduction table will print on A4."
-                  : "Exactly what will print on A4 with 10 mm margins."}
-              </p>
-            </div>
+            {!isSpeedMoney && (
+              <div className="rounded-xl p-3 mb-4" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)", border: "1px solid #f48fb1" }}>
+                <h2 className="font-bold text-sm" style={{ color: "#880e4f" }}>
+                  👁 Live Preview — Note Sheet Output
+                </h2>
+                <p className="text-xs mt-1" style={{ color: "#c2185b" }}>
+                  Exactly what will print on A4 with 10 mm margins.
+                </p>
+              </div>
+            )}
             {isSpeedMoney ? (
               <DeductionsOnlyTable billTitle="SPEED MONEY CALCULATION" deductionRows={deductionRows} />
             ) : (

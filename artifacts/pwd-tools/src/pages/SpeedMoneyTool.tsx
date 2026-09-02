@@ -1,5 +1,5 @@
-import BillForm from "@/pages/BillForm";
+import SpeedMoneyForm from "@/pages/SpeedMoneyForm";
 
 export default function SpeedMoneyTool() {
-  return <BillForm mode="speed-money" />;
+  return <SpeedMoneyForm />;
 }

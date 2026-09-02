@@ -8,6 +8,7 @@ import CorrespondencePage from "@/pages/Correspondence";
 import DocumentGenerator from "@/pages/DocumentGenerator";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import EotLetterPage from "@/pages/EotLetterPage";
+import ExcelToEmd from "@/pages/ExcelToEmd";
 import Home from "@/pages/Home";
 import ImageCompressor from "@/pages/ImageCompressor";
 import LegalCorrespondencePage from "@/pages/LegalCorrespondence";
@@ -18,17 +19,9 @@ import SpeedMoneyTool from "@/pages/SpeedMoneyTool";
 import ToolViewer from "@/pages/ToolViewer";
 import WorkOrderPage from "@/pages/WorkOrderPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
+import { Route, Switch, Router as WouterRouter } from "wouter";
 
 const queryClient = new QueryClient();
-
-/** Redirect /excel-to-emd → /tool/excel-to-emd (HTML iframe tool) */
-function ExcelToEmdRedirect() {
-  const [, navigate] = useLocation();
-  useEffect(() => { navigate("/tool/excel-to-emd"); }, []);
-  return null;
-}
 
 function Router() {
   return (
@@ -42,7 +35,7 @@ function Router() {
       {/* ── Bill & Financial ── */}
       <Route path="/bill-form" component={() => <BillForm />} />
       <Route path="/speed-money-tool" component={SpeedMoneyTool} />
-      <Route path="/excel-to-emd" component={ExcelToEmdRedirect} />
+      <Route path="/excel-to-emd" component={ExcelToEmd} />
       <Route path="/document-generator" component={DocumentGenerator} />
       <Route path="/enrollment-data" component={EnrollmentDataForm} />
       {/* ── Contractor ── */}
