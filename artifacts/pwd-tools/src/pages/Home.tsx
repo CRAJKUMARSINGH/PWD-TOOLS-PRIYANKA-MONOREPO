@@ -2,8 +2,6 @@ import { useLocation } from "wouter";
 
 const TOOLS = [
   // ── Priority tools (pinned first) ─────────────────────────────────────
-<<<<<<< HEAD
-=======
   {
     id: "hindi-bill-note-sheet",
     icon: "📄",
@@ -69,73 +67,6 @@ const TOOLS = [
     directPath: "/correspondence",
   },
   // ── Remaining tools ────────────────────────────────────────────────────
->>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
-  {
-    id: "hindi-bill-note-sheet",
-    icon: "📄",
-    name: "Hindi Bill Note Sheet",
-    description: "Complete Hindi bill scrutiny sheet with contractor autocomplete, GST rounding, and PDF generation",
-    htmlFile: "BillNoteSheet.html",
-    directPath: null as string | null,
-  },
-  {
-<<<<<<< HEAD
-    id: "speed-money-tool",
-    icon: "💰",
-    name: "Speed Money Tool",
-    description: "Copy of the Hindi bill tool with deduction-table-only output and last 10 recent input sets",
-    htmlFile: null,
-    directPath: "/speed-money-tool",
-  },
-  {
-    id: "emd-refund",
-    icon: "💸",
-    name: "EMD Refund",
-    description: "Calculate EMD refunds with penalties",
-    htmlFile: "EmdRefund.html",
-    directPath: null as string | null,
-  },
-  {
-    id: "excel-to-emd",
-    icon: "📊",
-    name: "Excel to EMD",
-    description: "Convert Excel data to EMD hand receipts (RPWA 28) for batch processing",
-    htmlFile: null,
-    directPath: "/excel-to-emd",
-  },
-  {
-    id: "image-compressor",
-    icon: "📷",
-    name: "Image Compressor",
-    description: "Compress site photos to 250 KB for PWD portal upload — EXIF & GPS metadata preserved, auto-named by contractor & road",
-    htmlFile: null,
-    directPath: "/image-compressor",
-  },
-  {
-    id: "contractor-registration",
-    icon: "📝",
-    name: "Contractor Registration",
-    description: "Fill out the contractor enlistment form and generate a printable order",
-    htmlFile: null,
-    directPath: "/contractor-registration",
-  },
-  {
-    id: "bank-communication",
-    icon: "🏦",
-    name: "Bank Communication",
-    description: "Generate bank guarantee verification and validity extension letters in Hindi",
-    htmlFile: null,
-    directPath: "/bank-communication",
-  },
-  {
-    id: "correspondence",
-    icon: "✉️",
-    name: "पत्र-व्यवहार (Correspondence)",
-    description: "bilingual drafting tool (हिन्दी, English, bilingual) for letters, replies, drafts, A4 preview, and Word DOCX export",
-    htmlFile: null,
-    directPath: "/correspondence",
-  },
-  // ── Remaining tools ────────────────────────────────────────────────────
   {
     id: "bill-generator",
     icon: "🏗️",
@@ -145,8 +76,6 @@ const TOOLS = [
     directPath: null as string | null,
   },
   {
-=======
->>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
     id: "security-refund",
     icon: "🔒",
     name: "Security Refund",
