@@ -9,6 +9,10 @@ const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | 
 
   "bill-generator": { name: "Bill Generator", icon: "🏗️", htmlFile: "BillGenerator.html" },
   "emd-refund": { name: "EMD Refund", icon: "💸", htmlFile: "EmdRefund.html" },
+<<<<<<< HEAD
+=======
+  "excel-to-emd": { name: "Excel-to-EMD", icon: "📊", htmlFile: "ExcelToEmd.html" },
+>>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
   "security-refund": { name: "Security Refund", icon: "🔒", htmlFile: "SecurityRefund.html" },
   "bill-note-sheet": { name: "Bill Note Sheet", icon: "📝", htmlFile: "BillNoteSheet.html" },
   "financial-progress": { name: "Liquidity Damages Calculator", icon: "📈", htmlFile: "FinancialProgressTracker.html" },

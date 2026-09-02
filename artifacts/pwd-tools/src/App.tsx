@@ -8,7 +8,10 @@ import CorrespondencePage from "@/pages/Correspondence";
 import DocumentGenerator from "@/pages/DocumentGenerator";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import EotLetterPage from "@/pages/EotLetterPage";
+<<<<<<< HEAD
 import ExcelToEmd from "@/pages/ExcelToEmd";
+=======
+>>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
 import Home from "@/pages/Home";
 import ImageCompressor from "@/pages/ImageCompressor";
 import LegalCorrespondencePage from "@/pages/LegalCorrespondence";
@@ -35,7 +38,10 @@ function Router() {
       {/* ── Bill & Financial ── */}
       <Route path="/bill-form" component={() => <BillForm />} />
       <Route path="/speed-money-tool" component={SpeedMoneyTool} />
+<<<<<<< HEAD
       <Route path="/excel-to-emd" component={ExcelToEmd} />
+=======
+>>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
       <Route path="/document-generator" component={DocumentGenerator} />
       <Route path="/enrollment-data" component={EnrollmentDataForm} />
       {/* ── Contractor ── */}

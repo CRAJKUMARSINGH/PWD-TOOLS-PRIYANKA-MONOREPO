@@ -473,12 +473,27 @@
             align-items: center;
         }
 
+        /* ── Blue approval box ── */
         .bottom-left-box {
-            border: 2px solid black;
-            padding: 8px 10px;
-            width: 300px;
+            border: 2px solid #1a3a6e;
+            border-radius: 6px;
+            padding: 10px 14px 12px;
+            width: 320px;
             text-align: left;
-            margin-top: 10px;
+            margin-top: 12px;
+            background: #f0f5ff;
+            box-shadow: inset 0 0 0 1px rgba(26,58,110,0.08);
+        }
+
+        .bottom-left-box .box-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #1a3a6e;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-bottom: 1.5px solid #1a3a6e;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .bottom-left-box p {
@@ -487,7 +502,45 @@
         }
 
         .bottom-left-box .blue-text {
-            color: blue;
+            color: #1a3a6e;
+            font-weight: 600;
+        }
+
+<<<<<<< HEAD
+        /* ── Print styles ── */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+=======
+        /* Seal / authority signature row inside box */
+        .seal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 14px;
+            gap: 8px;
+        }
+
+        .seal-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .seal-item .sig-line {
+            border-bottom: 1.5px solid #1a3a6e;
+            height: 20px;
+            margin-bottom: 3px;
+        }
+
+        .seal-item .sig-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1a3a6e;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         /* ── Print styles ── */
@@ -497,6 +550,7 @@
                 margin: 0;
             }
 
+>>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
             html,
             body {
                 margin: 0;
@@ -665,6 +719,7 @@
                         </tr>
                     </table>
                 </div>
+<<<<<<< HEAD
                 <div class="seal-container">
                     <div class="seal">
                         <p></p><p></p><p></p>
@@ -676,6 +731,27 @@
                     <p class="blue-text">Chargeable to Head:- 8443 [EMD-Refund]</p>
                     <div class="seal">
                         <p>Ar.</p><p>D.A.</p><p>E.E.</p>
+=======
+                <div class="seal-container" style="display:none;"></div>
+                <div class="bottom-left-box">
+                    <div class="box-title">✦ For Office Use — Passed / Approved</div>
+                    <p class="blue-text">Passed for Rs. ${amount}</p>
+                    <p class="blue-text">In Words Rupees: ${amountInWords} Only</p>
+                    <p class="blue-text">Chargeable to Head:- 8443 [EMD-Refund]</p>
+                    <div class="seal-row">
+                        <div class="seal-item">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Ar.</div>
+                        </div>
+                        <div class="seal-item">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">D.A.</div>
+                        </div>
+                        <div class="seal-item">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">E.E.</div>
+                        </div>
+>>>>>>> 90029a4 (sync: add Excel-to-EMD tool, new pages (EOT/Notice/WorkOrder/Rescission/ImageCompressor/Legal), EmdRefund blue box update, correspondence routes, CODE-JUNCTION, SAMPLE-INPUT-OUTPUT)
                     </div>
                 </div>
             `;
