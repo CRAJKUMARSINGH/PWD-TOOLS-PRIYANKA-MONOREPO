@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>बिल नोट शीट जेनरेटर (हिन्दी)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary-color: #3498db;
@@ -14,9 +19,9 @@
             --text-color: #333;
             --light-bg: #f9f9f9;
         }
-        
+
         body {
-            font-family: 'Mangal', 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             max-width: 800px;
@@ -24,7 +29,7 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-        
+
         h2 {
             color: var(--primary-color);
             text-align: center;
@@ -32,25 +37,26 @@
             padding-bottom: 10px;
             border-bottom: 2px solid var(--primary-color);
         }
-        
+
         .form-container {
             background-color: white;
             padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
         }
-        
-        input, select {
+
+        input,
+        select {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -59,43 +65,44 @@
             transition: border 0.3s;
             box-sizing: border-box;
         }
-        
-        input:focus, select:focus {
+
+        input:focus,
+        select:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
-        
+
         input[type="date"] {
             width: calc(50% - 10px);
             display: inline-block;
         }
-        
+
         input[type="text"][readonly] {
             width: calc(50% - 10px);
             display: inline-block;
             margin-left: 10px;
             background-color: #f9f9f9;
         }
-        
+
         .required:after {
             content: " *";
             color: var(--error-color);
         }
-        
+
         .error-message {
             color: var(--error-color);
             font-size: 0.85em;
             margin-top: 5px;
             display: none;
         }
-        
+
         .button-group {
             display: flex;
             gap: 10px;
             margin: 25px 0;
         }
-        
+
         button {
             padding: 12px 20px;
             border: none;
@@ -105,38 +112,38 @@
             transition: all 0.3s;
             flex: 1;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: var(--secondary-color);
         }
-        
+
         .btn-secondary {
             background-color: #95a5a6;
             color: white;
         }
-        
+
         .btn-secondary:hover {
             background-color: #7f8c8d;
         }
-        
+
         #output {
             background-color: var(--light-bg);
             border: 1px solid var(--border-color);
             padding: 20mm;
             border-radius: 4px;
-            font-family: 'Mangal', 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
             margin-top: 20px;
             width: 210mm;
             box-sizing: border-box;
             font-size: 11pt;
             line-height: 1.3;
         }
-        
+
         #outputText {
             max-width: 170mm;
             max-height: 257mm;
@@ -147,11 +154,11 @@
             white-space: pre-wrap;
             margin: 0;
         }
-        
+
         #outputText p {
             margin: 0 0 0.5em 0;
         }
-        
+
         .section-title {
             font-weight: bold;
             color: var(--primary-color);
@@ -159,11 +166,12 @@
             padding-bottom: 5px;
             border-bottom: 1px solid var(--border-color);
         }
-        
-        .conditional-field, .final-only {
+
+        .conditional-field,
+        .final-only {
             display: none;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -172,9 +180,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
-        
+
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
@@ -182,10 +190,10 @@
             border-radius: 5px;
             width: 80%;
             max-width: 400px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
-        
+
         .modal-btn {
             padding: 8px 16px;
             margin: 0 10px;
@@ -195,15 +203,21 @@
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         @media print {
-            @page { margin: 0; }
+            @page {
+                margin: 0;
+            }
+
             body * {
                 visibility: hidden;
             }
-            #output, #output * {
+
+            #output,
+            #output * {
                 visibility: visible;
             }
+
             #output {
                 position: absolute;
                 left: 0;
@@ -216,6 +230,7 @@
                 margin: 0;
                 box-sizing: border-box;
             }
+
             #outputText {
                 max-width: 170mm;
                 max-height: none;
@@ -226,6 +241,7 @@
                 break-before: auto;
                 break-after: auto;
             }
+
             #outputText p {
                 margin: 0 0 0.5em 0;
                 page-break-inside: avoid;
@@ -233,10 +249,11 @@
         }
     </style>
 </head>
+
 <body>
     <div class="form-container">
         <h2>बिल नोट शीट जेनरेटर (हिन्दी)</h2>
-        
+
         <div class="section-title">बिल प्रकार</div>
         <div class="form-group">
             <label for="billType" class="required">बिल का प्रकार</label>
@@ -247,20 +264,20 @@
             </select>
             <div id="billTypeError" class="error-message">कृपया बिल का प्रकार चुनें</div>
         </div>
-        
+
         <div class="section-title">मूल जानकारी</div>
         <div class="form-group">
             <label for="workOrderAmount" class="required">वर्क ऑर्डर राशि (₹)</label>
             <input type="number" id="workOrderAmount" min="0" step="0.01" required>
             <div id="workOrderAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
         </div>
-        
+
         <div class="form-group">
             <label for="uptoDateBillAmount" class="required">अब तक (Upto Date) की बिल राशि (₹)</label>
             <input type="number" id="uptoDateBillAmount" min="0" step="0.01" required>
             <div id="uptoDateBillAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
         </div>
-        
+
         <div class="section-title final-only">परियोजना समयरेखा</div>
         <div class="form-group final-only">
             <label for="startDate" class="required">प्रारंभ तिथि (DD/MM/YYYY)</label>
@@ -268,21 +285,21 @@
             <input type="text" id="startDate" readonly placeholder="DD/MM/YYYY">
             <div id="startDateError" class="error-message">कृपया DD/MM/YYYY प्रारूप में मान्य तिथि चुनें</div>
         </div>
-        
+
         <div class="form-group final-only">
             <label for="scheduleCompletion" class="required">निर्धारित समापन तिथि (DD/MM/YYYY)</label>
             <input type="date" id="scheduleCompletionPicker">
             <input type="text" id="scheduleCompletion" readonly placeholder="DD/MM/YYYY">
             <div id="scheduleCompletionError" class="error-message">कृपया DD/MM/YYYY प्रारूप में मान्य तिथि चुनें</div>
         </div>
-        
+
         <div class="form-group final-only">
             <label for="actualCompletion" class="required">वास्तविक समापन तिथि (DD/MM/YYYY)</label>
             <input type="date" id="actualCompletionPicker">
             <input type="text" id="actualCompletion" readonly placeholder="DD/MM/YYYY">
             <div id="actualCompletionError" class="error-message">कृपया DD/MM/YYYY प्रारूप में मान्य तिथि चुनें</div>
         </div>
-        
+
         <div class="section-title">कार्य विवरण</div>
         <div class="form-group final-only">
             <label for="repairWork">मरम्मत कार्य</label>
@@ -291,7 +308,7 @@
                 <option value="Yes">हाँ</option>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="extraItem">Extra Items (Extra Item) शामिल</label>
             <select id="extraItem">
@@ -299,13 +316,13 @@
                 <option value="Yes">हाँ</option>
             </select>
         </div>
-        
+
         <div class="form-group conditional-field" id="extraItemAmountGroup">
             <label for="extraItemAmount">Extra Items राशि (₹)</label>
             <input type="number" id="extraItemAmount" min="0" step="0.01" value="0">
             <div id="extraItemAmountError" class="error-message">कृपया मान्य राशि दर्ज करें</div>
         </div>
-        
+
         <div class="form-group final-only">
             <label for="excessQuantity">अधिक मात्रा (Excess Quantity)</label>
             <select id="excessQuantity">
@@ -313,7 +330,7 @@
                 <option value="Yes">हाँ</option>
             </select>
         </div>
-        
+
         <div class="form-group final-only">
             <label for="delayComment">बिल देर से जमा (>6 माह)</label>
             <select id="delayComment">
@@ -321,12 +338,12 @@
                 <option value="Yes">हाँ</option>
             </select>
         </div>
-        
+
         <div class="button-group">
             <button class="btn-primary" id="generateBtn" onclick="generateNote()">नोट शीट जनरेट करें</button>
             <button class="btn-secondary" id="resetBtn" onclick="resetForm()">फॉर्म रीसेट करें</button>
         </div>
-        
+
         <div id="output" style="display: none;">
             <div class="section-title">जनरेटेड नोट</div>
             <div id="outputText">फॉर्म भरें और "नोट शीट जनरेट करें" पर क्लिक करें।</div>
@@ -335,7 +352,7 @@
                 <button class="btn-secondary" id="copyBtn" onclick="copyToClipboard()">क्लिपबोर्ड पर कॉपी करें</button>
             </div>
         </div>
-        
+
         <div id="alertModal" class="modal">
             <div class="modal-content">
                 <p id="modalMessage">यह एक मॉडल संदेश है</p>
@@ -363,7 +380,7 @@
         const actualCompletionInput = document.getElementById('actualCompletion');
 
         // Show/hide fields based on bill type
-        billTypeSelect.addEventListener('change', function() {
+        billTypeSelect.addEventListener('change', function () {
             const isFinal = this.value === 'final';
             finalOnlyFields.forEach(field => {
                 field.style.display = isFinal ? 'block' : 'none';
@@ -371,7 +388,7 @@
         });
 
         // Show/hide extra item amount field
-        extraItemSelect.addEventListener('change', function() {
+        extraItemSelect.addEventListener('change', function () {
             extraItemAmountGroup.style.display = this.value === 'Yes' ? 'block' : 'none';
         });
 
@@ -406,7 +423,7 @@
 
         // Update text input when date picker changes
         function updateDateInput(picker, input) {
-            picker.addEventListener('change', function() {
+            picker.addEventListener('change', function () {
                 input.value = formatDateToDDMMYYYY(this.value);
             });
         }
@@ -644,7 +661,7 @@
         document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('alertModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -652,4 +669,5 @@
         }
     </script>
 </body>
+
 </html>
