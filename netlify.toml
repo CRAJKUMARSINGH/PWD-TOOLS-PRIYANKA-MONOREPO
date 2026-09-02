@@ -1,7 +1,7 @@
 [build]
   # Run from monorepo root so workspace:* packages resolve correctly
   base    = "."
-  command = "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/pwd-tools run build"
+  command = "pnpm install --no-frozen-lockfile && cd artifacts/pwd-tools && npx vite build --config vite.config.ts"
   publish = "artifacts/pwd-tools/dist/public"
 
 [build.environment]

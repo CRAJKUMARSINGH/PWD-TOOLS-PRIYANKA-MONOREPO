@@ -215,6 +215,7 @@ function buildPrintHtml(rows: [string, string][], filename: string): string {
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function SpeedMoneyForm() {
     const [form, setForm] = useState<SpeedMoneyFormData>(defaultForm);
+    const [, navigate] = useLocation();
 
     const setField = (field: keyof SpeedMoneyFormData, value: string) =>
         setForm(prev => ({ ...prev, [field]: value }));
@@ -335,12 +336,20 @@ export default function SpeedMoneyForm() {
                 {/* Header */}
                 <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #7B0D00 0%, #c0392b 25%, #e67e22 50%, #c0392b 75%, #7B0D00 100%)", backgroundSize: "300% auto", animation: "shimmer 8s linear infinite", borderBottom: "4px solid #FFD700" }}>
                     <Diyas />
-                    <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 20px 6px" }}>
-                        <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "0.08em", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
-                            🪔 SPEED MONEY TOOL 🪔
-                        </div>
-                        <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", letterSpacing: "0.12em", marginTop: "2px" }}>
-                            Deduction Table — Speed Money Calculation
+                    <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", padding: "10px 20px 6px", gap: "12px" }}>
+                        <button
+                            onClick={() => navigate("/")}
+                            style={{ background: "rgba(255,215,0,0.18)", border: "1.5px solid #FFD700", color: "#FFD700", padding: "6px 14px", borderRadius: "6px", cursor: "pointer", fontWeight: 700, fontSize: "0.875rem", flexShrink: 0 }}
+                        >
+                            🏠 Home
+                        </button>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                            <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "0.08em", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
+                                🪔 SPEED MONEY TOOL 🪔
+                            </div>
+                            <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", letterSpacing: "0.12em", marginTop: "2px" }}>
+                                Deduction Table — Speed Money Calculation
+                            </div>
                         </div>
                     </div>
                     <div style={{ background: "linear-gradient(90deg, #FFD700, #FF8C00, #FFD700)", height: "3px" }} />
