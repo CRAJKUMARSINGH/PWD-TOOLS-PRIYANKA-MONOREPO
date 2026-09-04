@@ -359,3 +359,63 @@
 .contractor-output footer {
   display: none !important;
 }
+
+/* Bank communication letters — open Hindi leading, larger type */
+.bank-letter {
+  font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif !important;
+  font-size: 16pt !important;
+  line-height: 2.35 !important;
+  color: #000 !important;
+}
+
+.bank-letter * {
+  font-family: inherit !important;
+  line-height: 2.35 !important;
+}
+
+.bank-letter p {
+  margin-top: 0 !important;
+  margin-bottom: 18pt !important;
+  text-align: justify;
+}
+
+.bank-letter-office {
+  text-align: center;
+  margin-bottom: 22pt !important;
+}
+
+.bank-letter-office-name {
+  font-size: 18pt !important;
+  font-weight: 700;
+  line-height: 1.7 !important;
+}
+
+.bank-letter-office-dept {
+  font-size: 16pt !important;
+  font-weight: 700;
+  line-height: 1.75 !important;
+  margin-top: 8pt !important;
+}
+
+.bank-letter-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20pt !important;
+}
+
+.bank-letter-block {
+  margin-bottom: 16pt !important;
+}
+
+.bank-letter-sign {
+  display: flex;
+  justify-content: flex-end;
+  margin: 28pt 0 22pt !important;
+}
+
+.bank-letter-sign-inner {
+  text-align: center;
+  min-width: 280px;
+  line-height: 2.15 !important;
+}
