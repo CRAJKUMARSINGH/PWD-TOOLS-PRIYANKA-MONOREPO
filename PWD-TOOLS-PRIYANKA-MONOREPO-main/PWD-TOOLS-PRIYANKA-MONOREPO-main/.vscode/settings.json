@@ -1,0 +1,9 @@
+{
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "minimal",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "typescript.suggest.autoImports": true,
+  "editor.formatOnSave": true
+}

@@ -5,10 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>बिल नोट शीट जेनरेटर (हिन्दी)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
     <style>
         :root {
             --primary-color: #3498db;
@@ -21,7 +17,7 @@
         }
 
         body {
-            font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
+            font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             max-width: 800px;
@@ -53,6 +49,12 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+        }
+
+        input,
+        select,
+        button {
+            font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
         }
 
         input,
@@ -136,7 +138,7 @@
             border: 1px solid var(--border-color);
             padding: 20mm;
             border-radius: 4px;
-            font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
+            font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
             margin-top: 20px;
             width: 210mm;
             box-sizing: border-box;
@@ -148,8 +150,9 @@
             max-width: 170mm;
             max-height: 257mm;
             overflow-wrap: break-word;
-            word-break: break-all;
-            hyphens: auto;
+            word-break: normal;
+            line-break: auto;
+            hyphens: none;
             display: block;
             white-space: pre-wrap;
             margin: 0;
@@ -235,8 +238,9 @@
                 max-width: 170mm;
                 max-height: none;
                 overflow-wrap: break-word;
-                word-break: break-all;
-                hyphens: auto;
+                word-break: normal;
+                line-break: auto;
+                hyphens: none;
                 page-break-inside: auto;
                 break-before: auto;
                 break-after: auto;
