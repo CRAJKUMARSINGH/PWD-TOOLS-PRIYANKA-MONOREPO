@@ -360,10 +360,10 @@
   display: none !important;
 }
 
-/* Bank communication letters — open Hindi leading, larger type */
+/* Bank communication letters — 12pt max, open Hindi leading */
 .bank-letter {
   font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif !important;
-  font-size: 16pt !important;
+  font-size: 12pt !important;
   line-height: 2.35 !important;
   color: #000 !important;
 }
@@ -385,13 +385,13 @@
 }
 
 .bank-letter-office-name {
-  font-size: 18pt !important;
+  font-size: 12pt !important;
   font-weight: 700;
   line-height: 1.7 !important;
 }
 
 .bank-letter-office-dept {
-  font-size: 16pt !important;
+  font-size: 12pt !important;
   font-weight: 700;
   line-height: 1.75 !important;
   margin-top: 8pt !important;

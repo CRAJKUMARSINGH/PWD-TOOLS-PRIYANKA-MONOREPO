@@ -252,13 +252,13 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
   @page { size: A4; margin: 18mm 20mm; }
   body {
     font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
-    font-size: 16pt; line-height: 2.35; color: #000; margin: 0;
+    font-size: 12pt; line-height: 2.35; color: #000; margin: 0;
   }
   .wrap { max-width: 170mm; margin: 0 auto; }
   p { margin: 0 0 18pt; text-align: justify; line-height: 2.35; }
   .office { text-align: center; margin-bottom: 22pt; }
-  .office-name { font-weight: 700; font-size: 18pt; line-height: 1.7; }
-  .office-dept { font-weight: 700; font-size: 16pt; line-height: 1.75; margin-top: 8pt; }
+  .office-name { font-weight: 700; font-size: 12pt; line-height: 1.7; }
+  .office-dept { font-weight: 700; font-size: 12pt; line-height: 1.75; margin-top: 8pt; }
   .meta-row { display: flex; justify-content: space-between; margin-bottom: 20pt; }
   .block { margin-bottom: 16pt; line-height: 2.35; }
   .block.tight { margin-bottom: 10pt; }
@@ -1000,7 +1000,7 @@ export default function BankCommunicationGenerator() {
           className="a4-page bank-letter"
           style={{
             fontFamily: "'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif",
-            fontSize: "16pt",
+            fontSize: "12pt",
             lineHeight: 2.35,
             padding: "20mm 22mm",
           }}
