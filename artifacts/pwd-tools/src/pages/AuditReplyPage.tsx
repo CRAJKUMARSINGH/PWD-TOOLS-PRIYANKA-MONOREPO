@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Download, FileText } from 'lucide-react';
 import { CASES } from '@/data/audit-cases';
 import { generateDocx } from '@/lib/generate-docx';
+import { Download, FileText } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-function loadFromStorage() {
+function loadFromStorage(): Record<string, { reply: string; comments: string }> {
   try {
     const data = localStorage.getItem('audit-reply-data');
     return data ? JSON.parse(data) : {};
@@ -12,8 +12,26 @@ function loadFromStorage() {
   }
 }
 
+/** Seed default replies from cases data without overwriting any existing entry */
+function seedDefaults(
+  stored: Record<string, { reply: string; comments: string }>
+): Record<string, { reply: string; comments: string }> {
+  const result = { ...stored };
+  for (const c of CASES) {
+    if (!result[c.no]?.reply && (c as any).defaultReply) {
+      result[c.no] = {
+        reply: (c as any).defaultReply,
+        comments: result[c.no]?.comments ?? '',
+      };
+    }
+  }
+  return result;
+}
+
 export default function AuditReplyPage() {
-  const [replies, setReplies] = useState<Record<string, {reply: string; comments: string}>>(loadFromStorage());
+  const [replies, setReplies] = useState<Record<string, { reply: string; comments: string }>>(
+    seedDefaults(loadFromStorage())
+  );
 
   useEffect(() => {
     localStorage.setItem('audit-reply-data', JSON.stringify(replies));
@@ -40,7 +58,7 @@ export default function AuditReplyPage() {
           <FileText className="w-6 h-6" />
           <h1 className="text-xl font-bold tracking-tight">अंकेक्षण प्रतिवेदन उत्तर / Audit Reply Tool — जिला प्रभाग II, उदयपुर</h1>
         </div>
-        <button 
+        <button
           onClick={handleDownload}
           className="bg-accent hover:bg-accent-foreground/10 text-accent-foreground px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 shadow-sm border border-accent-foreground/20"
         >
