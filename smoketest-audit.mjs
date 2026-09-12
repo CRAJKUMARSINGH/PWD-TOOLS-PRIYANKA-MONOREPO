@@ -51,7 +51,27 @@ const pageSrc = readFileSync('artifacts/pwd-tools/src/pages/AuditReplyPage.tsx',
     ['rowSpan={2} for para no cell', /rowSpan=\{2\}/],
     ['Download button present', /Download/],
     ['useEffect for persistence', /useEffect/],
+    ['Roman-to-Hindi transliteration imported', /transliterateLastWord/],
+    ['Roman mode toggle button (रo)', /रo/],
+    ['NewRowForm for adding paras', /NewRowForm/],
+    ['extra rows persisted to localStorage', /audit-extra-rows/],
+    ['delete extra row button', /Trash2|handleDeleteRow/],
+    ['seedDefaults uses allCases not CASES only', /allCases/],
 ].forEach(([label, re]) => check(`AuditReplyPage: ${label}`, re.test(pageSrc)));
+
+// ── 3b. roman-to-hindi.ts ────────────────────────────────────────────────────
+const romanSrc = readFileSync('artifacts/pwd-tools/src/lib/roman-to-hindi.ts', 'utf8');
+[
+    ['transliterateWord exported', /export function transliterateWord/],
+    ['transliterateLastWord exported', /export function transliterateLastWord/],
+    ['DICT lookup table present', /const DICT/],
+    ['PHONETIC fallback table present', /const PHONETIC/],
+    ['common audit word: sanlagn', /sanlagn/],
+    ['common audit word: nirast', /nirast/],
+    ['common audit word: aakshep', /aakshep/],
+    ['common audit word: atah', /atah/],
+    ['common audit word: pratilipi', /pratilipi/],
+].forEach(([label, re]) => check(`roman-to-hindi: ${label}`, re.test(romanSrc)));
 
 // ── 4. Routing ───────────────────────────────────────────────────────────────
 const appSrc = readFileSync('artifacts/pwd-tools/src/App.tsx', 'utf8');
