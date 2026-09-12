@@ -1,10 +1,68 @@
-import { useRef, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Printer, RefreshCw, FileDown } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { FileDown, Printer, RefreshCw } from 'lucide-react';
+import { useRef, useState } from 'react';
+
+// ─── Hindi Number-to-Words ────────────────────────────────────────────────────
+
+const HI_ONES = [
+  '', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छः', 'सात', 'आठ', 'नौ',
+  'दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पन्द्रह', 'सोलह', 'सत्रह', 'अठारह', 'उन्नीस',
+  'बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उनतीस',
+  'तीस', 'इकतीस', 'बत्तीस', 'तैंतीस', 'चौंतीस', 'पैंतीस', 'छत्तीस', 'सैंतीस', 'अड़तीस', 'उनचालीस',
+  'चालीस', 'इकतालीस', 'बयालीस', 'तैंतालीस', 'चौंतालीस', 'पैंतालीस', 'छियालीस', 'सैंतालीस', 'अड़तालीस', 'उनचास',
+  'पचास', 'इक्यावन', 'बावन', 'तिरपन', 'चौवन', 'पचपन', 'छप्पन', 'सत्तावन', 'अट्ठावन', 'उनसठ',
+  'साठ', 'इकसठ', 'बासठ', 'तिरसठ', 'चौंसठ', 'पैंसठ', 'छियासठ', 'सड़सठ', 'अड़सठ', 'उनहत्तर',
+  'सत्तर', 'इकहत्तर', 'बहत्तर', 'तिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छिहत्तर', 'सतहत्तर', 'अठहत्तर', 'उनासी',
+  'अस्सी', 'इक्यासी', 'बयासी', 'तिरासी', 'चौरासी', 'पचासी', 'छियासी', 'सत्तासी', 'अट्ठासी', 'नवासी',
+  'नब्बे', 'इक्यानवे', 'बानवे', 'तिरानवे', 'चौरानवे', 'पचानवे', 'छियानवे', 'सत्तानवे', 'अट्ठानवे', 'निन्यानवे',
+];
+
+function _hiBelow100(n: number): string {
+  return HI_ONES[n] ?? '';
+}
+
+function _hiBelow1000(n: number): string {
+  if (n < 100) return _hiBelow100(n);
+  const h = Math.floor(n / 100);
+  const r = n % 100;
+  return `${_hiBelow100(h)} सौ${r > 0 ? ' ' + _hiBelow100(r) : ''}`;
+}
+
+/**
+ * Converts a numeric amount (integer part only) to Hindi words.
+ * Supports up to crore level. Paise are appended as "XX पैसे" if present.
+ * Input can be a string like "8,43,734.00" or "756800" or 756800.
+ */
+export function numberToWordsHindi(input: string | number): string {
+  const raw = String(input).replace(/,/g, '').trim();
+  const [intPartStr, decPartStr] = raw.split('.');
+  const intVal = parseInt(intPartStr, 10);
+  if (isNaN(intVal) || intVal < 0) return '';
+
+  if (intVal === 0) {
+    const paise = decPartStr ? parseInt(decPartStr.padEnd(2, '0').slice(0, 2), 10) : 0;
+    return paise > 0 ? `शून्य रुपये ${_hiBelow100(paise)} पैसे` : 'शून्य';
+  }
+
+  const parts: string[] = [];
+  let n = intVal;
+
+  if (n >= 10000000) { parts.push(`${_hiBelow1000(Math.floor(n / 10000000))} करोड़`); n %= 10000000; }
+  if (n >= 100000) { parts.push(`${_hiBelow1000(Math.floor(n / 100000))} लाख`); n %= 100000; }
+  if (n >= 1000) { parts.push(`${_hiBelow1000(Math.floor(n / 1000))} हजार`); n %= 1000; }
+  if (n > 0) { parts.push(_hiBelow1000(n)); }
+
+  let result = parts.join(' ');
+
+  const paise = decPartStr ? parseInt(decPartStr.padEnd(2, '0').slice(0, 2), 10) : 0;
+  if (paise > 0) result += ` रुपये ${_hiBelow100(paise)} पैसे`;
+
+  return result;
+}
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -172,12 +230,17 @@ function buildExtensionHtml(d: BankCommunicationData): string {
   <p>महोदय,</p>
   <p>
     उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा
-    <strong>${esc(d.projectName)}</strong> कार्य की बेक गारंटी संख्या
+    <strong>${esc(d.projectName)}</strong> कार्य की बैंक गारंटी संख्या
     <strong>${esc(d.bgNumber)}</strong> दिनांक <strong>${esc(d.bgDate)}</strong>
-    राशि <strong>${esc(d.bgAmount)}/-</strong> (${esc(d.bgAmountWords)}) प्रस्तुत की गयी थी
-    जिसकी वैधता अवधि <strong>${esc(d.bgExpiryDate)}</strong> को समाप्त हो रही है।
+    राशि <strong>${esc(d.bgAmount)}/-</strong> (${esc(d.bgAmountWords)} मात्र) प्रस्तुत की गयी थी
+    जिसकी बैंक गारंटी की वैधता अवधि <strong>${esc(d.bgExpiryDate)}</strong> को समाप्त हो रही है।
     अतः इस पत्र द्वारा लिखा जाता है कि <strong>${esc(d.extensionDays)}</strong> दिवस में
     उक्त बैंक गारन्टी की वैधता अवधि बढाकर प्रस्तुत करे।
+  </p>
+  <p>
+    यदि आप निर्धारित तिथि से पूर्व बैंक गारंटी (BG) प्रस्तुत करते हैं, तो यह आपकी जिम्मेदारी
+    रहेगी कि आप समय-समय पर स्वयं बैंक गारंटी का नवीनीकरण करवाएँ, अन्यथा बैंक गारंटी इनकेश कर
+    ली जाएगी, जिसकी जिम्मेदारी आपकी रहेगी। कृपया अभिसूचित हों।
   </p>
   ${signHtml(d, true)}
   <div class="copy">
@@ -231,14 +294,14 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
     template === 'bg-verification'
       ? buildVerificationHtml(d)
       : template === 'bg-extension'
-      ? buildExtensionHtml(d)
-      : buildBankExtensionHtml(d);
+        ? buildExtensionHtml(d)
+        : buildBankExtensionHtml(d);
   const title =
     template === 'bg-verification'
       ? 'Bank Guarantee Verification Letter'
       : template === 'bg-extension'
-      ? 'Bank Guarantee Extension Letter (to Contractor)'
-      : 'Bank Guarantee Validity Extension Request (to Bank)';
+        ? 'Bank Guarantee Extension Letter (to Contractor)'
+        : 'Bank Guarantee Validity Extension Request (to Bank)';
 
   return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -249,7 +312,7 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
 <title>${title}</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: A4; margin: 18mm 20mm; }
+  @page { size: A4; margin: 25mm; }
   body {
     font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
     font-size: 12pt; line-height: 2.35; color: #000; margin: 0;
@@ -395,12 +458,18 @@ function ExtensionPreview({ d }: { d: BankCommunicationData }) {
 
       <p>
         उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा{' '}
-        <strong>{d.projectName}</strong> कार्य की बेक गारंटी संख्या{' '}
+        <strong>{d.projectName}</strong> कार्य की बैंक गारंटी संख्या{' '}
         <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong> राशि{' '}
-        <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords}) प्रस्तुत की गयी थी जिसकी वैधता
-        अवधि <strong>{d.bgExpiryDate}</strong> को समाप्त हो रही है। अतः इस पत्र द्वारा लिखा
-        जाता है कि <strong>{d.extensionDays}</strong> दिवस में उक्त बैंक गारन्टी की वैधता
-        अवधि बढाकर प्रस्तुत करे।
+        <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords} मात्र) प्रस्तुत की गयी थी जिसकी
+        बैंक गारंटी की वैधता अवधि <strong>{d.bgExpiryDate}</strong> को समाप्त हो रही है।
+        अतः इस पत्र द्वारा लिखा जाता है कि <strong>{d.extensionDays}</strong> दिवस में
+        उक्त बैंक गारन्टी की वैधता अवधि बढाकर प्रस्तुत करे।
+      </p>
+
+      <p>
+        यदि आप निर्धारित तिथि से पूर्व बैंक गारंटी (BG) प्रस्तुत करते हैं, तो यह आपकी
+        जिम्मेदारी रहेगी कि आप समय-समय पर स्वयं बैंक गारंटी का नवीनीकरण करवाएँ, अन्यथा
+        बैंक गारंटी इनकेश कर ली जाएगी, जिसकी जिम्मेदारी आपकी रहेगी। कृपया अभिसूचित हों।
       </p>
 
       <LetterSign d={d} gap />
@@ -475,7 +544,15 @@ export default function BankCommunicationGenerator() {
   const pageRef = useRef<HTMLDivElement>(null);
 
   function update<K extends keyof BankCommunicationData>(key: K, value: BankCommunicationData[K]) {
-    setData((prev) => ({ ...prev, [key]: value }));
+    setData((prev) => {
+      const next = { ...prev, [key]: value };
+      // Auto-convert amount figures → Hindi words whenever bgAmount changes
+      if (key === 'bgAmount') {
+        const words = numberToWordsHindi(value as string);
+        if (words) next.bgAmountWords = words;
+      }
+      return next;
+    });
   }
 
   const handlePrint = () => window.print();
@@ -490,8 +567,8 @@ export default function BankCommunicationGenerator() {
       template === 'bg-verification'
         ? 'bg-verification-letter'
         : template === 'bg-extension'
-        ? 'bg-extension-letter-contractor'
-        : 'bg-extension-request-to-bank';
+          ? 'bg-extension-letter-contractor'
+          : 'bg-extension-request-to-bank';
     const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -553,11 +630,10 @@ export default function BankCommunicationGenerator() {
               {TEMPLATE_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                    template === opt.value
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border bg-muted/30 hover:bg-muted/50'
-                  }`}
+                  className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${template === opt.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border bg-muted/30 hover:bg-muted/50'
+                    }`}
                 >
                   <input
                     type="radio"
