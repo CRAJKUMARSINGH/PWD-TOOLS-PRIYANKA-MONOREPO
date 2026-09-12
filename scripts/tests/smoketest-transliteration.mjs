@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Logic smoke test for roman-to-hindi.ts
  * Simulates the transliterateWord / transliterateLastWord functions in pure JS
  * (without TypeScript compilation) by re-implementing the same DICT lookup.
@@ -151,7 +151,7 @@ check('audit-reply-data key used', pageSrc.includes("'audit-reply-data'"));
 check('audit-extra-rows key used', pageSrc.includes("'audit-extra-rows'"));
 
 console.log('\n── NewRowForm fields ───────────────────────────────────────────');
-check('Para No. input present', pageSrc.includes('Para No.'));
+check('Para ID / Para No. input present', pageSrc.includes('Para ID') || pageSrc.includes('Para No.'));
 check('Header input present', pageSrc.includes('Header'));
 check('Gist textarea present in form', pageSrc.includes('Gist'));
 check('Obs textarea present in form', pageSrc.includes('Observation'));

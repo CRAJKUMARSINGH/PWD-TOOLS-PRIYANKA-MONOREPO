@@ -1,9 +1,10 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { FileDown, Printer, RefreshCw } from 'lucide-react';
+import { FileDown, History, Printer, RefreshCw, Trash2, X } from 'lucide-react';
+import { archiveDelete, archiveLoad, archiveSave, formatSavedAt, type ArchiveEntry } from '@/lib/archive';
 import { useRef, useState } from 'react';
 
 // ─── Hindi Number-to-Words ────────────────────────────────────────────────────
