@@ -322,15 +322,15 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
   @page { size: A4; margin: 25mm; }
   body {
     font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
-    font-size: 12pt; line-height: 2.35; color: #000; margin: 0;
+    font-size: 12pt; line-height: 1.5; color: #000; margin: 0;
   }
   .wrap { max-width: 170mm; margin: 0 auto; }
-  p { margin: 0; padding: 0; text-align: justify; line-height: 2.35; text-indent: 0.6in; }
+  p { margin: 0; padding: 0; text-align: justify; line-height: 1.5; text-indent: 0.6in; }
   .office { text-align: center; margin-bottom: 22pt; }
   .office-name { font-weight: 700; font-size: 12pt; line-height: 1.7; }
   .office-dept { font-weight: 700; font-size: 12pt; line-height: 1.75; margin-top: 8pt; }
   .meta-row { display: flex; justify-content: space-between; margin-bottom: 20pt; }
-  .block { margin-bottom: 16pt; line-height: 2.35; }
+  .block { margin-bottom: 16pt; line-height: 1.5; }
   .block.tight { margin-bottom: 10pt; }
   .sign { display: flex; justify-content: flex-end; margin: 22pt 0; }
   .sign-gap { margin-top: 32pt; }
@@ -341,6 +341,91 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
 </head>
 <body><div class="wrap">${body}</div></body>
 </html>`;
+}
+
+const BANK_ARCHIVE_KEY = 'bank-comm-archive';
+
+// ─── Archive Panel ────────────────────────────────────────────────────────────
+
+function ArchivePanel({
+  onRestore,
+  onClose,
+}: {
+  onRestore: (entry: ArchiveEntry<{ template: string; data: BankCommunicationData }>) => void;
+  onClose: () => void;
+}) {
+  const [entries, setEntries] = useState(() =>
+    archiveLoad<{ template: string; data: BankCommunicationData }>(BANK_ARCHIVE_KEY)
+  );
+
+  function handleDelete(id: string) {
+    archiveDelete(BANK_ARCHIVE_KEY, id);
+    setEntries(archiveLoad(BANK_ARCHIVE_KEY));
+  }
+
+  const TEMPLATE_LABELS: Record<string, string> = {
+    'bg-verification': 'BG Verification',
+    'bg-extension': 'BG Extension (Contractor)',
+    'bg-bank-extension': 'BG Extension (Bank)',
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-card border-l shadow-xl z-20">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-primary" />
+          <span className="font-bold text-sm">Last 10 Saved Letters</span>
+        </div>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <ScrollArea className="flex-1">
+        {entries.length === 0 ? (
+          <div className="p-6 text-center text-muted-foreground text-sm">
+            कोई सहेजा गया पत्र नहीं।<br />
+            <span className="text-xs">Download करने पर यहाँ save होगा।</span>
+          </div>
+        ) : (
+          <div className="p-2 space-y-2">
+            {entries.map((e) => (
+              <div key={e.id} className="border rounded-lg p-3 bg-background hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-primary truncate">
+                      {TEMPLATE_LABELS[e.data.template] || e.data.template}
+                    </div>
+                    <div className="text-xs text-foreground/80 mt-0.5 font-medium truncate">
+                      {e.label}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {formatSavedAt(e.savedAt)}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <button
+                      onClick={() => onRestore(e)}
+                      className="text-[10px] bg-primary text-primary-foreground px-2 py-1 rounded font-semibold hover:opacity-80"
+                      title="Restore this letter"
+                    >
+                      Restore
+                    </button>
+                    <button
+                      onClick={() => handleDelete(e.id)}
+                      className="text-red-400 hover:text-red-600 p-1"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
 }
 
 // ─── Field Component ──────────────────────────────────────────────────────────
@@ -556,12 +641,12 @@ function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
 export default function BankCommunicationGenerator() {
   const [template, setTemplate] = useState<TemplateType>('bg-verification');
   const [data, setData] = useState<BankCommunicationData>(defaultData);
+  const [showArchive, setShowArchive] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
 
   function update<K extends keyof BankCommunicationData>(key: K, value: BankCommunicationData[K]) {
     setData((prev) => {
       const next = { ...prev, [key]: value };
-      // Auto-convert amount figures → Hindi words whenever bgAmount changes
       if (key === 'bgAmount') {
         const words = numberToWordsHindi(value as string);
         if (words) next.bgAmountWords = words;
@@ -570,13 +655,16 @@ export default function BankCommunicationGenerator() {
     });
   }
 
-  const handlePrint = () => window.print();
-  const handleReset = () => {
-    setData(defaultData);
-    setTemplate('bg-verification');
-  };
+  function saveToArchive() {
+    const label = `${data.contractorName || data.bankName} | BG ${data.bgNumber} | ${data.letterDate}`;
+    archiveSave(BANK_ARCHIVE_KEY, label, { template, data });
+  }
+
+  const handlePrint = () => { saveToArchive(); window.print(); };
+  const handleReset = () => { setData(defaultData); setTemplate('bg-verification'); };
 
   const handleDownloadDoc = () => {
+    saveToArchive();
     const html = buildStandaloneHtml(template, data);
     const name =
       template === 'bg-verification'
@@ -595,6 +683,12 @@ export default function BankCommunicationGenerator() {
     URL.revokeObjectURL(url);
   };
 
+  function handleRestore(entry: ArchiveEntry<{ template: string; data: BankCommunicationData }>) {
+    setTemplate(entry.data.template as TemplateType);
+    setData(entry.data.data);
+    setShowArchive(false);
+  }
+
   const selectedTemplate = TEMPLATE_OPTIONS.find((t) => t.value === template)!;
 
   return (
@@ -609,15 +703,26 @@ export default function BankCommunicationGenerator() {
                 Bank Communication — P.W.D. District Div.-II Udaipur
               </p>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleReset}
-              title="Reset"
-              className="h-8 px-2 text-xs mt-0.5 shrink-0"
-            >
-              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reset
-            </Button>
+            <div className="flex gap-1 mt-0.5 shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowArchive(v => !v)}
+                title="Last 10 saved letters"
+                className="h-8 px-2 text-xs"
+              >
+                <History className="h-3.5 w-3.5 mr-1" /> History
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleReset}
+                title="Reset"
+                className="h-8 px-2 text-xs"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reset
+              </Button>
+            </div>
           </div>
           <p className="mt-2 text-[11px] text-primary-foreground/80 bg-primary-foreground/10 rounded px-2 py-1 leading-relaxed">
             📋 टेम्पलेट चुनें और विवरण भरें — दाईं तरफ पत्र तैयार होगा।
