@@ -21,6 +21,7 @@ const bankSrc = src.slice(bankStart, stanStart);
 // ── 1. buildBankExtensionHtml — new DD fallback paragraph ────────────────────
 console.log('\n── buildBankExtensionHtml (letter to BANK) ─────────────────────');
 check('DD fallback paragraph present', bankSrc.includes('Demand Draft'));
+check('Condition: ग्राहक/सम्बन्धित संवेदक (updated wording)', bankSrc.includes('ग्राहक/सम्बन्धित संवेदक'));
 check('Condition: सहमति / अनुमति अप्राप्त', bankSrc.includes('सहमति / अनुमति अप्राप्त'));
 check('Reference: अधोहस्ताक्षरकर्ता', bankSrc.includes('अधोहस्ताक्षरकर्ता'));
 check('Delivery: Insured Courier', bankSrc.includes('Insured Courier'));
