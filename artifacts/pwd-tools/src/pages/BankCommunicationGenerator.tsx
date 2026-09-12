@@ -277,6 +277,13 @@ function buildBankExtensionHtml(d: BankCommunicationData): string {
     <strong>${esc(d.bgNewExpiryDate)}</strong> तक विस्तारित कर सम्बन्धित दस्तावेज
     तत्काल इस कार्यालय में प्रेषित किये जावें।
   </p>
+  <p>
+    यदि आपके संवेदक की उपरोक्त वैधता अवधि विस्तारित कराने की सहमति / अनुमति अप्राप्त हो
+    तो राशि <strong>${esc(d.bgAmount)}/-</strong> रुपये का Demand Draft तत्काल
+    अधोहस्ताक्षरकर्ता के नाम अर्थात् <strong>अधिशाषी अभियन्ता, सा.नि.वि.
+    जिला खण्ड द्वितीय, उदयपुर</strong> के पक्ष में जारी कर Insured Courier /
+    Speed Post अथवा निजी संदेशवाहक के हाथों भिजवाना सुनिश्चित करें।
+  </p>
   ${signHtml(d, true)}
   <div class="copy">
     <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
@@ -318,7 +325,7 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
     font-size: 12pt; line-height: 2.35; color: #000; margin: 0;
   }
   .wrap { max-width: 170mm; margin: 0 auto; }
-  p { margin: 0 0 18pt; text-align: justify; line-height: 2.35; }
+  p { margin: 0; padding: 0; text-align: justify; line-height: 2.35; text-indent: 0.6in; }
   .office { text-align: center; margin-bottom: 22pt; }
   .office-name { font-weight: 700; font-size: 12pt; line-height: 1.7; }
   .office-dept { font-weight: 700; font-size: 12pt; line-height: 1.75; margin-top: 8pt; }
@@ -519,6 +526,14 @@ function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
         अतः इस पत्र द्वारा लिखा जाता है कि उक्त बैंक गारन्टी की वैधता अवधि दिनांक{' '}
         <strong>{d.bgNewExpiryDate}</strong> तक विस्तारित कर सम्बन्धित दस्तावेज तत्काल इस
         कार्यालय में प्रेषित किये जावें।
+      </p>
+
+      <p>
+        यदि आपके संवेदक की उपरोक्त वैधता अवधि विस्तारित कराने की सहमति / अनुमति अप्राप्त हो
+        तो राशि <strong>{d.bgAmount}/-</strong> रुपये का Demand Draft तत्काल अधोहस्ताक्षरकर्ता
+        के नाम अर्थात् <strong>अधिशाषी अभियन्ता, सा.नि.वि. जिला खण्ड द्वितीय, उदयपुर</strong> के
+        पक्ष में जारी कर Insured Courier / Speed Post अथवा निजी संदेशवाहक के हाथों भिजवाना
+        सुनिश्चित करें।
       </p>
 
       <LetterSign d={d} gap />
