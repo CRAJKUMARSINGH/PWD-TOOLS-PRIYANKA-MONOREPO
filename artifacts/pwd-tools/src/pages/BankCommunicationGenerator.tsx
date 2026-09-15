@@ -1,4 +1,4 @@
-﻿import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -67,7 +67,7 @@ export function numberToWordsHindi(input: string | number): string {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension';
+type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension' | 'bg-release';
 
 type BankCommunicationData = {
   officeNameHi: string;
@@ -151,6 +151,12 @@ const TEMPLATE_OPTIONS: { value: TemplateType; labelHi: string; labelEn: string;
     labelHi: 'बैंक को BG वैधता विस्तार हेतु पत्र',
     labelEn: 'BG Extension Request to Bank',
     desc: 'बैंक प्रबन्धक को सीधे BG की वैधता बढ़ाने हेतु अनुरोध पत्र',
+  },
+  {
+    value: 'bg-release',
+    labelHi: 'बैंक गारन्टी रिलीज / मुक्त करने का पत्र',
+    labelEn: 'BG Release Letter',
+    desc: 'बैंक प्रबन्धक को BG अब सुरक्षा के रूप में आवश्यक नहीं — रिलीज हेतु पत्र',
   },
 ];
 
@@ -297,19 +303,62 @@ function buildBankExtensionHtml(d: BankCommunicationData): string {
   </div>`;
 }
 
+
+function buildReleaseHtml(d: BankCommunicationData): string {
+  return `
+  ${officeHeaderHtml(d)}
+  <div class="block">
+    <div><strong>प्रबन्धक,</strong></div>
+    <div>${esc(d.bankName)},</div>
+    <div>शाखा — ${esc(d.bankBranch)}</div>
+  </div>
+  <div class="block tight"><strong>विषय:-</strong> बैंक गारन्टी (Bank Guarantee) रिलीज / मुक्त करने बाबत्।</div>
+  <div class="block"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)} राशि रु. ${esc(d.bgAmount)}/-</div>
+  <p>महोदय,</p>
+  <p>
+    उपरोक्त विषयान्तर्गत लेख है कि मैसर्स <strong>${esc(d.contractorName)}</strong>,
+    ${esc(d.contractorAddress)} द्वारा <strong>${esc(d.projectName)}</strong> कार्य हेतु
+    आपके बैंक द्वारा जारी बैंक गारन्टी संख्या <strong>${esc(d.bgNumber)}</strong>
+    दिनांक <strong>${esc(d.bgDate)}</strong> राशि रु. <strong>${esc(d.bgAmount)}/-</strong>
+    (${esc(d.bgAmountWords)} मात्र) इस कार्यालय में प्रतिभूति (Security) के रूप में जमा थी।
+  </p>
+  <p>
+    उक्त कार्य पूर्ण / संबंधित औपचारिकताएँ पूर्ण हो चुकी हैं।
+    <strong>The BG is no longer required as security by this office.</strong>
+    अतः उक्त बैंक गारन्टी को तत्काल रिलीज / मुक्त कर मैसर्स
+    <strong>${esc(d.contractorName)}</strong> के पक्ष में वापस कर दिया जावे।
+  </p>
+  <p>
+    कृपया उक्त बैंक गारन्टी रिलीज करने की कार्यवाही पूर्ण कर इस कार्यालय को भी अवगत करावें।
+  </p>
+  ${signHtml(d, true)}
+  <div class="copy">
+    <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <p>
+      प्रतिलिपि मैसर्स ${esc(d.ccContractorName || d.contractorName)}, ${esc(d.ccContractorAddress || d.contractorAddress)} को
+      सूचनार्थ एवं आवश्यक कार्यवाही हेतु प्रेषित।
+    </p>
+    ${signHtml(d, false)}
+  </div>`;
+}
+
 function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): string {
   const body =
     template === 'bg-verification'
       ? buildVerificationHtml(d)
       : template === 'bg-extension'
         ? buildExtensionHtml(d)
-        : buildBankExtensionHtml(d);
+        : template === 'bg-bank-extension'
+          ? buildBankExtensionHtml(d)
+          : buildReleaseHtml(d);
   const title =
     template === 'bg-verification'
       ? 'Bank Guarantee Verification Letter'
       : template === 'bg-extension'
         ? 'Bank Guarantee Extension Letter (to Contractor)'
-        : 'Bank Guarantee Validity Extension Request (to Bank)';
+        : template === 'bg-bank-extension'
+          ? 'Bank Guarantee Validity Extension Request (to Bank)'
+          : 'Bank Guarantee Release Letter';
 
   return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -368,6 +417,7 @@ function ArchivePanel({
     'bg-verification': 'BG Verification',
     'bg-extension': 'BG Extension (Contractor)',
     'bg-bank-extension': 'BG Extension (Bank)',
+    'bg-release': 'BG Release',
   };
 
   return (
@@ -631,6 +681,61 @@ function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
         प्रतिलिपि मैसर्स {d.ccContractorName}, {d.ccContractorAddress} को प्रस्तुत कर
         निवेदन है कि उक्त बैंक गारन्टी की समयावधि दिनांक{' '}
         <strong>{d.bgNewExpiryDate}</strong> तक बढाकर इस कार्यालय में प्रस्तुत करें।
+      </p>
+      <LetterSign d={d} />
+    </>
+  );
+}
+
+
+function ReleasePreview({ d }: { d: BankCommunicationData }) {
+  return (
+    <>
+      <LetterOffice d={d} />
+
+      <div className="bank-letter-block">
+        <div><strong>प्रबन्धक,</strong></div>
+        <div>{d.bankName},</div>
+        <div>शाखा — {d.bankBranch}</div>
+      </div>
+
+      <div className="bank-letter-block">
+        <strong>विषय:-</strong> बैंक गारन्टी (Bank Guarantee) रिलीज / मुक्त करने बाबत्।
+      </div>
+      <div className="bank-letter-block">
+        <strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate} राशि रु. {d.bgAmount}/-
+      </div>
+
+      <p>महोदय,</p>
+
+      <p>
+        उपरोक्त विषयान्तर्गत लेख है कि मैसर्स <strong>{d.contractorName}</strong>,{' '}
+        {d.contractorAddress} द्वारा <strong>{d.projectName}</strong> कार्य हेतु आपके बैंक द्वारा
+        जारी बैंक गारन्टी संख्या <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong>{' '}
+        राशि रु. <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords} मात्र) इस कार्यालय में
+        प्रतिभूति (Security) के रूप में जमा थी।
+      </p>
+
+      <p>
+        उक्त कार्य पूर्ण / संबंधित औपचारिकताएँ पूर्ण हो चुकी हैं।{' '}
+        <strong>The BG is no longer required as security by this office.</strong> अतः उक्त बैंक
+        गारन्टी को तत्काल रिलीज / मुक्त कर मैसर्स <strong>{d.contractorName}</strong> के पक्ष में
+        वापस कर दिया जावे।
+      </p>
+
+      <p>
+        कृपया उक्त बैंक गारन्टी रिलीज करने की कार्यवाही पूर्ण कर इस कार्यालय को भी अवगत करावें।
+      </p>
+
+      <LetterSign d={d} gap />
+
+      <div className="bank-letter-block">
+        <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
+      </div>
+      <p>
+        प्रतिलिपि मैसर्स {d.ccContractorName || d.contractorName},{' '}
+        {d.ccContractorAddress || d.contractorAddress} को सूचनार्थ एवं आवश्यक कार्यवाही हेतु
+        प्रेषित।
       </p>
       <LetterSign d={d} />
     </>
@@ -1206,8 +1311,10 @@ export default function BankCommunicationGenerator() {
             <VerificationPreview d={data} />
           ) : template === 'bg-extension' ? (
             <ExtensionPreview d={data} />
-          ) : (
+          ) : template === 'bg-bank-extension' ? (
             <BankExtensionPreview d={data} />
+          ) : (
+            <ReleasePreview d={data} />
           )}
         </div>
       </div>
