@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { FileDown, Printer, RefreshCw } from 'lucide-react';
+import { archiveDelete, archiveLoad, formatSavedAt, type ArchiveEntry } from '@/lib/archive';
+import { FileDown, History, Printer, RefreshCw, Trash2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -854,7 +855,9 @@ export default function BankCommunicationGenerator() {
   };
 
   const handleDownloadDoc = () => {
-    saveToArchive();
+    // Save to archive before downloading
+    const label = `${selectedTemplate.labelEn} — ${data.contractorName || '(no contractor)'} — ${data.letterDate}`;
+    archiveSave(BANK_ARCHIVE_KEY, label, { template, data });
     const html = buildStandaloneHtml(template, data);
     const name =
       template === 'bg-verification'
