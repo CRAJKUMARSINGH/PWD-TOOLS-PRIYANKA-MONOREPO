@@ -3,9 +3,51 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { archiveDelete, archiveLoad, formatSavedAt, type ArchiveEntry } from '@/lib/archive';
+import { archiveDelete, archiveLoad, archiveSave, formatSavedAt, type ArchiveEntry } from '@/lib/archive';
 import { FileDown, History, Printer, RefreshCw, Trash2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
+
+// ─── Hindi Number-to-Words ────────────────────────────────────────────────────
+
+const HI_ONES = [
+  '', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छः', 'सात', 'आठ', 'नौ',
+  'दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पन्द्रह', 'सोलह', 'सत्रह', 'अठारह', 'उन्नीस',
+  'बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उनतीस',
+  'तीस', 'इकतीस', 'बत्तीस', 'तैंतीस', 'चौंतीस', 'पैंतीस', 'छत्तीस', 'सैंतीस', 'अड़तीस', 'उनचालीस',
+  'चालीस', 'इकतालीस', 'बयालीस', 'तैंतालीस', 'चौंतालीस', 'पैंतालीस', 'छियालीस', 'सैंतालीस', 'अड़तालीस', 'उनचास',
+  'पचास', 'इक्यावन', 'बावन', 'तिरपन', 'चौवन', 'पचपन', 'छप्पन', 'सत्तावन', 'अट्ठावन', 'उनसठ',
+  'साठ', 'इकसठ', 'बासठ', 'तिरसठ', 'चौंसठ', 'पैंसठ', 'छियासठ', 'सड़सठ', 'अड़सठ', 'उनहत्तर',
+  'सत्तर', 'इकहत्तर', 'बहत्तर', 'तिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छिहत्तर', 'सतहत्तर', 'अठहत्तर', 'उनासी',
+  'अस्सी', 'इक्यासी', 'बयासी', 'तिरासी', 'चौरासी', 'पचासी', 'छियासी', 'सत्तासी', 'अट्ठासी', 'नवासी',
+  'नब्बे', 'इक्यानवे', 'बानवे', 'तिरानवे', 'चौरानवे', 'पचानवे', 'छियानवे', 'सत्तानवे', 'अट्ठानवे', 'निन्यानवे',
+];
+function _hiBelow100(n: number): string { return HI_ONES[n] ?? ''; }
+function _hiBelow1000(n: number): string {
+  if (n < 100) return _hiBelow100(n);
+  const h = Math.floor(n / 100);
+  const r = n % 100;
+  return `${_hiBelow100(h)} सौ${r > 0 ? ' ' + _hiBelow100(r) : ''}`;
+}
+export function numberToWordsHindi(input: string | number): string {
+  const raw = String(input).replace(/,/g, '').trim();
+  const [intPartStr, decPartStr] = raw.split('.');
+  const intVal = parseInt(intPartStr, 10);
+  if (isNaN(intVal) || intVal < 0) return '';
+  if (intVal === 0) {
+    const paise = decPartStr ? parseInt(decPartStr.padEnd(2, '0').slice(0, 2), 10) : 0;
+    return paise > 0 ? `शून्य रुपये ${_hiBelow100(paise)} पैसे` : 'शून्य';
+  }
+  const parts: string[] = [];
+  let n = intVal;
+  if (n >= 10000000) { parts.push(`${_hiBelow1000(Math.floor(n / 10000000))} करोड़`); n %= 10000000; }
+  if (n >= 100000) { parts.push(`${_hiBelow1000(Math.floor(n / 100000))} लाख`); n %= 100000; }
+  if (n >= 1000) { parts.push(`${_hiBelow1000(Math.floor(n / 1000))} हजार`); n %= 1000; }
+  if (n > 0) { parts.push(_hiBelow1000(n)); }
+  let result = parts.join(' ');
+  const paise = decPartStr ? parseInt(decPartStr.padEnd(2, '0').slice(0, 2), 10) : 0;
+  if (paise > 0) result += ` रुपये ${_hiBelow100(paise)} पैसे`;
+  return result;
+}
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -1358,9 +1400,8 @@ export default function BankCommunicationGenerator() {
                   />
                 </Field>
               </section>
-            ) : (
-              /* bg-encashment — BG Encashment Letter to Bank */
-              <section className="space-y-3">
+            ) : template === 'bg-encashment' ? (
+              <section className="space-y-3">{/* bg-encashment — BG Encashment Letter to Bank */}
                 <div className="flex items-center gap-2 border-b pb-1.5">
                   <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                     4
@@ -1453,99 +1494,98 @@ export default function BankCommunicationGenerator() {
                 </Field>
               </section>
             ) : (
-            /* bg-release — BG Release Letter to Bank */
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 border-b pb-1.5">
-                <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
-                  4
-                </span>
-                <div>
-                  <p className="text-sm font-bold leading-none">बैंक, ठेकेदार एवं परियोजना</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Bank, Contractor & Project</p>
+              <section className="space-y-3">{/* bg-release — BG Release Letter to Bank */}
+                <div className="flex items-center gap-2 border-b pb-1.5">
+                  <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                    4
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold leading-none">बैंक, ठेकेदार एवं परियोजना</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Bank, Contractor & Project</p>
+                  </div>
                 </div>
-              </div>
 
-              <Field label="बैंक का नाम" hint="Bank Name">
-                <Input
-                  value={data.bankName}
-                  onChange={(e) => update('bankName', e.target.value)}
-                  placeholder="जैसे: HDFC Bank"
-                  className="h-10"
-                />
-              </Field>
+                <Field label="बैंक का नाम" hint="Bank Name">
+                  <Input
+                    value={data.bankName}
+                    onChange={(e) => update('bankName', e.target.value)}
+                    placeholder="जैसे: HDFC Bank"
+                    className="h-10"
+                  />
+                </Field>
 
-              <Field label="बैंक शाखा / स्थान" hint="Branch / Location">
-                <Input
-                  value={data.bankBranch}
-                  onChange={(e) => update('bankBranch', e.target.value)}
-                  placeholder="जैसे: उदयपुर"
-                  className="h-10"
-                />
-              </Field>
+                <Field label="बैंक शाखा / स्थान" hint="Branch / Location">
+                  <Input
+                    value={data.bankBranch}
+                    onChange={(e) => update('bankBranch', e.target.value)}
+                    placeholder="जैसे: उदयपुर"
+                    className="h-10"
+                  />
+                </Field>
 
-              <Field label="ठेकेदार / फर्म का नाम" hint="Contractor / Firm Name">
-                <Input
-                  value={data.contractorName}
-                  onChange={(e) => update('contractorName', e.target.value)}
-                  placeholder="जैसे: रचना कन्स्ट्रक्शन"
-                  className="h-10"
-                />
-              </Field>
+                <Field label="ठेकेदार / फर्म का नाम" hint="Contractor / Firm Name">
+                  <Input
+                    value={data.contractorName}
+                    onChange={(e) => update('contractorName', e.target.value)}
+                    placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                    className="h-10"
+                  />
+                </Field>
 
-              <Field label="ठेकेदार का पता" hint="Contractor Address">
-                <Textarea
-                  value={data.contractorAddress}
-                  onChange={(e) => update('contractorAddress', e.target.value)}
-                  placeholder="पूरा पता"
-                  className="min-h-[72px] resize-none"
-                />
-              </Field>
+                <Field label="ठेकेदार का पता" hint="Contractor Address">
+                  <Textarea
+                    value={data.contractorAddress}
+                    onChange={(e) => update('contractorAddress', e.target.value)}
+                    placeholder="पूरा पता"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
 
-              <Field label="परियोजना / कार्य का नाम" hint="Project / Work Name">
-                <Textarea
-                  value={data.projectName}
-                  onChange={(e) => update('projectName', e.target.value)}
-                  placeholder="Package No. और कार्य का विवरण"
-                  className="min-h-[72px] resize-none"
-                />
-              </Field>
+                <Field label="परियोजना / कार्य का नाम" hint="Project / Work Name">
+                  <Textarea
+                    value={data.projectName}
+                    onChange={(e) => update('projectName', e.target.value)}
+                    placeholder="Package No. और कार्य का विवरण"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
 
-              <Field label="प्रतिलिपि — ठेकेदार का नाम" hint="CC Contractor Name">
-                <Input
-                  value={data.ccContractorName}
-                  onChange={(e) => update('ccContractorName', e.target.value)}
-                  placeholder="जैसे: रचना कन्स्ट्रक्शन"
-                  className="h-10"
-                />
-              </Field>
+                <Field label="प्रतिलिपि — ठेकेदार का नाम" hint="CC Contractor Name">
+                  <Input
+                    value={data.ccContractorName}
+                    onChange={(e) => update('ccContractorName', e.target.value)}
+                    placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                    className="h-10"
+                  />
+                </Field>
 
-              <Field label="प्रतिलिपि — ठेकेदार का पता" hint="CC Contractor Address">
-                <Textarea
-                  value={data.ccContractorAddress}
-                  onChange={(e) => update('ccContractorAddress', e.target.value)}
-                  placeholder="ठेकेदार का पूरा पता"
-                  className="min-h-[72px] resize-none"
-                />
-              </Field>
+                <Field label="प्रतिलिपि — ठेकेदार का पता" hint="CC Contractor Address">
+                  <Textarea
+                    value={data.ccContractorAddress}
+                    onChange={(e) => update('ccContractorAddress', e.target.value)}
+                    placeholder="ठेकेदार का पूरा पता"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
 
-              <Field label="हस्ताक्षरकर्ता का नाम" hint="Signatory Name">
-                <Input
-                  value={data.signatoryName}
-                  onChange={(e) => update('signatoryName', e.target.value)}
-                  placeholder="जैसे: अनिल खिच्ची"
-                  className="h-10"
-                />
-              </Field>
+                <Field label="हस्ताक्षरकर्ता का नाम" hint="Signatory Name">
+                  <Input
+                    value={data.signatoryName}
+                    onChange={(e) => update('signatoryName', e.target.value)}
+                    placeholder="जैसे: अनिल खिच्ची"
+                    className="h-10"
+                  />
+                </Field>
 
-              <Field label="पदनाम" hint="Designation">
-                <Input
-                  value={data.signatoryDesignation}
-                  onChange={(e) => update('signatoryDesignation', e.target.value)}
-                  placeholder="जैसे: अधिशाषी अभियन्ता"
-                  className="h-10"
-                />
-              </Field>
-            </section>
+                <Field label="पदनाम" hint="Designation">
+                  <Input
+                    value={data.signatoryDesignation}
+                    onChange={(e) => update('signatoryDesignation', e.target.value)}
+                    placeholder="जैसे: अधिशाषी अभियन्ता"
+                    className="h-10"
+                  />
+                </Field>
+              </section>
             )}
 
             {/* Actions */}
