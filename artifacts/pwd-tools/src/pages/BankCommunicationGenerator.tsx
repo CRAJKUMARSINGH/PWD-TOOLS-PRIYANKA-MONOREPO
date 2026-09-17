@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension' | 'bg-encashment';
+type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension' | 'bg-release' | 'bg-encashment';
 
 type BankCommunicationData = {
   officeNameHi: string;
@@ -99,6 +99,12 @@ const TEMPLATE_OPTIONS: { value: TemplateType; labelHi: string; labelEn: string;
     labelHi: 'बैंक गारन्टी भुनाने हेतु पत्र',
     labelEn: 'BG Encashment Letter',
     desc: 'बैंक प्रबन्धक को BG तत्काल जब्त कर D.D. बनाने हेतु पत्र',
+  },
+  {
+    value: 'bg-release',
+    labelHi: 'बैंक गारन्टी रिलीज / मुक्त करने का पत्र',
+    labelEn: 'BG Release Letter',
+    desc: 'बैंक प्रबन्धक को BG अब सुरक्षा के रूप में आवश्यक नहीं — रिलीज हेतु पत्र',
   },
 ];
 
@@ -346,7 +352,9 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
         ? buildExtensionHtml(d)
         : template === 'bg-bank-extension'
           ? buildBankExtensionHtml(d)
-          : buildEncashmentHtml(d);
+          : template === 'bg-release'
+            ? buildReleaseHtml(d)
+            : buildEncashmentHtml(d);
   const title =
     template === 'bg-verification'
       ? 'Bank Guarantee Verification Letter'
@@ -354,7 +362,9 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
         ? 'Bank Guarantee Extension Letter (to Contractor)'
         : template === 'bg-bank-extension'
           ? 'Bank Guarantee Validity Extension Request (to Bank)'
-          : 'Bank Guarantee Encashment Letter';
+          : template === 'bg-release'
+            ? 'Bank Guarantee Release Letter'
+            : 'Bank Guarantee Encashment Letter';
 
   return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -866,7 +876,9 @@ export default function BankCommunicationGenerator() {
           ? 'bg-extension-letter-contractor'
           : template === 'bg-bank-extension'
             ? 'bg-extension-request-to-bank'
-            : 'bg-encashment-letter';
+            : template === 'bg-release'
+              ? 'bg-release-letter'
+              : 'bg-encashment-letter';
     const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1440,6 +1452,100 @@ export default function BankCommunicationGenerator() {
                   />
                 </Field>
               </section>
+            ) : (
+            /* bg-release — BG Release Letter to Bank */
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 border-b pb-1.5">
+                <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                  4
+                </span>
+                <div>
+                  <p className="text-sm font-bold leading-none">बैंक, ठेकेदार एवं परियोजना</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Bank, Contractor & Project</p>
+                </div>
+              </div>
+
+              <Field label="बैंक का नाम" hint="Bank Name">
+                <Input
+                  value={data.bankName}
+                  onChange={(e) => update('bankName', e.target.value)}
+                  placeholder="जैसे: HDFC Bank"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="बैंक शाखा / स्थान" hint="Branch / Location">
+                <Input
+                  value={data.bankBranch}
+                  onChange={(e) => update('bankBranch', e.target.value)}
+                  placeholder="जैसे: उदयपुर"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="ठेकेदार / फर्म का नाम" hint="Contractor / Firm Name">
+                <Input
+                  value={data.contractorName}
+                  onChange={(e) => update('contractorName', e.target.value)}
+                  placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="ठेकेदार का पता" hint="Contractor Address">
+                <Textarea
+                  value={data.contractorAddress}
+                  onChange={(e) => update('contractorAddress', e.target.value)}
+                  placeholder="पूरा पता"
+                  className="min-h-[72px] resize-none"
+                />
+              </Field>
+
+              <Field label="परियोजना / कार्य का नाम" hint="Project / Work Name">
+                <Textarea
+                  value={data.projectName}
+                  onChange={(e) => update('projectName', e.target.value)}
+                  placeholder="Package No. और कार्य का विवरण"
+                  className="min-h-[72px] resize-none"
+                />
+              </Field>
+
+              <Field label="प्रतिलिपि — ठेकेदार का नाम" hint="CC Contractor Name">
+                <Input
+                  value={data.ccContractorName}
+                  onChange={(e) => update('ccContractorName', e.target.value)}
+                  placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="प्रतिलिपि — ठेकेदार का पता" hint="CC Contractor Address">
+                <Textarea
+                  value={data.ccContractorAddress}
+                  onChange={(e) => update('ccContractorAddress', e.target.value)}
+                  placeholder="ठेकेदार का पूरा पता"
+                  className="min-h-[72px] resize-none"
+                />
+              </Field>
+
+              <Field label="हस्ताक्षरकर्ता का नाम" hint="Signatory Name">
+                <Input
+                  value={data.signatoryName}
+                  onChange={(e) => update('signatoryName', e.target.value)}
+                  placeholder="जैसे: अनिल खिच्ची"
+                  className="h-10"
+                />
+              </Field>
+
+              <Field label="पदनाम" hint="Designation">
+                <Input
+                  value={data.signatoryDesignation}
+                  onChange={(e) => update('signatoryDesignation', e.target.value)}
+                  placeholder="जैसे: अधिशाषी अभियन्ता"
+                  className="h-10"
+                />
+              </Field>
+            </section>
             )}
 
             {/* Actions */}
@@ -1496,6 +1602,8 @@ export default function BankCommunicationGenerator() {
             <ExtensionPreview d={data} />
           ) : template === 'bg-bank-extension' ? (
             <BankExtensionPreview d={data} />
+          ) : template === 'bg-release' ? (
+            <ReleasePreview d={data} />
           ) : (
             <EncashmentPreview d={data} />
           )}
