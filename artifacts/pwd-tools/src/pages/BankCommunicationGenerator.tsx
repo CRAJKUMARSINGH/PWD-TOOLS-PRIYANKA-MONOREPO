@@ -111,26 +111,42 @@ function esc(v: string): string {
     .replace(/\n/g, '<br/>');
 }
 
+const BLANK_NO = '………………………………';
+
+function officeHeaderHtml(d: BankCommunicationData): string {
+  return `
+  <div class="office">
+    <div class="office-name">${esc(d.officeNameHi)}</div>
+    <div class="office-dept">${esc(d.departmentNameHi)}</div>
+  </div>
+  <div class="meta-row">
+    <div><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <div><strong>दिनांक:-</strong> ${esc(d.letterDate)}</div>
+  </div>`;
+}
+
+function signHtml(d: BankCommunicationData, gap: boolean): string {
+  return `
+  <div class="sign ${gap ? 'sign-gap' : ''}">
+    <div class="sign-inner">
+      <div class="sign-name">(${esc(d.signatoryName)})</div>
+      <div>${esc(d.signatoryDesignation)}</div>
+      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+    </div>
+  </div>`;
+}
+
 function buildVerificationHtml(d: BankCommunicationData): string {
   return `
-  <div style="text-align:center;margin-bottom:16px;">
-    <div style="font-weight:bold;font-size:14px;">${esc(d.officeNameHi)}</div>
-    <div style="font-weight:bold;font-size:13px;margin-top:2px;">${esc(d.departmentNameHi)}</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;">
-    <div><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div><strong>दिनांक:-</strong> ${esc(d.letterDate)}</div>
-  </div>
-  <div style="margin-bottom:16px;">
+  ${officeHeaderHtml(d)}
+  <div class="block">
     <div><strong>श्रीमान प्रबन्धक महोदय,</strong></div>
     <div>${esc(d.bankName)} ${esc(d.bankBranch)}</div>
   </div>
-  <div style="margin-bottom:8px;"><strong>विषय:-</strong> बैंक गारन्टी सत्यापित कराने बाबत।</div>
-  <div style="margin-bottom:16px;"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)}</div>
-  <p style="text-align:justify;margin-bottom:16px;line-height:1.8;">
-    महोदय,
-  </p>
-  <p style="text-align:justify;margin-bottom:16px;line-height:1.8;">
+  <div class="block tight"><strong>विषय:-</strong> बैंक गारन्टी सत्यापित कराने बाबत।</div>
+  <div class="block"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)}</div>
+  <p>महोदय,</p>
+  <p>
     उपरोक्त विषयान्तर्गत निवेदन है कि आपके द्वारा जारी बैंक गारन्टी संख्या
     <strong>${esc(d.bgNumber)}</strong> दिनांक <strong>${esc(d.bgDate)}</strong>
     RS. <strong>${esc(d.bgAmount)}</strong> (${esc(d.bgAmountWords)} मात्र)
@@ -138,96 +154,65 @@ function buildVerificationHtml(d: BankCommunicationData): string {
     उक्त बैंक गारन्टी की छाया प्रति संलग्न कर भिजवाई जा रही है।
     कृपया सत्यापित कराने का कष्ट करावे।
   </p>
-  <div style="margin-top:24px;"><strong>सलग्न:-</strong> BG की छाया प्रति</div>
-  <div style="text-align:right;margin:32px 0 24px;">
-    <div style="height:40px;"></div>
-    <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-    <div>${esc(d.signatoryDesignation)}</div>
-    <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-  </div>
-  <div style="margin-top:16px;font-size:12px;">
-    <div style="margin-bottom:4px;"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div style="margin-bottom:8px;">
+  <div class="block"><strong>सलग्न:-</strong> BG की छाया प्रति</div>
+  ${signHtml(d, true)}
+  <div class="copy">
+    <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <p>
       प्रतिलिपि ${esc(d.ccBankName)}, ${esc(d.ccBankAddress)} को प्रस्तुत कर
       निवेदन है कि उक्त बैंक गारन्टी को सत्यापित कर इस कार्यालय को अवगत करावें।
-    </div>
-    <div style="text-align:right;margin-top:20px;">
-      <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-      <div>${esc(d.signatoryDesignation)}</div>
-      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-    </div>
+    </p>
+    ${signHtml(d, false)}
   </div>`;
 }
 
 function buildExtensionHtml(d: BankCommunicationData): string {
   return `
-  <div style="text-align:center;margin-bottom:16px;">
-    <div style="font-weight:bold;font-size:14px;">${esc(d.officeNameHi)}</div>
-    <div style="font-weight:bold;font-size:13px;margin-top:2px;">${esc(d.departmentNameHi)}</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;">
-    <div><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div><strong>दिनांक:-</strong> ${esc(d.letterDate)}</div>
-  </div>
-  <div style="margin-bottom:16px;">
+  ${officeHeaderHtml(d)}
+  <div class="block">
     <div>मैसर्स <strong>${esc(d.contractorName)}</strong>,</div>
     <div>${esc(d.contractorClass)}</div>
     <div>${esc(d.contractorAddress)}</div>
   </div>
-  <div style="margin-bottom:16px;"><strong>विषय:-</strong> बैंक गारंटी की वैधता अवधि बढ़ाने के संबंध में।</div>
-  <p style="text-align:justify;margin-bottom:12px;line-height:1.8;">
-    महोदय,
-  </p>
-  <p style="text-align:justify;margin-bottom:20px;line-height:1.8;">
+  <div class="block"><strong>विषय:-</strong> बैंक गारंटी की वैधता अवधि बढ़ाने के संबंध में।</div>
+  <p>महोदय,</p>
+  <p>
     उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा
-    <strong>${esc(d.projectName)}</strong> कार्य की बेक गारंटी संख्या
+    <strong>${esc(d.projectName)}</strong> कार्य की बैंक गारंटी संख्या
     <strong>${esc(d.bgNumber)}</strong> दिनांक <strong>${esc(d.bgDate)}</strong>
-    राशि <strong>${esc(d.bgAmount)}/-</strong> (${esc(d.bgAmountWords)}) प्रस्तुत की गयी थी
-    जिसकी वैधता अवधि <strong>${esc(d.bgExpiryDate)}</strong> को समाप्त हो रही है।
+    राशि <strong>${esc(d.bgAmount)}/-</strong> (${esc(d.bgAmountWords)} मात्र) प्रस्तुत की गयी थी
+    जिसकी बैंक गारंटी की वैधता अवधि <strong>${esc(d.bgExpiryDate)}</strong> को समाप्त हो रही है।
     अतः इस पत्र द्वारा लिखा जाता है कि <strong>${esc(d.extensionDays)}</strong> दिवस में
     उक्त बैंक गारन्टी की वैधता अवधि बढाकर प्रस्तुत करे।
   </p>
-  <div style="text-align:right;margin:32px 0 24px;">
-    <div style="height:40px;"></div>
-    <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-    <div>${esc(d.signatoryDesignation)}</div>
-    <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-  </div>
-  <div style="margin-top:24px;font-size:12px;">
-    <div style="margin-bottom:4px;"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div style="margin-bottom:8px;">
+  <p>
+    यदि आप निर्धारित तिथि से पूर्व बैंक गारंटी (BG) प्रस्तुत करते हैं, तो यह आपकी जिम्मेदारी
+    रहेगी कि आप समय-समय पर स्वयं बैंक गारंटी का नवीनीकरण करवाएँ, अन्यथा बैंक गारंटी इनकेश कर
+    ली जाएगी, जिसकी जिम्मेदारी आपकी रहेगी। कृपया अभिसूचित हों।
+  </p>
+  ${signHtml(d, true)}
+  <div class="copy">
+    <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <p>
       प्रतिलिपि प्रबन्धक, ${esc(d.ccBankName)}, ${esc(d.ccBankAddress)} को
       प्रस्तुत कर निवेदन है कि उक्त बैंक गारन्टी की समयावधि बढाकर प्रस्तुत करें।
-    </div>
-    <div style="text-align:right;margin-top:24px;">
-      <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-      <div>${esc(d.signatoryDesignation)}</div>
-      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-    </div>
+    </p>
+    ${signHtml(d, false)}
   </div>`;
 }
 
 function buildBankExtensionHtml(d: BankCommunicationData): string {
   return `
-  <div style="text-align:center;margin-bottom:16px;">
-    <div style="font-weight:bold;font-size:14px;">${esc(d.officeNameHi)}</div>
-    <div style="font-weight:bold;font-size:13px;margin-top:2px;">${esc(d.departmentNameHi)}</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;">
-    <div><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div><strong>दिनांक:-</strong> ${esc(d.letterDate)}</div>
-  </div>
-  <div style="margin-bottom:16px;">
+  ${officeHeaderHtml(d)}
+  <div class="block">
     <div><strong>प्रबन्धक,</strong></div>
     <div>${esc(d.bankName)},</div>
     <div>शाखा — ${esc(d.bankBranch)}</div>
   </div>
-  <div style="margin-bottom:8px;"><strong>विषय:-</strong> बैंक गारन्टी की वैधता अवधि विस्तार कराने बाबत्।</div>
-  <div style="margin-bottom:16px;"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)}</div>
-  <p style="text-align:justify;margin-bottom:12px;line-height:1.8;">
-    महोदय,
-  </p>
-  <p style="text-align:justify;margin-bottom:12px;line-height:1.8;">
+  <div class="block tight"><strong>विषय:-</strong> बैंक गारन्टी की वैधता अवधि विस्तार कराने बाबत्।</div>
+  <div class="block"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)}</div>
+  <p>महोदय,</p>
+  <p>
     उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा
     <strong>${esc(d.projectName)}</strong> कार्य की बेक गारंटी संख्या
     <strong>${esc(d.bgNumber)}</strong> दिनांक <strong>${esc(d.bgDate)}</strong>,
@@ -235,29 +220,66 @@ function buildBankExtensionHtml(d: BankCommunicationData): string {
     मैसर्स <strong>${esc(d.contractorName)}</strong>, ${esc(d.contractorAddress)} द्वारा
     प्रस्तुत की गयी थी जिसकी वैधता अवधि <strong>${esc(d.bgExpiryDate)}</strong> को समाप्त हो रही है।
   </p>
-  <p style="text-align:justify;margin-bottom:20px;line-height:1.8;">
+  <p>
     अतः इस पत्र द्वारा लिखा जाता है कि उक्त बैंक गारन्टी की वैधता अवधि दिनांक
     <strong>${esc(d.bgNewExpiryDate)}</strong> तक विस्तारित कर सम्बन्धित दस्तावेज
     तत्काल इस कार्यालय में प्रेषित किये जावें।
   </p>
-  <div style="text-align:right;margin:32px 0 24px;">
-    <div style="height:40px;"></div>
-    <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-    <div>${esc(d.signatoryDesignation)}</div>
-    <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-  </div>
-  <div style="margin-top:16px;font-size:12px;">
-    <div style="margin-bottom:4px;"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
-    <div style="margin-bottom:8px;">
+  <p>
+    यदि आपके ग्राहक/सम्बन्धित संवेदक की उपरोक्त वैधता अवधि विस्तारित कराने की सहमति / अनुमति अप्राप्त हो
+    तो राशि <strong>${esc(d.bgAmount)}/-</strong> रुपये का Demand Draft तत्काल
+    अधोहस्ताक्षरकर्ता के नाम अर्थात् <strong>अधिशाषी अभियन्ता, सा.नि.वि.
+    जिला खण्ड द्वितीय, उदयपुर</strong> के पक्ष में जारी कर Insured Courier /
+    Speed Post अथवा निजी संदेशवाहक के हाथों भिजवाना सुनिश्चित करें।
+  </p>
+  ${signHtml(d, true)}
+  <div class="copy">
+    <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <p>
       प्रतिलिपि मैसर्स ${esc(d.ccContractorName)}, ${esc(d.ccContractorAddress)} को
       प्रस्तुत कर निवेदन है कि उक्त बैंक गारन्टी की समयावधि दिनांक
       <strong>${esc(d.bgNewExpiryDate)}</strong> तक बढाकर इस कार्यालय में प्रस्तुत करें।
-    </div>
-    <div style="text-align:right;margin-top:20px;">
-      <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
-      <div>${esc(d.signatoryDesignation)}</div>
-      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-    </div>
+    </p>
+    ${signHtml(d, false)}
+  </div>`;
+}
+
+
+function buildReleaseHtml(d: BankCommunicationData): string {
+  return `
+  ${officeHeaderHtml(d)}
+  <div class="block">
+    <div><strong>प्रबन्धक,</strong></div>
+    <div>${esc(d.bankName)},</div>
+    <div>शाखा — ${esc(d.bankBranch)}</div>
+  </div>
+  <div class="block tight"><strong>विषय:-</strong> बैंक गारन्टी (Bank Guarantee) रिलीज / मुक्त करने बाबत्।</div>
+  <div class="block"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)} राशि रु. ${esc(d.bgAmount)}/-</div>
+  <p>महोदय,</p>
+  <p>
+    उपरोक्त विषयान्तर्गत लेख है कि मैसर्स <strong>${esc(d.contractorName)}</strong>,
+    ${esc(d.contractorAddress)} द्वारा <strong>${esc(d.projectName)}</strong> कार्य हेतु
+    आपके बैंक द्वारा जारी बैंक गारन्टी संख्या <strong>${esc(d.bgNumber)}</strong>
+    दिनांक <strong>${esc(d.bgDate)}</strong> राशि रु. <strong>${esc(d.bgAmount)}/-</strong>
+    (${esc(d.bgAmountWords)} मात्र) इस कार्यालय में प्रतिभूति (Security) के रूप में जमा थी।
+  </p>
+  <p>
+    उक्त कार्य पूर्ण / संबंधित औपचारिकताएँ पूर्ण हो चुकी हैं।
+    <strong>The BG is no longer required as security by this office.</strong>
+    अतः उक्त बैंक गारन्टी को तत्काल रिलीज / मुक्त कर मैसर्स
+    <strong>${esc(d.contractorName)}</strong> के पक्ष में वापस कर दिया जावे।
+  </p>
+  <p>
+    कृपया उक्त बैंक गारन्टी रिलीज करने की कार्यवाही पूर्ण कर इस कार्यालय को भी अवगत करावें।
+  </p>
+  ${signHtml(d, true)}
+  <div class="copy">
+    <div class="block tight"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || BLANK_NO}</div>
+    <p>
+      प्रतिलिपि मैसर्स ${esc(d.ccContractorName || d.contractorName)}, ${esc(d.ccContractorAddress || d.contractorAddress)} को
+      सूचनार्थ एवं आवश्यक कार्यवाही हेतु प्रेषित।
+    </p>
+    ${signHtml(d, false)}
   </div>`;
 }
 
@@ -344,8 +366,8 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
 <style>
   @page { size: A4 portrait; margin: 0; }
   body {
-    font-family: 'Mangal', 'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif;
-    font-size: 12px; line-height: 1.6; color: #000; margin: 0;
+    font-family: 'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif;
+    font-size: 12pt; line-height: 1.5; color: #000; margin: 0;
   }
   .wrap { max-width: 170mm; margin: 0 auto; padding: 25mm; box-sizing: border-box; }
   .contractor-output,
@@ -360,8 +382,94 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
   .contractor-output footer { display: none !important; }
 </style>
 </head>
-<body><div class="wrap contractor-output">${body}</div></body>
+<body><div class="wrap">${body}</div></body>
 </html>`;
+}
+
+const BANK_ARCHIVE_KEY = 'bank-comm-archive';
+
+// ─── Archive Panel ────────────────────────────────────────────────────────────
+
+function ArchivePanel({
+  onRestore,
+  onClose,
+}: {
+  onRestore: (entry: ArchiveEntry<{ template: string; data: BankCommunicationData }>) => void;
+  onClose: () => void;
+}) {
+  const [entries, setEntries] = useState(() =>
+    archiveLoad<{ template: string; data: BankCommunicationData }>(BANK_ARCHIVE_KEY)
+  );
+
+  function handleDelete(id: string) {
+    archiveDelete(BANK_ARCHIVE_KEY, id);
+    setEntries(archiveLoad(BANK_ARCHIVE_KEY));
+  }
+
+  const TEMPLATE_LABELS: Record<string, string> = {
+    'bg-verification': 'BG Verification',
+    'bg-extension': 'BG Extension (Contractor)',
+    'bg-bank-extension': 'BG Extension (Bank)',
+    'bg-release': 'BG Release',
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-card border-l shadow-xl z-20">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-primary" />
+          <span className="font-bold text-sm">Last 10 Saved Letters</span>
+        </div>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <ScrollArea className="flex-1">
+        {entries.length === 0 ? (
+          <div className="p-6 text-center text-muted-foreground text-sm">
+            कोई सहेजा गया पत्र नहीं।<br />
+            <span className="text-xs">Download करने पर यहाँ save होगा।</span>
+          </div>
+        ) : (
+          <div className="p-2 space-y-2">
+            {entries.map((e) => (
+              <div key={e.id} className="border rounded-lg p-3 bg-background hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-primary truncate">
+                      {TEMPLATE_LABELS[e.data.template] || e.data.template}
+                    </div>
+                    <div className="text-xs text-foreground/80 mt-0.5 font-medium truncate">
+                      {e.label}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {formatSavedAt(e.savedAt)}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <button
+                      onClick={() => onRestore(e)}
+                      className="text-[10px] bg-primary text-primary-foreground px-2 py-1 rounded font-semibold hover:opacity-80"
+                      title="Restore this letter"
+                    >
+                      Restore
+                    </button>
+                    <button
+                      onClick={() => handleDelete(e.id)}
+                      className="text-red-400 hover:text-red-600 p-1"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
 }
 
 // ─── Field Component ──────────────────────────────────────────────────────────
@@ -388,39 +496,58 @@ function Field({
 
 // ─── Preview Components ───────────────────────────────────────────────────────
 
+function LetterOffice({ d }: { d: BankCommunicationData }) {
+  return (
+    <>
+      <div className="bank-letter-office">
+        <div className="bank-letter-office-name">{d.officeNameHi}</div>
+        <div className="bank-letter-office-dept">{d.departmentNameHi}</div>
+      </div>
+      <div className="bank-letter-meta">
+        <div>
+          <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
+        </div>
+        <div>
+          <strong>दिनांक:-</strong> {d.letterDate}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function LetterSign({ d, gap }: { d: BankCommunicationData; gap?: boolean }) {
+  return (
+    <div className="bank-letter-sign" style={gap ? { marginTop: '36pt' } : undefined}>
+      <div className="bank-letter-sign-inner">
+        {gap ? <div style={{ height: '28pt' }} /> : null}
+        <div style={{ fontWeight: 700 }}>({d.signatoryName})</div>
+        <div>{d.signatoryDesignation}</div>
+        <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+      </div>
+    </div>
+  );
+}
+
 function VerificationPreview({ d }: { d: BankCommunicationData }) {
   return (
     <>
-      <div className="text-center mb-5">
-        <h1 className="text-[14px] font-bold">{d.officeNameHi}</h1>
-        <h2 className="text-[13px] font-bold mt-0.5">{d.departmentNameHi}</h2>
-      </div>
+      <LetterOffice d={d} />
 
-      <div className="flex justify-between mb-5 text-[12px]">
-        <div>
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <div>
-          <span className="font-bold">दिनांक:-</span> {d.letterDate}
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <div className="font-bold">श्रीमान प्रबन्धक महोदय,</div>
+      <div className="bank-letter-block">
+        <div><strong>श्रीमान प्रबन्धक महोदय,</strong></div>
         <div>{d.bankName} {d.bankBranch}</div>
       </div>
 
-      <div className="mb-2">
-        <span className="font-bold">विषय:-</span> बैंक गारन्टी सत्यापित कराने बाबत।
+      <div className="bank-letter-block">
+        <strong>विषय:-</strong> बैंक गारन्टी सत्यापित कराने बाबत।
       </div>
-      <div className="mb-5">
-        <span className="font-bold">सन्दर्भ:-</span> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate}
+      <div className="bank-letter-block">
+        <strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate}
       </div>
 
-      <p className="text-justify mb-3 leading-relaxed">महोदय,</p>
+      <p>महोदय,</p>
 
-      <p className="text-justify mb-5 leading-relaxed">
+      <p>
         उपरोक्त विषयान्तर्गत निवेदन है कि आपके द्वारा जारी बैंक गारन्टी संख्या{' '}
         <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong> RS.{' '}
         <strong>{d.bgAmount}</strong> ({d.bgAmountWords} मात्र) मैसर्स{' '}
@@ -429,37 +556,21 @@ function VerificationPreview({ d }: { d: BankCommunicationData }) {
         कृपया सत्यापित कराने का कष्ट करावे।
       </p>
 
-      <div className="mt-6">
-        <span className="font-bold">सलग्न:-</span> BG की छाया प्रति
+      <div className="bank-letter-block">
+        <strong>सलग्न:-</strong> BG की छाया प्रति
       </div>
 
-      <div className="flex justify-end mb-6 mt-8">
-        <div className="text-center w-[220px]">
-          <div className="h-10" />
-          <div className="font-bold">({d.signatoryName})</div>
-          <div>{d.signatoryDesignation}</div>
-          <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-        </div>
-      </div>
+      <LetterSign d={d} gap />
 
-      <div className="mt-6 text-[12px]">
-        <div className="mb-1">
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <p className="text-justify leading-relaxed">
-          प्रतिलिपि {d.ccBankName}, {d.ccBankAddress} को प्रस्तुत कर
-          निवेदन है कि उक्त बैंक गारन्टी को सत्यापित कर इस कार्यालय को अवगत
-          करावें।
-        </p>
-        <div className="flex justify-end mt-6">
-          <div className="text-center w-[220px]">
-            <div className="font-bold">({d.signatoryName})</div>
-            <div>{d.signatoryDesignation}</div>
-            <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-          </div>
-        </div>
+      <div className="bank-letter-block">
+        <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
       </div>
+      <p>
+        प्रतिलिपि {d.ccBankName}, {d.ccBankAddress} को प्रस्तुत कर
+        निवेदन है कि उक्त बैंक गारन्टी को सत्यापित कर इस कार्यालय को अवगत
+        करावें।
+      </p>
+      <LetterSign d={d} />
     </>
   );
 }
@@ -467,69 +578,46 @@ function VerificationPreview({ d }: { d: BankCommunicationData }) {
 function ExtensionPreview({ d }: { d: BankCommunicationData }) {
   return (
     <>
-      <div className="text-center mb-5">
-        <h1 className="text-[14px] font-bold">{d.officeNameHi}</h1>
-        <h2 className="text-[13px] font-bold mt-0.5">{d.departmentNameHi}</h2>
-      </div>
+      <LetterOffice d={d} />
 
-      <div className="flex justify-between mb-5 text-[12px]">
-        <div>
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <div>
-          <span className="font-bold">दिनांक:-</span> {d.letterDate}
-        </div>
-      </div>
-
-      <div className="mb-5">
+      <div className="bank-letter-block">
         <div>मैसर्स <strong>{d.contractorName}</strong>,</div>
         <div>{d.contractorClass}</div>
         <div>{d.contractorAddress}</div>
       </div>
 
-      <div className="mb-5">
-        <span className="font-bold">विषय:-</span> बैंक गारंटी की वैधता अवधि बढ़ाने के संबंध में।
+      <div className="bank-letter-block">
+        <strong>विषय:-</strong> बैंक गारंटी की वैधता अवधि बढ़ाने के संबंध में।
       </div>
 
-      <p className="text-justify mb-3 leading-relaxed">महोदय,</p>
+      <p>महोदय,</p>
 
-      <p className="text-justify mb-5 leading-relaxed">
+      <p>
         उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा{' '}
-        <strong>{d.projectName}</strong> कार्य की बेक गारंटी संख्या{' '}
+        <strong>{d.projectName}</strong> कार्य की बैंक गारंटी संख्या{' '}
         <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong> राशि{' '}
-        <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords}) प्रस्तुत की गयी थी जिसकी वैधता
-        अवधि <strong>{d.bgExpiryDate}</strong> को समाप्त हो रही है। अतः इस पत्र द्वारा लिखा
-        जाता है कि <strong>{d.extensionDays}</strong> दिवस में उक्त बैंक गारन्टी की वैधता
-        अवधि बढाकर प्रस्तुत करे।
+        <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords} मात्र) प्रस्तुत की गयी थी जिसकी
+        बैंक गारंटी की वैधता अवधि <strong>{d.bgExpiryDate}</strong> को समाप्त हो रही है।
+        अतः इस पत्र द्वारा लिखा जाता है कि <strong>{d.extensionDays}</strong> दिवस में
+        उक्त बैंक गारन्टी की वैधता अवधि बढाकर प्रस्तुत करे।
       </p>
 
-      <div className="flex justify-end mb-6">
-        <div className="text-center w-[220px]">
-          <div className="h-10" />
-          <div className="font-bold">({d.signatoryName})</div>
-          <div>{d.signatoryDesignation}</div>
-          <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-        </div>
-      </div>
+      <p>
+        यदि आप निर्धारित तिथि से पूर्व बैंक गारंटी (BG) प्रस्तुत करते हैं, तो यह आपकी
+        जिम्मेदारी रहेगी कि आप समय-समय पर स्वयं बैंक गारंटी का नवीनीकरण करवाएँ, अन्यथा
+        बैंक गारंटी इनकेश कर ली जाएगी, जिसकी जिम्मेदारी आपकी रहेगी। कृपया अभिसूचित हों।
+      </p>
 
-      <div className="mt-6 text-[12px]">
-        <div className="mb-1">
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <p className="text-justify leading-relaxed">
-          प्रतिलिपि प्रबन्धक, {d.ccBankName}, {d.ccBankAddress} को प्रस्तुत कर निवेदन है कि
-          उक्त बैंक गारन्टी की समयावधि बढाकर प्रस्तुत करें।
-        </p>
-        <div className="flex justify-end mt-6">
-          <div className="text-center w-[220px]">
-            <div className="font-bold">({d.signatoryName})</div>
-            <div>{d.signatoryDesignation}</div>
-            <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-          </div>
-        </div>
+      <LetterSign d={d} gap />
+
+      <div className="bank-letter-block">
+        <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
       </div>
+      <p>
+        प्रतिलिपि प्रबन्धक, {d.ccBankName}, {d.ccBankAddress} को प्रस्तुत कर निवेदन है कि
+        उक्त बैंक गारन्टी की समयावधि बढाकर प्रस्तुत करें।
+      </p>
+      <LetterSign d={d} />
     </>
   );
 }
@@ -537,37 +625,24 @@ function ExtensionPreview({ d }: { d: BankCommunicationData }) {
 function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
   return (
     <>
-      <div className="text-center mb-5">
-        <h1 className="text-[14px] font-bold">{d.officeNameHi}</h1>
-        <h2 className="text-[13px] font-bold mt-0.5">{d.departmentNameHi}</h2>
-      </div>
+      <LetterOffice d={d} />
 
-      <div className="flex justify-between mb-5 text-[12px]">
-        <div>
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <div>
-          <span className="font-bold">दिनांक:-</span> {d.letterDate}
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <div className="font-bold">प्रबन्धक,</div>
+      <div className="bank-letter-block">
+        <div><strong>प्रबन्धक,</strong></div>
         <div>{d.bankName},</div>
         <div>शाखा — {d.bankBranch}</div>
       </div>
 
-      <div className="mb-2">
-        <span className="font-bold">विषय:-</span> बैंक गारन्टी की वैधता अवधि विस्तार कराने बाबत्।
+      <div className="bank-letter-block">
+        <strong>विषय:-</strong> बैंक गारन्टी की वैधता अवधि विस्तार कराने बाबत्।
       </div>
-      <div className="mb-5">
-        <span className="font-bold">सन्दर्भ:-</span> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate}
+      <div className="bank-letter-block">
+        <strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate}
       </div>
 
-      <p className="text-justify mb-3 leading-relaxed">महोदय,</p>
+      <p>महोदय,</p>
 
-      <p className="text-justify mb-3 leading-relaxed">
+      <p>
         उपरोक्त विषयान्तर्गत लेख है कि सन्दर्भित पत्र द्वारा{' '}
         <strong>{d.projectName}</strong> कार्य की बेक गारंटी संख्या{' '}
         <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong>, राशि रु.{' '}
@@ -576,39 +651,86 @@ function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
         जिसकी वैधता अवधि <strong>{d.bgExpiryDate}</strong> को समाप्त हो रही है।
       </p>
 
-      <p className="text-justify mb-5 leading-relaxed">
+      <p>
         अतः इस पत्र द्वारा लिखा जाता है कि उक्त बैंक गारन्टी की वैधता अवधि दिनांक{' '}
         <strong>{d.bgNewExpiryDate}</strong> तक विस्तारित कर सम्बन्धित दस्तावेज तत्काल इस
         कार्यालय में प्रेषित किये जावें।
       </p>
 
-      <div className="flex justify-end mb-6">
-        <div className="text-center w-[220px]">
-          <div className="h-10" />
-          <div className="font-bold">({d.signatoryName})</div>
-          <div>{d.signatoryDesignation}</div>
-          <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-        </div>
+      <p>
+        यदि आपके ग्राहक/सम्बन्धित संवेदक की उपरोक्त वैधता अवधि विस्तारित कराने की सहमति / अनुमति अप्राप्त हो
+        तो राशि <strong>{d.bgAmount}/-</strong> रुपये का Demand Draft तत्काल अधोहस्ताक्षरकर्ता
+        के नाम अर्थात् <strong>अधिशाषी अभियन्ता, सा.नि.वि. जिला खण्ड द्वितीय, उदयपुर</strong> के
+        पक्ष में जारी कर Insured Courier / Speed Post अथवा निजी संदेशवाहक के हाथों भिजवाना
+        सुनिश्चित करें।
+      </p>
+
+      <LetterSign d={d} gap />
+
+      <div className="bank-letter-block">
+        <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
+      </div>
+      <p>
+        प्रतिलिपि मैसर्स {d.ccContractorName}, {d.ccContractorAddress} को प्रस्तुत कर
+        निवेदन है कि उक्त बैंक गारन्टी की समयावधि दिनांक{' '}
+        <strong>{d.bgNewExpiryDate}</strong> तक बढाकर इस कार्यालय में प्रस्तुत करें।
+      </p>
+      <LetterSign d={d} />
+    </>
+  );
+}
+
+
+function ReleasePreview({ d }: { d: BankCommunicationData }) {
+  return (
+    <>
+      <LetterOffice d={d} />
+
+      <div className="bank-letter-block">
+        <div><strong>प्रबन्धक,</strong></div>
+        <div>{d.bankName},</div>
+        <div>शाखा — {d.bankBranch}</div>
       </div>
 
-      <div className="mt-6 text-[12px]">
-        <div className="mb-1">
-          <span className="font-bold">क्रमांक:-</span>{' '}
-          {d.letterNo || '………………………………'}
-        </div>
-        <p className="text-justify leading-relaxed">
-          प्रतिलिपि मैसर्स {d.ccContractorName}, {d.ccContractorAddress} को प्रस्तुत कर
-          निवेदन है कि उक्त बैंक गारन्टी की समयावधि दिनांक{' '}
-          <strong>{d.bgNewExpiryDate}</strong> तक बढाकर इस कार्यालय में प्रस्तुत करें।
-        </p>
-        <div className="flex justify-end mt-6">
-          <div className="text-center w-[220px]">
-            <div className="font-bold">({d.signatoryName})</div>
-            <div>{d.signatoryDesignation}</div>
-            <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
-          </div>
-        </div>
+      <div className="bank-letter-block">
+        <strong>विषय:-</strong> बैंक गारन्टी (Bank Guarantee) रिलीज / मुक्त करने बाबत्।
       </div>
+      <div className="bank-letter-block">
+        <strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate} राशि रु. {d.bgAmount}/-
+      </div>
+
+      <p>महोदय,</p>
+
+      <p>
+        उपरोक्त विषयान्तर्गत लेख है कि मैसर्स <strong>{d.contractorName}</strong>,{' '}
+        {d.contractorAddress} द्वारा <strong>{d.projectName}</strong> कार्य हेतु आपके बैंक द्वारा
+        जारी बैंक गारन्टी संख्या <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong>{' '}
+        राशि रु. <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords} मात्र) इस कार्यालय में
+        प्रतिभूति (Security) के रूप में जमा थी।
+      </p>
+
+      <p>
+        उक्त कार्य पूर्ण / संबंधित औपचारिकताएँ पूर्ण हो चुकी हैं।{' '}
+        <strong>The BG is no longer required as security by this office.</strong> अतः उक्त बैंक
+        गारन्टी को तत्काल रिलीज / मुक्त कर मैसर्स <strong>{d.contractorName}</strong> के पक्ष में
+        वापस कर दिया जावे।
+      </p>
+
+      <p>
+        कृपया उक्त बैंक गारन्टी रिलीज करने की कार्यवाही पूर्ण कर इस कार्यालय को भी अवगत करावें।
+      </p>
+
+      <LetterSign d={d} gap />
+
+      <div className="bank-letter-block">
+        <strong>क्रमांक:-</strong> {d.letterNo || '………………………………'}
+      </div>
+      <p>
+        प्रतिलिपि मैसर्स {d.ccContractorName || d.contractorName},{' '}
+        {d.ccContractorAddress || d.contractorAddress} को सूचनार्थ एवं आवश्यक कार्यवाही हेतु
+        प्रेषित।
+      </p>
+      <LetterSign d={d} />
     </>
   );
 }
@@ -698,10 +820,18 @@ function EncashmentPreview({ d }: { d: BankCommunicationData }) {
 export default function BankCommunicationGenerator() {
   const [template, setTemplate] = useState<TemplateType>('bg-verification');
   const [data, setData] = useState<BankCommunicationData>(defaultData);
+  const [showArchive, setShowArchive] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
 
   function update<K extends keyof BankCommunicationData>(key: K, value: BankCommunicationData[K]) {
-    setData((prev) => ({ ...prev, [key]: value }));
+    setData((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === 'bgAmount') {
+        const words = numberToWordsHindi(value as string);
+        if (words) next.bgAmountWords = words;
+      }
+      return next;
+    });
   }
 
   const handlePrint = () => {
@@ -724,6 +854,7 @@ export default function BankCommunicationGenerator() {
   };
 
   const handleDownloadDoc = () => {
+    saveToArchive();
     const html = buildStandaloneHtml(template, data);
     const name =
       template === 'bg-verification'
@@ -744,6 +875,12 @@ export default function BankCommunicationGenerator() {
     URL.revokeObjectURL(url);
   };
 
+  function handleRestore(entry: ArchiveEntry<{ template: string; data: BankCommunicationData }>) {
+    setTemplate(entry.data.template as TemplateType);
+    setData(entry.data.data);
+    setShowArchive(false);
+  }
+
   const selectedTemplate = TEMPLATE_OPTIONS.find((t) => t.value === template)!;
 
   return (
@@ -758,15 +895,26 @@ export default function BankCommunicationGenerator() {
                 Bank Communication — P.W.D. District Div.-II Udaipur
               </p>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleReset}
-              title="Reset"
-              className="h-8 px-2 text-xs mt-0.5 shrink-0"
-            >
-              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reset
-            </Button>
+            <div className="flex gap-1 mt-0.5 shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowArchive(v => !v)}
+                title="Last 10 saved letters"
+                className="h-8 px-2 text-xs"
+              >
+                <History className="h-3.5 w-3.5 mr-1" /> History
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleReset}
+                title="Reset"
+                className="h-8 px-2 text-xs"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reset
+              </Button>
+            </div>
           </div>
           <p className="mt-2 text-[11px] text-primary-foreground/80 bg-primary-foreground/10 rounded px-2 py-1 leading-relaxed">
             📋 टेम्पलेट चुनें और विवरण भरें — दाईं तरफ पत्र तैयार होगा।
@@ -1331,8 +1479,13 @@ export default function BankCommunicationGenerator() {
 
         <div
           ref={pageRef}
-          className="a4-page contractor-output doc-font text-[12px] leading-snug"
-          style={{ fontFamily: "'Noto Sans Devanagari', 'Mangal', 'Nirmala UI', sans-serif" }}
+          className="a4-page bank-letter"
+          style={{
+            fontFamily: "'Mangal', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif",
+            fontSize: "12pt",
+            lineHeight: 2.35,
+            padding: "20mm 22mm",
+          }}
         >
           {template === 'bg-verification' ? (
             <VerificationPreview d={data} />

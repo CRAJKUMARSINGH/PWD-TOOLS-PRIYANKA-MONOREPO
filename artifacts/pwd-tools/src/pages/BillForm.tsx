@@ -814,7 +814,7 @@ export default function BillForm({ mode = "bill-note" }: BillFormProps) {
           color: #3a1a00;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
-          font-family: 'Noto Sans Devanagari','Segoe UI',sans-serif;
+          font-family: 'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif;
         }
         .navratri-input:focus {
           border-color: #c8720a;
@@ -826,7 +826,7 @@ export default function BillForm({ mode = "bill-note" }: BillFormProps) {
           color: #7B2D00;
           margin-bottom: 3px;
           display: block;
-          letter-spacing: 0.01em;
+          font-family: 'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif;
         }
         .rangoli-divider {
           text-align: center;
@@ -838,16 +838,16 @@ export default function BillForm({ mode = "bill-note" }: BillFormProps) {
         }
       `}</style>
 
-      <div style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif", minHeight: "100vh", background: "linear-gradient(160deg, #fff8e1 0%, #fff3e0 40%, #fce4ec 100%)" }}>
+      <div style={{ fontFamily: "'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif", minHeight: "100vh", background: "linear-gradient(160deg, #fff8e1 0%, #fff3e0 40%, #fce4ec 100%)" }}>
 
         {/* NAVRATRI HEADER */}
         <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #7B0D00 0%, #c0392b 25%, #e67e22 50%, #c0392b 75%, #7B0D00 100%)", backgroundSize: "300% auto", animation: "shimmer 8s linear infinite", borderBottom: "4px solid #FFD700" }}>
           <Diyas />
           <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 20px 6px" }}>
-            <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "0.08em", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
+            <div style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.25rem", textShadow: "0 0 12px rgba(255,215,0,0.8), 0 2px 6px rgba(0,0,0,0.5)" }}>
               {isSpeedMoney ? "🪔 SPEED MONEY TOOL 🪔" : "🪔 हिंदी बिल नोट शीट जनरेटर 🪔"}
             </div>
-            <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", letterSpacing: "0.12em", marginTop: "2px" }}>
+            <div style={{ color: "#FFEAA7", fontWeight: 500, fontSize: "0.78rem", marginTop: "2px" }}>
               {isSpeedMoney
                 ? "Deduction Table Only Output &nbsp;✦&nbsp; Last 10 inputs saved"
                 : "Hindi Bill Note Sheet Generator &nbsp;✦&nbsp; नवरात्रि की शुभकामनाएं"}
@@ -1280,7 +1280,7 @@ function NoteSheetTable({ billTitle, outputRows, deductionRows, notePoints, sign
   const tdR = "border border-gray-500 px-2 py-1 w-1/2 align-top text-xs";
 
   return (
-    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif" }}>
+    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif" }}>
       <table className="w-full border-collapse">
         <thead>
           <tr>
@@ -1348,7 +1348,7 @@ function DeductionsOnlyTable({ billTitle, deductionRows }: Pick<TableProps, "bil
   const tdR = "border border-gray-500 px-2 py-1 w-1/2 align-top text-xs";
 
   return (
-    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Noto Sans Devanagari','Segoe UI',sans-serif" }}>
+    <div className="bg-white border border-gray-400 text-black text-xs overflow-auto" style={{ fontFamily: "'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif" }}>
       <table className="w-full border-collapse">
         <thead>
           <tr>
@@ -1408,7 +1408,7 @@ function buildPrintHtml(
 <style>
   @page { size: A4 portrait; margin: 0; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { padding: 10mm; font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
+  body { padding: 10mm; font-family:'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
   table { width:100%; border-collapse:collapse; }
   td { border:1px solid #555; padding:${cellPad}; vertical-align:top; }
   .h  { text-align:center; font-weight:700; font-size:${baseFontPt + 1}pt; background:#fce4ec; color:#880e4f; padding:4px; }
@@ -1457,7 +1457,7 @@ function buildDeductionsPrintHtml(
 <style>
   @page { size: A4 portrait; margin: 0; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { padding: 10mm; font-family:'Noto Sans Devanagari','Segoe UI',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
+  body { padding: 10mm; font-family:'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
   table { width:100%; border-collapse:collapse; }
   td { border:1px solid #555; padding:4px 6px; vertical-align:top; }
   .h  { text-align:center; font-weight:700; font-size:${baseFontPt + 1}pt; background:#fce4ec; color:#880e4f; padding:4px; }

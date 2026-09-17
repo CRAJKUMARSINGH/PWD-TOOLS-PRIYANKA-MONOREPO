@@ -5,10 +5,9 @@ import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import { useLocation, useParams } from "wouter";
 
 const TOOL_MAP: Record<string, { name: string; icon: string; htmlFile: string | null }> = {
-  // Map of tool IDs to their metadata
-
   "bill-generator": { name: "Bill Generator", icon: "🏗️", htmlFile: "BillGenerator.html" },
   "emd-refund": { name: "EMD Refund", icon: "💸", htmlFile: "EmdRefund.html" },
+  "excel-to-emd": { name: "Excel-to-EMD", icon: "📊", htmlFile: "ExcelToEmd.html" },
   "security-refund": { name: "Security Refund", icon: "🔒", htmlFile: "SecurityRefund.html" },
   "bill-note-sheet": { name: "Bill Note Sheet", icon: "📝", htmlFile: "BillNoteSheet.html" },
   "financial-progress": { name: "Liquidity Damages Calculator", icon: "📈", htmlFile: "FinancialProgressTracker.html" },
