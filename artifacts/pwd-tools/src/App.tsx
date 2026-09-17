@@ -5,6 +5,7 @@ import BankCommunication from "@/pages/BankCommunication";
 import BillForm from "@/pages/BillForm";
 import ContractorRegistration from "@/pages/ContractorRegistration";
 import CorrespondencePage from "@/pages/Correspondence";
+import DataVaultPage from "@/pages/DataVaultPage";
 import DocumentGenerator from "@/pages/DocumentGenerator";
 import EnrollmentDataForm from "@/pages/EnrollmentDataForm";
 import EotLetterPage from "@/pages/EotLetterPage";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/tool/:id" component={ToolViewer} />
       {/* ── Correspondence ── */}
       <Route path="/audit-reply" component={AuditReplyPage} />
+      <Route path="/data-vault" component={DataVaultPage} />
       <Route path="/correspondence" component={CorrespondencePage} />
       <Route path="/legal-correspondence" component={LegalCorrespondencePage} />
       {/* ── Bill & Financial ── */}

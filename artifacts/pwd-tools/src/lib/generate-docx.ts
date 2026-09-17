@@ -1,6 +1,6 @@
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType, VerticalAlign, ShadingType, BorderStyle } from "docx";
-import { saveAs } from "file-saver";
 import { CASES } from "@/data/audit-cases";
+import { AlignmentType, BorderStyle, Document, Packer, Paragraph, Table, TableCell, TableRow, TextRun, VerticalAlign, WidthType } from "docx";
+import { saveAs } from "file-saver";
 
 function mangalRun(text: string, bold = false): TextRun {
   return new TextRun({
@@ -14,7 +14,7 @@ function mangalRun(text: string, bold = false): TextRun {
 
 function createCellContent(text: string, bold = false) {
   if (!text) text = "";
-  return text.split('\n').map(line => 
+  return text.split('\n').map(line =>
     new Paragraph({
       children: [mangalRun(line, bold)],
       spacing: { before: 0, after: 0, line: 240 },
@@ -25,7 +25,7 @@ function createCellContent(text: string, bold = false) {
 const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const borders = { top: border, bottom: border, left: border, right: border };
 
-export async function generateDocx(cases: typeof CASES, replies: Record<string, {reply:string; comments:string}>) {
+export async function generateDocx(cases: typeof CASES, replies: Record<string, { reply: string; comments: string }>) {
   const doc = new Document({
     sections: [{
       properties: {
@@ -50,35 +50,33 @@ export async function generateDocx(cases: typeof CASES, replies: Record<string, 
         }),
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
-          columnWidths: [567, 1984, 1417, 3685, 3685, 3797],
+          columnWidths: [567, 1984, 3685, 3685, 5214],
           rows: [
             new TableRow({
               tableHeader: true,
               children: [
-                new TableCell({ children: createCellContent("Para No.", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
-                new TableCell({ children: createCellContent("संक्षिप्त विवरण", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
-                new TableCell({ children: createCellContent("उत्तरदायित्व", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
-                new TableCell({ children: createCellContent("अंकेक्षण आपत्ति", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
-                new TableCell({ children: createCellContent("उत्तर", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
-                new TableCell({ children: createCellContent("उच्चाधिकारी की टिप्पणी", true), borders, shading: { type: ShadingType.SOLID, color: "E0E0E0", fill: "E0E0E0" } }),
+                new TableCell({ children: createCellContent("Para No.", true), borders }),
+                new TableCell({ children: createCellContent("संक्षिप्त विवरण", true), borders }),
+                new TableCell({ children: createCellContent("अंकेक्षण आपत्ति", true), borders }),
+                new TableCell({ children: createCellContent("उत्तर", true), borders }),
+                new TableCell({ children: createCellContent("उच्चाधिकारी की टिप्पणी", true), borders }),
               ]
             }),
             ...cases.flatMap(c => {
               const r = replies[c.no] || { reply: "", comments: "" };
-              
+
               const row1 = new TableRow({
                 children: [
                   new TableCell({
                     rowSpan: 2,
                     children: createCellContent(c.no, true),
                     borders,
-                    verticalAlign: VerticalAlign.CENTER,
+                    verticalAlign: VerticalAlign.TOP,
                   }),
                   new TableCell({
-                    columnSpan: 5,
+                    columnSpan: 4,
                     children: createCellContent(c.header, true),
                     borders,
-                    shading: { type: ShadingType.SOLID, color: "F5F5F5", fill: "F5F5F5" }
                   })
                 ]
               });
@@ -86,17 +84,14 @@ export async function generateDocx(cases: typeof CASES, replies: Record<string, 
               const row2 = new TableRow({
                 children: [
                   new TableCell({ children: createCellContent(c.gist, true), borders }),
-                  new TableCell({ children: createCellContent(c.resp), borders }),
                   new TableCell({ children: createCellContent(c.obs), borders }),
                   new TableCell({
                     children: createCellContent(r.reply),
                     borders,
-                    shading: { type: ShadingType.SOLID, color: "FFFDE7", fill: "FFFDE7" }
                   }),
                   new TableCell({
                     children: createCellContent(r.comments),
                     borders,
-                    shading: { type: ShadingType.SOLID, color: "E3F2FD", fill: "E3F2FD" }
                   }),
                 ]
               });
@@ -110,5 +105,5 @@ export async function generateDocx(cases: typeof CASES, replies: Record<string, 
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `DRAFT_REPLY_${new Date().toISOString().slice(0,10)}.docx`);
+  saveAs(blob, `DRAFT_REPLY_${new Date().toISOString().slice(0, 10)}.docx`);
 }

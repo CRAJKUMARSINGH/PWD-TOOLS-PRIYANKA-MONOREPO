@@ -278,12 +278,12 @@ function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): 
 <title>${title}</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: A4; margin: 18mm 20mm; }
+  @page { size: A4 portrait; margin: 0; }
   body {
     font-family: 'Mangal', 'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif;
     font-size: 12px; line-height: 1.6; color: #000; margin: 0;
   }
-  .wrap { max-width: 170mm; margin: 0 auto; }
+  .wrap { max-width: 170mm; margin: 0 auto; padding: 25mm; box-sizing: border-box; }
   .contractor-output,
   .contractor-output * { line-height: 1 !important; }
   .contractor-output p,
@@ -560,7 +560,20 @@ export default function BankCommunicationGenerator() {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    const html = buildStandaloneHtml(template, data);
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (!printWin) return;
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
+    printWin.focus();
+    // Give fonts/layout a moment to render before printing
+    setTimeout(() => {
+      printWin.print();
+      printWin.close();
+    }, 400);
+  };
   const handleReset = () => {
     setData(defaultData);
     setTemplate('bg-verification');

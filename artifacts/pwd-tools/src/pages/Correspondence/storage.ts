@@ -1,3 +1,4 @@
+import { saveSnapshot, VAULT_TOOL } from "@/lib/vault";
 import type { Letter, LetterFormData } from "./types";
 
 const STORAGE_KEY = "pwd_correspondence_letters";
@@ -46,6 +47,9 @@ export function saveLetter(data: LetterFormData): Letter {
   };
   letters.unshift(letter);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(letters));
+  // vault snapshot
+  const label = `${data.type === "reply" ? "Reply" : "Letter"} — ${data.subject || data.subjectEn || "No Subject"} — ${data.date || new Date().toLocaleDateString('en-IN')}`;
+  saveSnapshot(VAULT_TOOL.CORRESPONDENCE, label, letter).catch(() => { });
   return letter;
 }
 
@@ -55,7 +59,11 @@ export function updateLetter(id: string, data: Partial<LetterFormData>): Letter 
   if (idx === -1) return null;
   letters[idx] = { ...letters[idx], ...data, updatedAt: new Date().toISOString() };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(letters));
-  return letters[idx];
+  // vault snapshot on update too
+  const updated = letters[idx];
+  const label = `Updated — ${updated.subject || updated.subjectEn || "No Subject"} — ${new Date().toLocaleDateString('en-IN')}`;
+  saveSnapshot(VAULT_TOOL.CORRESPONDENCE, label, updated).catch(() => { });
+  return updated;
 }
 
 export function deleteLetter(id: string): void {

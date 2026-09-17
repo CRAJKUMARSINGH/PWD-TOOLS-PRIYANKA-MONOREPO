@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Download } from "lucide-react";
 import { useState } from "react";
 
 interface EmdReceipt {
@@ -151,56 +152,47 @@ export default function ExcelToEmd() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=210mm, height=297mm">
   <title>Hand Receipt (RPWA 28)</title>
   <style>
-    body { font-family: 'Arial', sans-serif; margin: 0; }
-    @page { size: A4 portrait; margin: 10mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #fff; color: #000; }
+    @page { size: A4 portrait; margin: 12mm; }
     .container {
-      width: 210mm; height: 297mm; margin: 0 auto;
-      border: 2px solid #000; padding: 20px; box-sizing: border-box;
-      position: relative;
+      width: 100%;
+      border: 2px solid #000;
+      padding: 14px;
     }
-    .header { text-align: center; margin-bottom: 10px; }
-    .header h2 { margin: 5px 0; font-size: 16px; }
-    .header p { margin: 3px 0; font-size: 12px; }
-    .details { margin-bottom: 10px; }
-    .details p { margin: 5px 0; font-size: 13px; }
+    .header { text-align: center; margin-bottom: 8px; }
+    .header h2 { font-size: 14px; margin: 3px 0; }
+    .header p  { font-size: 11px; margin: 2px 0; }
+    .details p  { font-size: 12px; margin: 5px 0; line-height: 1.4; }
     .amount-words { font-style: italic; }
-    .input-field { 
-      border-bottom: 1px dotted #000; 
-      padding: 2px; 
-      width: 300px; 
-      display: inline-block; 
+    .input-field {
+      border-bottom: 1px dotted #000;
+      padding: 1px 2px;
+      display: inline-block;
+      min-width: 220px;
     }
-    .signature-area, .offices { 
-      width: 100%; 
-      border-collapse: collapse; 
-      margin-top: 15px; 
-      font-size: 12px;
+    .signature-area, .offices {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 11px;
     }
-    .signature-area td, .signature-area th { 
-      border: 1px solid #000; 
-      padding: 8px; 
-      text-align: left; 
-    }
-    .offices td, .offices th { 
-      border: 1px solid #000; 
-      padding: 8px; 
-      text-align: left; 
-    }
-    .bottom-left-box {
-      position: absolute; 
-      bottom: 40mm; 
-      left: 40mm;
-      border: 2px solid #000; 
-      padding: 10px; 
-      width: 320px; 
+    .signature-area td, .offices td {
+      border: 1px solid #000;
+      padding: 6px 8px;
       text-align: left;
     }
-    .bottom-left-box p { margin: 5px 0; font-size: 12px; }
+    .passed-box {
+      margin-top: 12px;
+      border: 2px solid #000;
+      padding: 8px 12px;
+      display: inline-block;
+      min-width: 280px;
+    }
+    .passed-box p { margin: 3px 0; font-size: 12px; }
     .blue-text { color: #000080; font-weight: bold; }
-    .seal { margin-top: 10px; }
     .seal p { margin: 2px 0; font-size: 11px; }
   </style>
 </head>
@@ -209,39 +201,56 @@ export default function ExcelToEmd() {
     <div class="header">
       <h2>Payable to: - ${receipt.payee}</h2>
       <h2>HAND RECEIPT (RPWA 28)</h2>
-      <p>(Referred to in PWF&A Rules 418,424,436 & 438)</p>
+      <p>(Referred to in PWF&amp;A Rules 418, 424, 436 &amp; 438)</p>
       <p>Division - PWD District Division-II, Udaipur</p>
     </div>
-    
+
     <div class="details">
-      <p>(1) Cash Book Voucher No. ${receipt.voucher_no || "___________"} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date ${receipt.date || "___________"}</p>
+      <p>(1) Cash Book Voucher No. ${receipt.voucher_no || "___________"} &nbsp;&nbsp;&nbsp; Date ${receipt.date || "___________"}</p>
       <p>(2) Cheque No. and Date ${receipt.cheque_no || "___________"}</p>
       <p>(3) Pay for ECS Rs.${receipt.amount}/- (Rupees <span class="amount-words">${receipt.amount_words} only</span>)</p>
       <p>(4) Paid by me</p>
-      <p>(5) Received from The Executive Engineer PWD District Division-II, Udaipur the sum of Rs. ${receipt.amount}/- (Rupees <span class="amount-words">${receipt.amount_words} only</span>)</p>
-      <p> Name of work for which payment is made: <span class="input-field">${receipt.work}</span></p>
-      <p> Chargeable to Head:- 8443 [EMD-Refund] </p>
-      
+      <p>(5) Received from The Executive Engineer PWD District Division-II, Udaipur the sum of Rs.&nbsp;${receipt.amount}/- (Rupees <span class="amount-words">${receipt.amount_words} only</span>)</p>
+      <p>Name of work for which payment is made: <span class="input-field">${receipt.work}</span></p>
+      <p>Chargeable to Head:- 8443 [EMD-Refund]</p>
+
       <table class="signature-area">
-        <tr><td>Witness</td><td>Stamp</td><td>Signature of payee</td></tr>
-        <tr><td>Cash Book No. ___________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page No. ___________</td><td></td><td></td></tr>
+        <tr>
+          <td>Witness</td>
+          <td>Stamp</td>
+          <td>Signature of payee</td>
+        </tr>
+        <tr>
+          <td>Cash Book No. ___________ &nbsp; Page No. ___________</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
       </table>
-      
+
       <table class="offices">
-        <tr><td>For use in the Divisional Office</td><td>For use in the Accountant General's office</td></tr>
-        <tr><td>Checked</td><td>Audited/Reviewed</td></tr>
-        <tr><td>Accounts Clerk</td><td>DA ___________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Auditor ___________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Supdt. ___________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; G.O.</td></tr>
+        <tr>
+          <td>For use in the Divisional Office</td>
+          <td>For use in the Accountant General's office</td>
+        </tr>
+        <tr>
+          <td>Checked</td>
+          <td>Audited/Reviewed</td>
+        </tr>
+        <tr>
+          <td>Accounts Clerk</td>
+          <td>DA ___________ &nbsp; Auditor ___________ &nbsp; Supdt. ___________ &nbsp; G.O.</td>
+        </tr>
       </table>
-    </div>
-    
-    <div class="bottom-left-box">
-      <p class="blue-text"> Passed for Rs. ${receipt.amount}</p>
-      <p class="blue-text"> In Words Rupees: ${receipt.amount_words} Only</p>
-      <p class="blue-text"> Chargeable to Head:- 8443 [EMD-Refund]</p>
-      <div class="seal">
-        <p>Ar. ___________</p>
-        <p>D.A. ___________</p>
-        <p>E.E. ___________</p>
+
+      <div class="passed-box">
+        <p class="blue-text">Passed for Rs. ${receipt.amount}</p>
+        <p class="blue-text">In Words Rupees: ${receipt.amount_words} Only</p>
+        <p class="blue-text">Chargeable to Head:- 8443 [EMD-Refund]</p>
+        <div class="seal" style="margin-top:8px;">
+          <p>Ar. ___________</p>
+          <p>D.A. ___________</p>
+          <p>E.E. ___________</p>
+        </div>
       </div>
     </div>
   </div>
