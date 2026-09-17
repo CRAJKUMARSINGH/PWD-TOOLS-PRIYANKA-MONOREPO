@@ -1,14 +1,14 @@
-import { useRef, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Printer, RefreshCw, FileDown } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { FileDown, Printer, RefreshCw } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension';
+type TemplateType = 'bg-verification' | 'bg-extension' | 'bg-bank-extension' | 'bg-encashment';
 
 type BankCommunicationData = {
   officeNameHi: string;
@@ -92,6 +92,12 @@ const TEMPLATE_OPTIONS: { value: TemplateType; labelHi: string; labelEn: string;
     labelHi: 'बैंक को BG वैधता विस्तार हेतु पत्र',
     labelEn: 'BG Extension Request to Bank',
     desc: 'बैंक प्रबन्धक को सीधे BG की वैधता बढ़ाने हेतु अनुरोध पत्र',
+  },
+  {
+    value: 'bg-encashment',
+    labelHi: 'बैंक गारन्टी भुनाने हेतु पत्र',
+    labelEn: 'BG Encashment Letter',
+    desc: 'बैंक प्रबन्धक को BG तत्काल जब्त कर D.D. बनाने हेतु पत्र',
   },
 ];
 
@@ -255,19 +261,77 @@ function buildBankExtensionHtml(d: BankCommunicationData): string {
   </div>`;
 }
 
+function buildEncashmentHtml(d: BankCommunicationData): string {
+  return `
+  <div style="text-align:center;margin-bottom:16px;">
+    <div style="font-weight:bold;font-size:14px;">${esc(d.officeNameHi)}</div>
+    <div style="font-weight:bold;font-size:13px;margin-top:2px;">${esc(d.departmentNameHi)}</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;">
+    <div><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
+    <div><strong>दिनांक:-</strong> ${esc(d.letterDate)}</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div><strong>श्रीमान प्रबन्धक महोदय,</strong></div>
+    <div>${esc(d.bankName)},</div>
+    <div>शाखा — ${esc(d.bankBranch)}</div>
+  </div>
+  <div style="margin-bottom:8px;"><strong>विषय:-</strong> बैंक गारन्टी जब्त कर भुनाने बाबत्।</div>
+  <div style="margin-bottom:16px;"><strong>सन्दर्भ:-</strong> बैंक गारन्टी संख्या ${esc(d.bgNumber)} दिनांक ${esc(d.bgDate)}</div>
+  <p style="text-align:justify;margin-bottom:12px;line-height:1.8;">
+    महोदय,
+  </p>
+  <p style="text-align:justify;margin-bottom:12px;line-height:1.8;">
+    उपरोक्त विषयान्तर्गत लेख है कि मैसर्स <strong>${esc(d.contractorName)}</strong>,
+    ${esc(d.contractorAddress)} द्वारा <strong>${esc(d.projectName)}</strong> कार्य के
+    सम्बन्ध में आपके बैंक द्वारा जारी बैंक गारन्टी संख्या <strong>${esc(d.bgNumber)}</strong>
+    दिनांक <strong>${esc(d.bgDate)}</strong> राशि रु. <strong>${esc(d.bgAmount)}/-</strong>
+    (${esc(d.bgAmountWords)} मात्र) इस कार्यालय में जमा की गई थी।
+  </p>
+  <p style="text-align:justify;margin-bottom:20px;line-height:1.8;">
+    उक्त कार्य के एग्रीमेन्ट की शर्तों के उचित पालना हेतु उक्त BG को एन्कैश कर राशि
+    विभाग के खाते में जमा लेने की आवश्यकता है। अतः उक्त बैंक गारन्टी को तत्काल जब्त
+    कर एन्कैश कर डिमाण्ड ड्राफ्ट से पूर्ण राशि को अधिशाषी अभियन्ता, सा.नि.वि. जिला
+    खण्ड द्वितीय उदयपुर के नाम डिमाण्ड ड्राफ्ट बनवाकर तुरन्त इस कार्यालय को प्रेषित
+    करने का श्रम करें।
+  </p>
+  <div style="text-align:right;margin:32px 0 24px;">
+    <div style="height:40px;"></div>
+    <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
+    <div>${esc(d.signatoryDesignation)}</div>
+    <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+  </div>
+  <div style="margin-top:16px;font-size:12px;">
+    <div style="margin-bottom:4px;"><strong>क्रमांक:-</strong> ${esc(d.letterNo) || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</div>
+    <div style="margin-bottom:8px;">
+      प्रतिलिपि मैसर्स ${esc(d.ccContractorName)}, ${esc(d.ccContractorAddress)} को
+      प्रस्तुत कर सूचनार्थ एवं आवश्यक कार्यवाही हेतु प्रेषित।
+    </div>
+    <div style="text-align:right;margin-top:20px;">
+      <div style="font-weight:bold;">(${esc(d.signatoryName)})</div>
+      <div>${esc(d.signatoryDesignation)}</div>
+      <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+    </div>
+  </div>`;
+}
+
 function buildStandaloneHtml(template: TemplateType, d: BankCommunicationData): string {
   const body =
     template === 'bg-verification'
       ? buildVerificationHtml(d)
       : template === 'bg-extension'
-      ? buildExtensionHtml(d)
-      : buildBankExtensionHtml(d);
+        ? buildExtensionHtml(d)
+        : template === 'bg-bank-extension'
+          ? buildBankExtensionHtml(d)
+          : buildEncashmentHtml(d);
   const title =
     template === 'bg-verification'
       ? 'Bank Guarantee Verification Letter'
       : template === 'bg-extension'
-      ? 'Bank Guarantee Extension Letter (to Contractor)'
-      : 'Bank Guarantee Validity Extension Request (to Bank)';
+        ? 'Bank Guarantee Extension Letter (to Contractor)'
+        : template === 'bg-bank-extension'
+          ? 'Bank Guarantee Validity Extension Request (to Bank)'
+          : 'Bank Guarantee Encashment Letter';
 
   return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -549,6 +613,86 @@ function BankExtensionPreview({ d }: { d: BankCommunicationData }) {
   );
 }
 
+function EncashmentPreview({ d }: { d: BankCommunicationData }) {
+  return (
+    <>
+      <div className="text-center mb-5">
+        <h1 className="text-[14px] font-bold">{d.officeNameHi}</h1>
+        <h2 className="text-[13px] font-bold mt-0.5">{d.departmentNameHi}</h2>
+      </div>
+
+      <div className="flex justify-between mb-5 text-[12px]">
+        <div>
+          <span className="font-bold">क्रमांक:-</span>{' '}
+          {d.letterNo || '………………………………'}
+        </div>
+        <div>
+          <span className="font-bold">दिनांक:-</span> {d.letterDate}
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <div className="font-bold">श्रीमान प्रबन्धक महोदय,</div>
+        <div>{d.bankName},</div>
+        <div>शाखा — {d.bankBranch}</div>
+      </div>
+
+      <div className="mb-2">
+        <span className="font-bold">विषय:-</span> बैंक गारन्टी जब्त कर भुनाने बाबत्।
+      </div>
+      <div className="mb-5">
+        <span className="font-bold">सन्दर्भ:-</span> बैंक गारन्टी संख्या {d.bgNumber} दिनांक {d.bgDate}
+      </div>
+
+      <p className="text-justify mb-3 leading-relaxed">महोदय,</p>
+
+      <p className="text-justify mb-3 leading-relaxed">
+        उपरोक्त विषयान्तर्गत लेख है कि मैसर्स{' '}
+        <strong>{d.contractorName}</strong>, {d.contractorAddress} द्वारा{' '}
+        <strong>{d.projectName}</strong> कार्य के सम्बन्ध में आपके बैंक द्वारा जारी बैंक
+        गारन्टी संख्या <strong>{d.bgNumber}</strong> दिनांक <strong>{d.bgDate}</strong> राशि
+        रु. <strong>{d.bgAmount}/-</strong> ({d.bgAmountWords} मात्र) इस कार्यालय में जमा की
+        गई थी।
+      </p>
+
+      <p className="text-justify mb-6 leading-relaxed">
+        उक्त कार्य के एग्रीमेन्ट की शर्तों के उचित पालना हेतु उक्त BG को एन्कैश कर राशि
+        विभाग के खाते में जमा लेने की आवश्यकता है। अतः उक्त बैंक गारन्टी को तत्काल जब्त
+        कर एन्कैश कर डिमाण्ड ड्राफ्ट से पूर्ण राशि को अधिशाषी अभियन्ता, सा.नि.वि. जिला
+        खण्ड द्वितीय उदयपुर के नाम डिमाण्ड ड्राफ्ट बनवाकर तुरन्त इस कार्यालय को प्रेषित
+        करने का श्रम करें।
+      </p>
+
+      <div className="flex justify-end mb-6 mt-8">
+        <div className="text-center w-[220px]">
+          <div className="h-10" />
+          <div className="font-bold">({d.signatoryName})</div>
+          <div>{d.signatoryDesignation}</div>
+          <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+        </div>
+      </div>
+
+      <div className="mt-6 text-[12px]">
+        <div className="mb-1">
+          <span className="font-bold">क्रमांक:-</span>{' '}
+          {d.letterNo || '………………………………'}
+        </div>
+        <p className="text-justify leading-relaxed">
+          प्रतिलिपि मैसर्स {d.ccContractorName}, {d.ccContractorAddress} को प्रस्तुत कर
+          सूचनार्थ एवं आवश्यक कार्यवाही हेतु प्रेषित।
+        </p>
+        <div className="flex justify-end mt-6">
+          <div className="text-center w-[220px]">
+            <div className="font-bold">({d.signatoryName})</div>
+            <div>{d.signatoryDesignation}</div>
+            <div>सा.नि.वि. जिला खण्ड द्वितीय उदयपुर</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function BankCommunicationGenerator() {
@@ -585,8 +729,10 @@ export default function BankCommunicationGenerator() {
       template === 'bg-verification'
         ? 'bg-verification-letter'
         : template === 'bg-extension'
-        ? 'bg-extension-letter-contractor'
-        : 'bg-extension-request-to-bank';
+          ? 'bg-extension-letter-contractor'
+          : template === 'bg-bank-extension'
+            ? 'bg-extension-request-to-bank'
+            : 'bg-encashment-letter';
     const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -648,11 +794,10 @@ export default function BankCommunicationGenerator() {
               {TEMPLATE_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                    template === opt.value
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border bg-muted/30 hover:bg-muted/50'
-                  }`}
+                  className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${template === opt.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border bg-muted/30 hover:bg-muted/50'
+                    }`}
                 >
                   <input
                     type="radio"
@@ -938,7 +1083,7 @@ export default function BankCommunicationGenerator() {
                   />
                 </Field>
               </section>
-            ) : (
+            ) : template === 'bg-bank-extension' ? (
               /* bg-bank-extension — Department → Bank directly */
               <section className="space-y-3">
                 <div className="flex items-center gap-2 border-b pb-1.5">
@@ -1050,6 +1195,100 @@ export default function BankCommunicationGenerator() {
                   />
                 </Field>
               </section>
+            ) : (
+              /* bg-encashment — BG Encashment Letter to Bank */
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 border-b pb-1.5">
+                  <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                    4
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold leading-none">बैंक, ठेकेदार एवं परियोजना</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Bank, Contractor & Project</p>
+                  </div>
+                </div>
+
+                <Field label="बैंक का नाम" hint="Bank Name">
+                  <Input
+                    value={data.bankName}
+                    onChange={(e) => update('bankName', e.target.value)}
+                    placeholder="जैसे: HDFC Bank"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="बैंक शाखा / स्थान" hint="Branch / Location">
+                  <Input
+                    value={data.bankBranch}
+                    onChange={(e) => update('bankBranch', e.target.value)}
+                    placeholder="जैसे: उदयपुर"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="ठेकेदार / फर्म का नाम" hint="Contractor / Firm Name">
+                  <Input
+                    value={data.contractorName}
+                    onChange={(e) => update('contractorName', e.target.value)}
+                    placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="ठेकेदार का पता" hint="Contractor Address">
+                  <Textarea
+                    value={data.contractorAddress}
+                    onChange={(e) => update('contractorAddress', e.target.value)}
+                    placeholder="पूरा पता"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
+
+                <Field label="परियोजना / कार्य का नाम" hint="Project / Work Name">
+                  <Textarea
+                    value={data.projectName}
+                    onChange={(e) => update('projectName', e.target.value)}
+                    placeholder="Package No. और कार्य का विवरण"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
+
+                <Field label="प्रतिलिपि — ठेकेदार का नाम" hint="CC Contractor Name">
+                  <Input
+                    value={data.ccContractorName}
+                    onChange={(e) => update('ccContractorName', e.target.value)}
+                    placeholder="जैसे: रचना कन्स्ट्रक्शन"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="प्रतिलिपि — ठेकेदार का पता" hint="CC Contractor Address">
+                  <Textarea
+                    value={data.ccContractorAddress}
+                    onChange={(e) => update('ccContractorAddress', e.target.value)}
+                    placeholder="ठेकेदार का पूरा पता"
+                    className="min-h-[72px] resize-none"
+                  />
+                </Field>
+
+                <Field label="हस्ताक्षरकर्ता का नाम" hint="Signatory Name">
+                  <Input
+                    value={data.signatoryName}
+                    onChange={(e) => update('signatoryName', e.target.value)}
+                    placeholder="जैसे: अनिल खिच्ची"
+                    className="h-10"
+                  />
+                </Field>
+
+                <Field label="पदनाम" hint="Designation">
+                  <Input
+                    value={data.signatoryDesignation}
+                    onChange={(e) => update('signatoryDesignation', e.target.value)}
+                    placeholder="जैसे: अधिशाषी अभियन्ता"
+                    className="h-10"
+                  />
+                </Field>
+              </section>
             )}
 
             {/* Actions */}
@@ -1099,8 +1338,10 @@ export default function BankCommunicationGenerator() {
             <VerificationPreview d={data} />
           ) : template === 'bg-extension' ? (
             <ExtensionPreview d={data} />
-          ) : (
+          ) : template === 'bg-bank-extension' ? (
             <BankExtensionPreview d={data} />
+          ) : (
+            <EncashmentPreview d={data} />
           )}
         </div>
       </div>
