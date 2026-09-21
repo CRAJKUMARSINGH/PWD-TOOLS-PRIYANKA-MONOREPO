@@ -218,3 +218,93 @@ import {
 ❌ Never add headers or footers with content
 ❌ Never use landscape orientation for letters
 ```
+
+---
+
+## 11. HEADER / FOOTER — ZERO TOLERANCE RULE
+
+> **This section is a permanent, non-negotiable constraint on every future print/PDF code addition.**
+
+### 11.1 The Rule
+
+**Every print or PDF page — A4 Portrait, A4 Landscape, any size — MUST have zero browser-injected header and zero browser-injected footer.**
+
+The correct CSS to achieve this is:
+
+```css
+@page {
+  margin: 0;   /* removes the band where browser prints URL / date / page number */
+}
+```
+
+**Never use `marks: none` as a substitute.** It controls crop marks only and does NOT remove browser headers/footers.
+
+The visual page margins must then be carried by `body { padding: Xmm }` or a wrapper `div { padding: Xmm }`, **never** by `@page margin`.
+
+### 11.2 The Fallback / Safety Net (CSS)
+
+Every standalone HTML template string (those written to a new print window or downloaded as `.doc`) **MUST** include this block inside its `<style>` tag:
+
+```css
+/* ── HEADER / FOOTER SAFETY NET ──────────────────────────────────────────
+   @page margin: 0  →  eliminates the browser header/footer band entirely.
+   If the browser still renders a footer for any reason, the only text
+   it will show is "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR".
+   No URL, no date, no page number — nothing else.
+──────────────────────────────────────────────────────────────────────── */
+@page {
+  size: A4 portrait;
+  margin: 0;
+  @bottom-center {
+    content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+    font-size: 8pt;
+    font-family: Arial, sans-serif;
+    color: #000;
+  }
+}
+header, footer { display: none !important; }
+```
+
+The same block must appear in `index.css` inside `@media print` for React-rendered pages that use `window.print()` directly.
+
+### 11.3 For `.docx` Output (docx package)
+
+In every `new Document({ sections: [{ properties: { page: { margin: { ... } } } }] })` call:
+
+```typescript
+margin: {
+  top:    MARGIN_TWIPS,   // content margin inside the page
+  right:  MARGIN_TWIPS,
+  bottom: MARGIN_TWIPS,
+  left:   MARGIN_TWIPS,
+  header: 0,              // MANDATORY — zero header height
+  footer: 0,              // MANDATORY — zero footer height
+}
+```
+
+Never omit `header: 0` and `footer: 0`. Never add a `headers:` or `footers:` section to any `Document` or `Section`.
+
+### 11.4 Checklist for Every New Print/PDF Feature
+
+Before committing any new document-generation code, verify:
+
+```
+✅ @page { margin: 0 } present in every <style> block
+✅ Visual padding moved to body or wrapper div
+✅ No @page margin-top / margin-bottom / margin-left / margin-right
+✅ No marks: none (this does nothing useful here — remove it)
+✅ Safety net @bottom-center block present with "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR"
+✅ header { display: none !important } present
+✅ footer { display: none !important } present
+✅ docx sections have header: 0, footer: 0 in page margin
+✅ No headers: { default: ... } key in docx Document sections
+✅ No footers: { default: ... } key in docx Document sections
+```
+
+### 11.5 Change Log
+
+| Date | Change |
+|---|---|
+| 22.09.2026 | Section 11 added — zero-tolerance header/footer rule established |
+| 22.09.2026 | Fallback footer text locked as "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR" |
+| 22.09.2026 | `marks: none` declared ineffective and banned |

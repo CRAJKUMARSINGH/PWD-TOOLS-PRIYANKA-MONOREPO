@@ -154,9 +154,21 @@ export default function ExcelToEmd() {
   <meta charset="UTF-8">
   <title>Hand Receipt (RPWA 28)</title>
   <style>
+    /* ── HEADER / FOOTER SAFETY NET ── margin:0 kills browser header/footer band.
+       If a footer still appears, it will only read: DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+      @bottom-center {
+        content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+        font-size: 8pt;
+        font-family: Arial, sans-serif;
+        color: #000;
+      }
+    }
+    header, footer { display: none !important; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #fff; color: #000; }
-    @page { size: A4 portrait; margin: 12mm; }
+    body { font-family: Arial, sans-serif; background: #fff; color: #000; padding: 12mm; }
     .container {
       width: 100%;
       border: 2px solid #000;

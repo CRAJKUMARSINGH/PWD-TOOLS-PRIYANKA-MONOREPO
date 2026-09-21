@@ -289,14 +289,30 @@
 }
 
 @media print {
+
+  /* ── HEADER / FOOTER SAFETY NET ─────────────────────────────────────────
+     @page margin: 0  →  eliminates the browser header/footer band entirely.
+     @bottom-center   →  if the browser still renders a footer for any reason,
+                         the ONLY text it will show is the attribution below.
+                         No URL, no date, no page number — nothing else.
+  ──────────────────────────────────────────────────────────────────────── */
   @page {
     size: A4 portrait;
-    margin-top: 15mm;
-    margin-bottom: 15mm;
-    margin-left: 15mm;
-    margin-right: 15mm;
-    /* Suppress browser-injected header and footer */
-    marks: none;
+    margin: 0;
+    /* kills the band where browser prints URL / date / page number */
+
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+  }
+
+  /* Suppress any stray <header> or <footer> HTML elements */
+  header,
+  footer {
+    display: none !important;
   }
 
   body,

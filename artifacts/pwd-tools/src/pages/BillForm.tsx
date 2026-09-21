@@ -1406,7 +1406,19 @@ function buildPrintHtml(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  @page { size: A4 portrait; margin: 0; }
+  /* ── HEADER / FOOTER SAFETY NET ── margin:0 kills browser header/footer band.
+     If a footer still appears, it will only read: DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+  }
+  header, footer { display: none !important; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { padding: 10mm; font-family:'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
   table { width:100%; border-collapse:collapse; }
@@ -1455,7 +1467,19 @@ function buildDeductionsPrintHtml(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  @page { size: A4 portrait; margin: 0; }
+  /* ── HEADER / FOOTER SAFETY NET ── margin:0 kills browser header/footer band.
+     If a footer still appears, it will only read: DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+  }
+  header, footer { display: none !important; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { padding: 10mm; font-family:'Mangal','Nirmala UI','Noto Sans Devanagari',sans-serif; font-size:${baseFontPt}pt; color:#000; background:#fff; }
   table { width:100%; border-collapse:collapse; }

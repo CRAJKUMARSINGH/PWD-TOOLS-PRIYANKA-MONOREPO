@@ -172,9 +172,20 @@ function buildStandaloneHtml(d: DocumentData): string {
 <title>Contractor Enlistment Order</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: A4 portrait; margin-top: 15mm; margin-bottom: 15mm; margin-left: 15mm; margin-right: 15mm; }
-  @page { marks: none; }
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; padding:0; }
+  /* ── HEADER / FOOTER SAFETY NET ── margin:0 kills browser header/footer band.
+     If a footer still appears, it will only read: DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+  }
+  header, footer { display: none !important; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: #000; margin:0; padding: 15mm; }
   .wrap { max-width: 180mm; margin: 0 auto; }
   table { border-collapse: collapse; width: 100%; }
   .contractor-output,
