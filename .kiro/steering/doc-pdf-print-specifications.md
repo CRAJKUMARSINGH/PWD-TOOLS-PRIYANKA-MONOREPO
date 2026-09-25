@@ -308,3 +308,5 @@ Before committing any new document-generation code, verify:
 | 22.09.2026 | Section 11 added — zero-tolerance header/footer rule established |
 | 22.09.2026 | Fallback footer text locked as "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR" |
 | 22.09.2026 | `marks: none` declared ineffective and banned |
+| 25.09.2026 | `scripts/generate-letters.mjs` — fixed `@page margin: 25mm` → `margin: 0`; moved visual margin to `body { padding: 25mm }`; added safety net `@bottom-center` block |
+| 25.09.2026 | `artifacts/pwd-tools/src/index.css` (Audit Reply landscape block) — fixed `@page margin: 15mm` → `margin: 0`; moved visual margin to `body { padding: 15mm }`; added safety net `@bottom-center` block |

@@ -254,10 +254,27 @@ function letterToHtml(title, addressee, subject, refs, bodyParas, ccLines) {
 <meta charset="UTF-8"/>
 <title>${title}</title>
 <style>
-  @page { size: A4 portrait; margin: 25mm; }
+  /* ── HEADER / FOOTER SAFETY NET ──────────────────────────────────────────
+     @page margin: 0  →  eliminates the browser header/footer band entirely.
+     If the browser still renders a footer for any reason, the only text
+     it will show is "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR".
+     No URL, no date, no page number — nothing else.
+  ──────────────────────────────────────────────────────────────────────── */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
+  }
+  header, footer { display: none !important; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Mangal', 'Noto Sans Devanagari', Arial, sans-serif;
-         font-size: 11pt; line-height: 1.15; color: #000; }
+         font-size: 11pt; line-height: 1.15; color: #000;
+         padding: 25mm; }
   .center { text-align: center; }
   .bold   { font-weight: bold; }
   .blank  { height: 1.15em; }
@@ -269,7 +286,7 @@ function letterToHtml(title, addressee, subject, refs, bodyParas, ccLines) {
   .cc-block { border-top: 1.5pt solid #000; padding-top: 4pt; margin-top: 4pt; }
   .cc-line  { padding-left: 20pt; }
   @media print {
-    body { -webkit-print-color-adjust: exact; }
+    body { padding: 25mm; -webkit-print-color-adjust: exact; }
     .no-print { display: none; }
   }
 </style>

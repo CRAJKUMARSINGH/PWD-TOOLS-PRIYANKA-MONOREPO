@@ -383,10 +383,18 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 @media print {
 
-  /* Page setup — A4 landscape, 15 mm margins, no browser header/footer */
+  /* Page setup — A4 landscape, zero @page margin (kills browser header/footer
+     band). Visual 15 mm margins are carried by body padding below.          */
   @page {
     size: A4 landscape;
-    margin: 15mm;
+    margin: 0;
+
+    @bottom-center {
+      content: "DRAFTED BY PRIYANKA JAIN, PWD UDAIPUR";
+      font-size: 8pt;
+      font-family: Arial, sans-serif;
+      color: #000;
+    }
   }
 
   /* Hide everything that must not appear in the printout */
@@ -398,12 +406,14 @@
     display: none !important;
   }
 
-  /* Reset body for clean white print */
+  /* Reset body for clean white print — padding carries the 15 mm margin
+     (cannot use @page margin: visual margins must live here per spec §11.1) */
   body {
     background: white !important;
     color: black !important;
     font-family: "Mangal", Arial, sans-serif !important;
     font-size: 9pt !important;
+    padding: 15mm !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
