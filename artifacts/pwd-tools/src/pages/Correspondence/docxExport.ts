@@ -1,46 +1,46 @@
 import {
+  AlignmentType,
+  BorderStyle,
   Document,
   Packer,
+  PageOrientation,
   Paragraph,
   TextRun,
-  AlignmentType,
-  LineRuleType,
-  PageOrientation,
 } from "docx";
 import { saveAs } from "file-saver";
 import type { Letter } from "./types";
 
-// A4 with 20 mm margins on all sides
-// 1 mm = 56.7 Twips → 20 mm ≈ 1134 Twips
-const MARGIN = 1134;
-const SINGLE_LINE = 240;
+// ── Constants (standing spec) ──────────────────────────────────────────────
+const A4_WIDTH_TWIPS = 11906; // 210 mm
+const A4_HEIGHT_TWIPS = 16838; // 297 mm
+const MARGIN_TWIPS = 1417;  // 25 mm
+const ZERO = 0;
 
-const ZERO_PARAGRAPH_SPACING = {
-  before: 0,
-  after: 0,
-  line: SINGLE_LINE,
-  lineRule: LineRuleType.AUTO,
-} as const;
-
+// ── Helper: zero-spaced paragraph ─────────────────────────────────────────
 function p(
   children: TextRun[],
   opts: {
     align?: (typeof AlignmentType)[keyof typeof AlignmentType];
-    firstLineIndent?: number;
+    indent?: { firstLine?: number; left?: number };
   } = {}
 ): Paragraph {
   return new Paragraph({
     children,
-    alignment: opts.align,
-    spacing: ZERO_PARAGRAPH_SPACING,
-    indent: opts.firstLineIndent ? { firstLine: opts.firstLineIndent } : undefined,
+    alignment: opts.align ?? AlignmentType.JUSTIFIED,
+    spacing: { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as any },
+    ...(opts.indent ? { indent: opts.indent } : {}),
   });
 }
 
-function t(
-  text: string,
-  opts: { bold?: boolean; size?: number } = {}
-): TextRun {
+// ── Helper: blank line (zero-height empty paragraph) ─────────────────────
+function blankLine(): Paragraph {
+  return new Paragraph({
+    children: [],
+    spacing: { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as any },
+  });
+}
+
+function t(text: string, opts: { bold?: boolean; size?: number } = {}): TextRun {
   return new TextRun({
     text,
     bold: opts.bold,
@@ -52,32 +52,36 @@ function t(
 export async function exportLetterAsDocx(letter: Letter): Promise<void> {
   const language = letter.language ?? "hindi";
   const versions = [
-    ...(language !== "english" ? [{
-      language: "hindi" as const,
-      toName: letter.toName,
-      toDesignation: letter.toDesignation,
-      toOffice: letter.toOffice,
-      subject: letter.subject,
-      reference: letter.reference,
-      body: letter.body,
-      fromName: letter.fromName,
-      fromDesignation: letter.fromDesignation,
-      fromOffice: letter.fromOffice,
-      cc: letter.cc,
-    }] : []),
-    ...(language !== "hindi" ? [{
-      language: "english" as const,
-      toName: letter.toNameEn,
-      toDesignation: letter.toDesignationEn,
-      toOffice: letter.toOfficeEn,
-      subject: letter.subjectEn,
-      reference: letter.referenceEn,
-      body: letter.bodyEn,
-      fromName: letter.fromNameEn,
-      fromDesignation: letter.fromDesignationEn,
-      fromOffice: letter.fromOfficeEn,
-      cc: letter.ccEn,
-    }] : []),
+    ...(language !== "english"
+      ? [{
+        language: "hindi" as const,
+        toName: letter.toName,
+        toDesignation: letter.toDesignation,
+        toOffice: letter.toOffice,
+        subject: letter.subject,
+        reference: letter.reference,
+        body: letter.body,
+        fromName: letter.fromName,
+        fromDesignation: letter.fromDesignation,
+        fromOffice: letter.fromOffice,
+        cc: letter.cc,
+      }]
+      : []),
+    ...(language !== "hindi"
+      ? [{
+        language: "english" as const,
+        toName: letter.toNameEn,
+        toDesignation: letter.toDesignationEn,
+        toOffice: letter.toOfficeEn,
+        subject: letter.subjectEn,
+        reference: letter.referenceEn,
+        body: letter.bodyEn,
+        fromName: letter.fromNameEn,
+        fromDesignation: letter.fromDesignationEn,
+        fromOffice: letter.fromOfficeEn,
+        cc: letter.ccEn,
+      }]
+      : []),
   ];
 
   const doc = new Document({
@@ -87,16 +91,16 @@ export async function exportLetterAsDocx(letter: Letter): Promise<void> {
           page: {
             size: {
               orientation: PageOrientation.PORTRAIT,
-              width: 11906,  // A4 width in Twips  (210 mm)
-              height: 16838, // A4 height in Twips (297 mm)
+              width: A4_WIDTH_TWIPS,
+              height: A4_HEIGHT_TWIPS,
             },
             margin: {
-              top: MARGIN,
-              right: MARGIN,
-              bottom: MARGIN,
-              left: MARGIN,
-              header: 0,
-              footer: 0,
+              top: MARGIN_TWIPS,
+              right: MARGIN_TWIPS,
+              bottom: MARGIN_TWIPS,
+              left: MARGIN_TWIPS,
+              header: ZERO,  // MANDATORY — zero header height
+              footer: ZERO,  // MANDATORY — zero footer height
             },
           },
         },
@@ -104,87 +108,98 @@ export async function exportLetterAsDocx(letter: Letter): Promise<void> {
           const english = version.language === "english";
           const bodyLines = (version.body ?? "").split("\n");
           const ccLines = version.cc ? version.cc.split("\n") : [];
-          const paragraphs = [
-          // ── Office Header ─────────────────────────────────────────────
-          p([t(english ? "Office of the Executive Engineer" : "कार्यालय अधिशासी अभियंता", { bold: true, size: 28 })], {
-            align: AlignmentType.CENTER,
-          }),
-          p([t(english ? "Public Works Department" : "सार्वजनिक निर्माण विभाग", { bold: true, size: 26 })], {
-            align: AlignmentType.CENTER,
-          }),
-          p([t(english ? "District Division–II, Udaipur, Rajasthan" : "जिला खण्ड–II, उदयपुर, राजस्थान", { bold: true, size: 24 })], {
-            align: AlignmentType.CENTER,
-          }),
 
-          // ── क्रमांक & दिनांक ─────────────────────────────────────────
-          new Paragraph({
-            children: [
-              t(`${english ? "No.:" : "क्रमांकः"} ${letter.letterNumber}`),
-              t(`\t\t\t\t\t${english ? "Date:" : "दिनांकः"} ${letter.date}`),
-            ],
-            spacing: ZERO_PARAGRAPH_SPACING,
-          }),
+          const paragraphs: Paragraph[] = [
+            // ── Office Header ──────────────────────────────────────────
+            p([t(english ? "Office of the Executive Engineer" : "कार्यालय अधिशासी अभियंता", { bold: true, size: 28 })],
+              { align: AlignmentType.CENTER }),
+            p([t(english ? "Public Works Department" : "सार्वजनिक निर्माण विभाग", { bold: true, size: 26 })],
+              { align: AlignmentType.CENTER }),
+            p([t(english ? "District Division–II, Udaipur, Rajasthan" : "जिला खण्ड–II, उदयपुर, राजस्थान", { bold: true, size: 24 })],
+              { align: AlignmentType.CENTER }),
+            blankLine(),
 
-          // ── Addressee ─────────────────────────────────────────────────
-          p([t(english ? "To," : "सेवा में,")]),
-          p([t(version.toDesignation + ",")]),
-          p([t(version.toName + ",")]),
-          p([t(version.toOffice + (english ? "." : "।"))]),
-
-          // ── विषय ─────────────────────────────────────────────────────
-          new Paragraph({
-            children: [t(english ? "Subject: " : "विषयः– ", { bold: true }), t(version.subject)],
-            spacing: ZERO_PARAGRAPH_SPACING,
-          }),
-
-          // ── संदर्भ (reply only) ────────────────────────────────────────
-          ...(version.reference
-            ? [
-                new Paragraph({
-                  children: [t(english ? "Reference: " : "संदर्भः– ", { bold: true }), t(version.reference)],
-                  spacing: ZERO_PARAGRAPH_SPACING,
-                }),
-              ]
-            : []),
-
-          // ── महोदय ────────────────────────────────────────────────────
-          p([t(english ? "Sir/Madam," : "महोदय,")]),
-
-          // ── Body ──────────────────────────────────────────────────────
-          ...bodyLines.map((line) =>
+            // ── क्रमांक / दिनांक ────────────────────────────────────────
             new Paragraph({
-              children: [t(line)],
-              spacing: ZERO_PARAGRAPH_SPACING,
-              indent: { firstLine: 720 },
-            })
-          ),
+              children: [
+                t(`${english ? "No.:" : "क्रमांकः"} ${letter.letterNumber}`),
+                t("\t"),
+                t(`${english ? "Date:" : "दिनांकः"} ${letter.date}`),
+              ],
+              alignment: AlignmentType.LEFT,
+              spacing: { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as any },
+              tabStops: [{ type: "right" as any, position: A4_WIDTH_TWIPS - MARGIN_TWIPS * 2 }],
+            }),
+            blankLine(),
 
-          // ── Valediction ───────────────────────────────────────────────
-          p([t(english ? "Yours faithfully," : "भवदीय,")]),
+            // ── Addressee ─────────────────────────────────────────────
+            p([t(english ? "To," : "सेवा में,")], { align: AlignmentType.LEFT }),
+            p([t(version.toDesignation + ",")], { align: AlignmentType.LEFT }),
+            p([t(version.toName + ",")], { align: AlignmentType.LEFT }),
+            p([t(version.toOffice + (english ? "." : "।"))], { align: AlignmentType.LEFT }),
+            blankLine(),
 
-          // ── Signature ────────────────────────────────────────────────
-          p([t(`(${version.fromName})`)]),
-          p([t(version.fromDesignation)]),
-          p([t(version.fromOffice)]),
+            // ── विषय ──────────────────────────────────────────────────
+            p([t(english ? "Subject: " : "विषयः– ", { bold: true }), t(version.subject)]),
+            blankLine(),
 
-          // ── प्रतिलिपि ─────────────────────────────────────────────────
-          ...(ccLines.length > 0
-            ? [
-                new Paragraph({
-                  children: [t(english ? "Copy to:" : "प्रतिलिपिः–", { bold: true })],
-                  spacing: ZERO_PARAGRAPH_SPACING,
-                }),
-                ...ccLines.map((line, i) =>
-                  new Paragraph({
-                    children: [t(`${i + 1}. ${line}`)],
-                    spacing: ZERO_PARAGRAPH_SPACING,
-                  })
-                ),
+            // ── संदर्भ (reply only) ────────────────────────────────────
+            ...(version.reference
+              ? [
+                p([t(english ? "Reference: " : "संदर्भः– ", { bold: true }), t(version.reference)]),
+                blankLine(),
               ]
-            : []),
+              : []),
+
+            // ── महोदय / Sir/Madam ────────────────────────────────────
+            p([t(english ? "Sir/Madam," : "महोदय,")], { align: AlignmentType.LEFT }),
+            blankLine(),
+
+            // ── Body ──────────────────────────────────────────────────
+            ...bodyLines.map((line) =>
+              p([t(line)], { indent: { firstLine: 720 } })
+            ),
+            blankLine(),
+
+            // ── Valediction ───────────────────────────────────────────
+            p([t(english ? "Yours faithfully," : "भवदीय,")], { align: AlignmentType.LEFT }),
+            blankLine(), blankLine(), blankLine(),
+
+            // ── Signature ────────────────────────────────────────────
+            p([t(`(${version.fromName})`)], { align: AlignmentType.LEFT }),
+            p([t(version.fromDesignation)], { align: AlignmentType.LEFT }),
+            p([t(version.fromOffice)], { align: AlignmentType.LEFT }),
+
+            // ── CC (optional) ─────────────────────────────────────────
+            ...(ccLines.length > 0
+              ? [
+                blankLine(),
+                new Paragraph({
+                  children: [],
+                  border: { top: { style: BorderStyle.SINGLE, size: 6, color: "000000" } },
+                  spacing: { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as any },
+                }),
+                p([t(english ? "Copy to:" : "प्रतिलिपि सूचनार्थ एवं आवश्यक कार्यवाही हेतु प्रेषित:", { bold: true })],
+                  { align: AlignmentType.LEFT }),
+                blankLine(),
+                ...ccLines.map((line, i) =>
+                  p([t(`${i + 1}. ${line}`)], { indent: { left: 360 } })
+                ),
+                blankLine(), blankLine(),
+                p([t(`(${version.fromName})`)], { align: AlignmentType.LEFT }),
+                p([t(version.fromDesignation)], { align: AlignmentType.LEFT }),
+              ]
+              : []),
           ];
+
           return versionIndex < versions.length - 1
-            ? [...paragraphs, new Paragraph({ pageBreakBefore: true, spacing: ZERO_PARAGRAPH_SPACING })]
+            ? [
+              ...paragraphs,
+              new Paragraph({
+                pageBreakBefore: true,
+                spacing: { before: ZERO, after: ZERO, line: 276, lineRule: "auto" as any },
+              }),
+            ]
             : paragraphs;
         }),
       },
